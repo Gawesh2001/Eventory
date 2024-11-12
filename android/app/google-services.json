@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "949159417940",
+    "project_id": "eventory-63b7a",
+    "storage_bucket": "eventory-63b7a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:949159417940:android:042fe736ed60aab7d075c1",
+        "android_client_info": {
+          "package_name": "com.example.eventory"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcU8m6mk3PpKrDS8uSczssMsNB3lIdmWY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
