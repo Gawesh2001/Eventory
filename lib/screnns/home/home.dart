@@ -69,6 +69,7 @@ class _HomeState extends State<Home> {
               child: TextField(
                 decoration: InputDecoration(
                   filled: true,
+                  //fillColor: Colors.black,
                   fillColor: Color(0xffF1F7F7),
                   hintText: 'Search...',
                   hintStyle: TextStyle(color: Colors.orange[300]),
@@ -366,6 +367,7 @@ class _HomeState extends State<Home> {
       margin: EdgeInsets.symmetric(horizontal: 8),
       padding: EdgeInsets.all(23),
       decoration: BoxDecoration(
+        //color: Colors.black,
         color: Color(0xffF1F7F7),
         borderRadius: BorderRadius.circular(30),
         boxShadow: [

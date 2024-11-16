@@ -26,7 +26,8 @@ class BottomNavigatorBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(30),
           child: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
-            backgroundColor: Colors.orange,
+            backgroundColor: Colors.orange.shade800,
+
             selectedItemColor: Colors.white, // Selected icon color
             unselectedItemColor: Colors.white70, // Unselected icon color
             iconSize: 24, // Keep the original icon size
