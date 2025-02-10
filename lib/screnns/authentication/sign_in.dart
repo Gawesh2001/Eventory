@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../../services/auth.dart';
 import 'register.dart'; // Import the Register page
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Sign_In extends StatefulWidget {
   const Sign_In({super.key});
@@ -20,6 +21,25 @@ class _Sign_InState extends State<Sign_In> {
   String password = '';
   bool _passwordVisible = false; // Manage visibility of password
 
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _rememberMe = prefs.getBool('rememberMe') ?? false;
+      if (_rememberMe) {
+        email = prefs.getString('email') ?? '';
+        password = prefs.getString('password') ?? '';
+        _emailController.text = email;
+        _passwordController.text = password;
+      }
+    });
+  }
+
   // Function to validate and perform login
   Future<void> _login() async {
     if (email.isEmpty || password.isEmpty) {
@@ -32,18 +52,79 @@ class _Sign_InState extends State<Sign_In> {
       return;
     }
 
+    //Save & Clear Credentials Functions
+    Future<void> _saveCredentials() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('rememberMe', true);
+      await prefs.setString('email', email);
+      await prefs.setString('password', password);
+    }
+
+    Future<void> _clearSavedCredentials() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('rememberMe', false);
+      await prefs.remove('email');
+      await prefs.remove('password');
+    }
+
     // Call your sign-in function here
     dynamic result = await _auth.signInWithEmailAndPassword(email, password);
 
     if (result == null) {
       _showDialog('Login failed. Please check your credentials.');
     } else {
+      if (_rememberMe) {
+        _saveCredentials();
+      } else {
+        _clearSavedCredentials();
+      }
       // Navigate to the Home page after successful login
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => Home()),
       );
     }
+  }
+
+  // Function to reset the password
+  void _forgotPassword() {
+    TextEditingController emailController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Reset Password'),
+          content: TextField(
+            controller: emailController,
+            decoration: InputDecoration(
+              labelText: 'Enter your email',
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (emailController.text.isNotEmpty) {
+                  await _auth.resetPassword(emailController.text);
+                  Navigator.of(context).pop();
+                  _showDialog(
+                      'A password reset link has been sent to your email.');
+                } else {
+                  _showDialog('Please enter a valid email.');
+                }
+              },
+              child: Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // Function to handle Google sign-in
@@ -79,6 +160,10 @@ class _Sign_InState extends State<Sign_In> {
       },
     );
   }
+
+  bool _rememberMe = false; // To track the checkbox state
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -149,6 +234,7 @@ class _Sign_InState extends State<Sign_In> {
                 children: [
                   SizedBox(height: 120),
                   TextField(
+                    controller: _emailController,
                     onChanged: (value) {
                       email = value;
                     },
@@ -163,10 +249,11 @@ class _Sign_InState extends State<Sign_In> {
                   ),
                   SizedBox(height: 20),
                   TextField(
+                    controller: _passwordController,
                     onChanged: (value) {
                       password = value;
                     },
-                    obscureText: !_passwordVisible, // Toggle the visibility
+                    obscureText: !_passwordVisible,
                     decoration: InputDecoration(
                       labelText: 'Password',
                       labelStyle: TextStyle(color: Colors.grey),
@@ -191,25 +278,26 @@ class _Sign_InState extends State<Sign_In> {
                   ),
                   Align(
                     alignment: Alignment.centerRight,
-                    child: RichText(
-                      text: TextSpan(
-                        text: 'Forget Password?',
+                    child: GestureDetector(
+                      onTap: _forgotPassword,
+                      child: Text(
+                        'Forget Password?',
                         style: TextStyle(
                           color: Colors.grey,
                           decoration: TextDecoration.underline,
                         ),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            // Handle forgot password logic
-                          },
                       ),
                     ),
                   ),
                   Row(
                     children: [
                       Checkbox(
-                        value: false,
-                        onChanged: (value) {},
+                        value: _rememberMe,
+                        onChanged: (value) {
+                          setState(() {
+                            _rememberMe = value!;
+                          });
+                        },
                         activeColor: Colors.orange,
                       ),
                       Text(

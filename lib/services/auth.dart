@@ -35,6 +35,10 @@ class AuthServices {
     }
   }
 
+  Future<void> resetPassword(String email) async {
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+  }
+
   // Sign in with email and password
   Future<UserModel?> signInWithEmailAndPassword(
       String email, String password) async {
