@@ -42,7 +42,7 @@ class _HomeState extends State<Home> {
         .collection('events')
         .where('condi', isEqualTo: 'yes')
         .where('eventName', isGreaterThanOrEqualTo: query)
-        .where('eventName', isLessThan: query + 'z')
+        .where('eventName', isLessThan: '${query}z')
         .snapshots();
   }
 
@@ -360,7 +360,7 @@ class _HomeState extends State<Home> {
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            crossAxisSpacing: 4.0,
+                            crossAxisSpacing: 0.5,
                             mainAxisSpacing: 6.0,
                             childAspectRatio: 0.6,
                           ),
@@ -519,10 +519,10 @@ class _HomeState extends State<Home> {
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Color(0xffF1F7F7),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
             color: Colors.black26,
@@ -535,9 +535,9 @@ class _HomeState extends State<Home> {
         children: [
           Container(
             width: double.infinity,
-            height: 110,
+            height: 150,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(5),
               image: DecorationImage(
                 image: NetworkImage(eventData?['imageUrl'] ??
                     'https://via.placeholder.com/150'),

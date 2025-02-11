@@ -52,11 +52,14 @@ class _addeventState extends State<addevent> {
   XFile? nicCardImage;
   LatLng? selectedLocation;
   String eventID = Uuid().v4();
+  String? imageUrl;
 
   final eventNameController = TextEditingController();
   final eventVenueController = TextEditingController();
   final eventManagerController = TextEditingController();
   final eventIDController = TextEditingController();
+  final imageUrlController =
+      TextEditingController(); // New controller for image URL
   Map<String, TextEditingController> ticketPriceControllers = {
     'Normal': TextEditingController(),
     'VIP': TextEditingController(),
@@ -72,6 +75,7 @@ class _addeventState extends State<addevent> {
     eventVenueController.dispose();
     eventManagerController.dispose();
     eventIDController.dispose();
+    imageUrlController.dispose(); // Dispose the new controller
     ticketPriceControllers.forEach((_, controller) => controller.dispose());
     super.dispose();
   }
@@ -130,6 +134,8 @@ class _addeventState extends State<addevent> {
       specialTicketPrice =
           double.tryParse(ticketPriceControllers['Special']!.text);
       otherTicketPrice = double.tryParse(ticketPriceControllers['Other']!.text);
+      imageUrl =
+          imageUrlController.text; // Get the image URL from the controller
     });
 
     // Create event data map to store in Firestore
@@ -144,15 +150,16 @@ class _addeventState extends State<addevent> {
       'selectedCategory': selectedCategory,
       'selectedDateTime': selectedDateTime,
       'eventID': eventID,
+      'imageUrl': imageUrl, // Save the image URL to Firestore
       'location': selectedLocation != null
           ? {
               'latitude': selectedLocation!.latitude,
               'longitude': selectedLocation!.longitude
             }
           : null,
-      'createdAt': Timestamp
-          .now(), // For storing the timestamp of when the event is created
+      'createdAt': Timestamp.now(),
     };
+
     try {
       await FirebaseFirestore.instance
           .collection('events')
@@ -163,16 +170,11 @@ class _addeventState extends State<addevent> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Event saved successfully!")),
       );
-
-      // Optionally, navigate to another screen after saving
-      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => SomeOtherPage()));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to save event: $e")),
       );
     }
-
-    // Save event details logic here (e.g., Firebase)
   }
 
   Future<String?> _uploadImage(XFile file, String path) async {
@@ -403,6 +405,24 @@ class _addeventState extends State<addevent> {
                     ),
                   );
                 }).toList(),
+              ),
+              SizedBox(height: 16),
+
+              // Image URL
+              Text("Image URL",
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
+              SizedBox(height: 8),
+              TextField(
+                controller: imageUrlController,
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: 'Enter image URL',
+                  hintStyle: TextStyle(color: Colors.white70),
+                  filled: true,
+                  fillColor: Colors.grey[800],
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                ),
               ),
               SizedBox(height: 16),
 
