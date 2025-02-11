@@ -17,21 +17,20 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String selectedCategory = 'All'; // Default category is All
-  final Stream<QuerySnapshot> allEventStream = FirebaseFirestore.instance
-      .collection('events')
-      .where('condi', isEqualTo: 'yes')
-      .snapshots();
 
   Stream<QuerySnapshot> getFilteredStream() {
     print("Selected category: $selectedCategory");
+
     if (selectedCategory == 'All') {
-      return allEventStream;
-    } else {
-      print("Filtering events by category: $selectedCategory");
       return FirebaseFirestore.instance
           .collection('events')
-          .where('category', isEqualTo: selectedCategory)
           .where('condi', isEqualTo: 'yes')
+          .snapshots();
+    } else {
+      return FirebaseFirestore.instance
+          .collection('events')
+          .where('condi', isEqualTo: 'yes')
+          .where('selectedCategory', isEqualTo: selectedCategory)
           .snapshots();
     }
   }
@@ -69,7 +68,6 @@ class _HomeState extends State<Home> {
               child: TextField(
                 decoration: InputDecoration(
                   filled: true,
-                  //fillColor: Colors.black,
                   fillColor: Color(0xffF1F7F7),
                   hintText: 'Search...',
                   hintStyle: TextStyle(color: Colors.orange[300]),
@@ -367,7 +365,6 @@ class _HomeState extends State<Home> {
       margin: EdgeInsets.symmetric(horizontal: 8),
       padding: EdgeInsets.all(23),
       decoration: BoxDecoration(
-        //color: Colors.black,
         color: Color(0xffF1F7F7),
         borderRadius: BorderRadius.circular(30),
         boxShadow: [

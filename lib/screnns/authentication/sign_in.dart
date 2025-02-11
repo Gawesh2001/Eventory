@@ -53,14 +53,14 @@ class _Sign_InState extends State<Sign_In> {
     }
 
     //Save & Clear Credentials Functions
-    Future<void> _saveCredentials() async {
+    Future<void> saveCredentials() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setBool('rememberMe', true);
       await prefs.setString('email', email);
       await prefs.setString('password', password);
     }
 
-    Future<void> _clearSavedCredentials() async {
+    Future<void> clearSavedCredentials() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setBool('rememberMe', false);
       await prefs.remove('email');
@@ -74,9 +74,9 @@ class _Sign_InState extends State<Sign_In> {
       _showDialog('Login failed. Please check your credentials.');
     } else {
       if (_rememberMe) {
-        _saveCredentials();
+        saveCredentials();
       } else {
-        _clearSavedCredentials();
+        clearSavedCredentials();
       }
       // Navigate to the Home page after successful login
       Navigator.pushReplacement(
@@ -162,8 +162,8 @@ class _Sign_InState extends State<Sign_In> {
   }
 
   bool _rememberMe = false; // To track the checkbox state
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
