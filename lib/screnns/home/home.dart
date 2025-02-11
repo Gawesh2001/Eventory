@@ -17,6 +17,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String selectedCategory = 'All'; // Default category is All
+  String searchQuery = ''; // Search query
+  final TextEditingController _searchController = TextEditingController();
 
   Stream<QuerySnapshot> getFilteredStream() {
     print("Selected category: $selectedCategory");
@@ -33,6 +35,15 @@ class _HomeState extends State<Home> {
           .where('selectedCategory', isEqualTo: selectedCategory)
           .snapshots();
     }
+  }
+
+  Stream<QuerySnapshot> getSearchResults(String query) {
+    return FirebaseFirestore.instance
+        .collection('events')
+        .where('condi', isEqualTo: 'yes')
+        .where('eventName', isGreaterThanOrEqualTo: query)
+        .where('eventName', isLessThan: query + 'z')
+        .snapshots();
   }
 
   @override
@@ -66,6 +77,7 @@ class _HomeState extends State<Home> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: TextField(
+                controller: _searchController,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Color(0xffF1F7F7),
@@ -79,8 +91,38 @@ class _HomeState extends State<Home> {
                   ),
                   contentPadding: EdgeInsets.symmetric(horizontal: 20),
                 ),
+                onChanged: (value) {
+                  setState(() {
+                    searchQuery = value;
+                  });
+                },
               ),
             ),
+            if (searchQuery.isNotEmpty)
+              StreamBuilder<QuerySnapshot>(
+                stream: getSearchResults(searchQuery),
+                builder: (context, snapshot) {
+                  try {
+                    if (snapshot.hasError) {
+                      // return Center(child: Text('Error loading events.'));
+                    }
+                  } catch (e) {
+                    return Center(child: Text('Error: ${e.toString()}'));
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  final events = snapshot.data?.docs ?? [];
+
+                  return Column(
+                    children: events.map((event) {
+                      final eventData = event.data() as Map<String, dynamic>?;
+                      return _buildSearchResultContainer(eventData);
+                    }).toList(),
+                  );
+                },
+              ),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -412,6 +454,62 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildEventContainer(Map<String, dynamic>? eventData) {
+    String formattedDateTime = '';
+    if (eventData?['selectedDateTime'] is Timestamp) {
+      DateTime dateTime =
+          (eventData?['selectedDateTime'] as Timestamp).toDate();
+      formattedDateTime = DateFormat('h:mm a').format(dateTime);
+    }
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Color(0xffF1F7F7),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            height: 110,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              image: DecorationImage(
+                image: NetworkImage(eventData?['imageUrl'] ??
+                    'https://via.placeholder.com/150'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            eventData?['eventName'] ?? 'Event Name',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          Text(eventData?['eventVenue'] ?? 'Event Venue',
+              style: TextStyle(fontSize: 12)),
+          Text(
+            formattedDateTime.isEmpty
+                ? 'Event Date and Time'
+                : formattedDateTime,
+            style: TextStyle(fontSize: 16),
+          ),
+          SizedBox(height: 4),
+          Text('Price: LKR: ${eventData?['normalTicketPrice'] ?? '0'}'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchResultContainer(Map<String, dynamic>? eventData) {
     String formattedDateTime = '';
     if (eventData?['selectedDateTime'] is Timestamp) {
       DateTime dateTime =
