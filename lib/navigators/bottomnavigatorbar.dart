@@ -2,6 +2,7 @@
 
 import 'package:eventory/screnns/home/home.dart';
 import 'package:flutter/material.dart';
+import 'package:eventory/screnns/transportation/transportation.dart';
 // Import the Home page
 
 class BottomNavigatorBar extends StatelessWidget {
@@ -52,6 +53,10 @@ class BottomNavigatorBar extends StatelessWidget {
                 icon: Icon(Icons.store),
                 label: 'Market', // Added label
               ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.emoji_transportation),
+                label: 'Transportation',
+              ),
             ],
             currentIndex: 0, // Set the initial selected index
             onTap: (index) {
@@ -67,6 +72,13 @@ class BottomNavigatorBar extends StatelessWidget {
                 // Navigate to the Calendar page (replace with your actual page)
               } else if (index == 3) {
                 // Navigate to the Market page (replace with your actual page)
+              } else if (index == 4) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          TransportationPage()), // Ensure this class exists
+                );
               }
             },
           ),
