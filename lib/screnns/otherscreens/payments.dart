@@ -287,7 +287,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
                   backgroundColor: Colors.orange,
                   padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(13),
                   ),
                 ),
                 child: Text(
