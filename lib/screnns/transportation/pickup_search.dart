@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'choose_ride.dart';
 
 class PickupLocationSearch extends StatefulWidget {
+  const PickupLocationSearch({super.key});
+
   @override
   _PickupLocationSearchState createState() => _PickupLocationSearchState();
 }

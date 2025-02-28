@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'booking.dart';
 
 class ChooseRide extends StatefulWidget {
+  const ChooseRide({super.key});
+
   @override
   _ChooseRideState createState() => _ChooseRideState();
 }

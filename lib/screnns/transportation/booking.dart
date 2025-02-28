@@ -4,7 +4,7 @@ import 'package:eventory/screnns/otherscreens/userprofile.dart';
 class CarBookingPage extends StatelessWidget {
   final Map<String, String> vehicle;
 
-   CarBookingPage ({required this.vehicle});
+   const CarBookingPage ({super.key, required this.vehicle});
 
   @override
   Widget build(BuildContext context) {
