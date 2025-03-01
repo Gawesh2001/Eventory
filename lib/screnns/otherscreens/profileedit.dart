@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field, unused_import
+// ignore_for_file: unused_field, unused_import, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:eventory/navigators/bottomnavigatorbar.dart';

@@ -1,4 +1,4 @@
-// ignore_for_file: camel_case_types
+// ignore_for_file: camel_case_types, use_build_context_synchronously, avoid_print
 
 import 'package:eventory/screnns/authentication/sign_in.dart';
 import 'package:flutter/material.dart';

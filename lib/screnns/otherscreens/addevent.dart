@@ -1,4 +1,4 @@
-// ignore_for_file: camel_case_types, sort_child_properties_last, use_build_context_synchronously, library_private_types_in_public_api, prefer_final_fields, use_key_in_widget_constructors, unused_import, depend_on_referenced_packages, unused_element
+// ignore_for_file: camel_case_types, sort_child_properties_last, use_build_context_synchronously, library_private_types_in_public_api, prefer_final_fields, use_key_in_widget_constructors, unused_import, depend_on_referenced_packages, unused_element, avoid_print
 import 'dart:io';
 import 'package:eventory/services/locationpicker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
