@@ -12,15 +12,23 @@ class TransportationPage extends StatefulWidget {
   _TransportationPageState createState() => _TransportationPageState();
 }
 
+
 class _TransportationPageState extends State<TransportationPage>
     with SingleTickerProviderStateMixin {
+
+class _TransportationPageState extends State<TransportationPage> with SingleTickerProviderStateMixin {
+
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+
     _tabController = TabController(
         length: 2, vsync: this); // 2 tabs: Accommodation, Transportation
+
+    _tabController = TabController(length: 2, vsync: this); // 2 tabs: Accommodation, Transportation
+
   }
 
   @override
@@ -33,6 +41,11 @@ class _TransportationPageState extends State<TransportationPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+
+
+   
+        
+
         actions: [
           IconButton(
             icon: Icon(Icons.account_circle, size: 28),
@@ -45,6 +58,10 @@ class _TransportationPageState extends State<TransportationPage>
           ),
         ],
         bottom: TabBar(
+
+
+         
+
           controller: _tabController,
           tabs: [
             Tab(text: 'Accommodation'),
@@ -126,8 +143,7 @@ class EventTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(eventName,
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 Text('Venue: $eventVenue',
                     style: TextStyle(fontSize: 14, color: Colors.grey)),
                 Text('Date: $selectedDateTime',
@@ -140,8 +156,12 @@ class EventTile extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(
                           context,
+
                           MaterialPageRoute(
                               builder: (context) => RegisterVehiclePage()),
+
+                          MaterialPageRoute(builder: (context) => RegisterVehiclePage()),
+
                         );
                       },
                       child: Text('Offer a vehicle'),
@@ -150,8 +170,12 @@ class EventTile extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(
                           context,
+
                           MaterialPageRoute(
                               builder: (context) => PickupLocationSearch()),
+
+                          MaterialPageRoute(builder: (context) => PickupLocationSearch()),
+
                         );
                       },
                       child: Text('Book Ride'),

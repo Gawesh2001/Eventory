@@ -52,7 +52,13 @@ class _ProviderState extends State<provider> {
         title: Text(
           "Provider Access",
           style: TextStyle(
+
               color: Colors.orange, fontSize: 22, fontWeight: FontWeight.bold),
+
+              color: Colors.orange,
+              fontSize: 22,
+              fontWeight: FontWeight.bold),
+
         ),
         backgroundColor: Color(0xff121212),
         centerTitle: true,

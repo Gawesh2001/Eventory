@@ -15,18 +15,28 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
   final TextEditingController _modelController = TextEditingController();
   final TextEditingController _plateNumberController = TextEditingController();
   final TextEditingController _vehicleColorController = TextEditingController();
+
   final TextEditingController _seatingCapacityController =
       TextEditingController();
   final TextEditingController _ownerNameController = TextEditingController();
   final TextEditingController _contactNumberController =
       TextEditingController();
 
+  final TextEditingController _seatingCapacityController = TextEditingController();
+  final TextEditingController _ownerNameController = TextEditingController();
+  final TextEditingController _contactNumberController = TextEditingController();
+
+
   File? _vehicleLicenseFile;
   File? _driverLicenseFile;
 
   Future<void> _pickFile(bool isVehicleLicense) async {
+
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+
     if (pickedFile != null) {
       setState(() {
         if (isVehicleLicense) {
@@ -42,9 +52,13 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
     if (_formKey.currentState!.validate()) {
       if (_vehicleLicenseFile == null || _driverLicenseFile == null) {
         ScaffoldMessenger.of(context).showSnackBar(
+
           SnackBar(
               content: Text(
                   'Please upload both Vehicle License and Driver License!')),
+
+          SnackBar(content: Text('Please upload both Vehicle License and Driver License!')),
+
         );
         return;
       }
@@ -59,8 +73,12 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+
         title: Text('Vehicle Registration',
             style: TextStyle(color: Colors.orange)),
+
+        title: Text('Vehicle Registration', style: TextStyle(color: Colors.orange)),
+
         backgroundColor: Color(0xff121212),
         centerTitle: true,
         leading: IconButton(
@@ -81,6 +99,7 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
               _buildTextField(_modelController, 'Model'),
               _buildTextField(_plateNumberController, 'Plate Number'),
               _buildTextField(_vehicleColorController, 'Vehicle Color'),
+
               _buildTextField(_seatingCapacityController, 'Seating Capacity',
                   isNumber: true),
               _buildTextField(_ownerNameController, 'Owner Full Name'),
@@ -89,12 +108,23 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
               SizedBox(height: 20),
               _buildFileUploadButton('Upload Vehicle License', true),
               _buildFileUploadButton('Upload Driver License', false),
+
+              _buildTextField(_seatingCapacityController, 'Seating Capacity', isNumber: true),
+              _buildTextField(_ownerNameController, 'Owner Full Name'),
+              _buildTextField(_contactNumberController, 'Contact Number', isNumber: true),
+              SizedBox(height: 20),
+
+              _buildFileUploadButton('Upload Vehicle License', true),
+              _buildFileUploadButton('Upload Driver License', false),
+
+
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _registerVehicle,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
                   padding: EdgeInsets.symmetric(vertical: 16),
+
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
@@ -110,6 +140,20 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
 
   Widget _buildTextField(TextEditingController controller, String label,
       {bool isNumber = false}) {
+
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: Text('Register Vehicle', style: TextStyle(fontSize: 18, color: Colors.white)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, {bool isNumber = false}) {
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
@@ -145,8 +189,12 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
           label: Text('Choose File', style: TextStyle(color: Colors.white)),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.orange,
+
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+
           ),
         ),
         if (isVehicleLicense && _vehicleLicenseFile != null)
