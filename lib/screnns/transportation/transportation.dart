@@ -1,9 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:eventory/navigators/bottomnavigatorbar.dart';
 import 'package:eventory/screnns/transportation/pickup_search.dart';
 import 'package:eventory/screnns/transportation/register.dart';
 import 'package:eventory/screnns/otherscreens/userprofile.dart'; // Import UserProfile
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TransportationPage extends StatefulWidget {
   const TransportationPage({super.key});
@@ -15,12 +16,22 @@ class TransportationPage extends StatefulWidget {
 class _TransportationPageState extends State<TransportationPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  String userId = "Loading..."; // Default while fetching
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(
-        length: 2, vsync: this); // 2 tabs: Accommodation, Transportation
+        length: 2, vsync: this, initialIndex: 1); // Default to "Transportation"
+    _fetchUserId();
+  }
+
+  // Fetch user ID from Firebase Authentication
+  void _fetchUserId() {
+    User? user = FirebaseAuth.instance.currentUser;
+    setState(() {
+      userId = user?.uid ?? "User ID: Not Available"; // Always set a value
+    });
   }
 
   @override
@@ -33,6 +44,7 @@ class _TransportationPageState extends State<TransportationPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text("Transportation"),
         actions: [
           IconButton(
             icon: Icon(Icons.account_circle, size: 28),
@@ -52,42 +64,47 @@ class _TransportationPageState extends State<TransportationPage>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          // Accommodation content placeholder
-          Center(child: Text('Accommodation content goes here')),
-
-          // Transportation content
-          StreamBuilder(
-            stream: FirebaseFirestore.instance
-                .collection('events')
-                .where('condi', isEqualTo: 'yes')
-                .snapshots(),
-            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (!snapshot.hasData) {
-                return Center(child: CircularProgressIndicator());
-              }
-              var events = snapshot.data!.docs;
-              return ListView.builder(
-                itemCount: events.length,
-                itemBuilder: (context, index) {
-                  var event = events[index];
-                  return EventTile(
-                    eventName: event['eventName'],
-                    eventVenue: event['eventVenue'],
-                    selectedDateTime: (event['selectedDateTime'] as Timestamp)
-                        .toDate()
-                        .toString(),
-                    imageUrl: event['imageUrl'],
-                  );
-                },
-              );
-            },
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                Center(child: Text('Accommodation content goes here')),
+                StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('events')
+                      .where('condi', isEqualTo: 'yes')
+                      .snapshots(),
+                  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (!snapshot.hasData) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    var events = snapshot.data!.docs;
+                    return ListView.builder(
+                      itemCount: events.length,
+                      itemBuilder: (context, index) {
+                        var event = events[index];
+                        return EventTile(
+                          eventName: event['eventName'],
+                          eventVenue: event['eventVenue'],
+                          selectedDateTime:
+                              (event['selectedDateTime'] as Timestamp)
+                                  .toDate()
+                                  .toString(),
+                          imageUrl: event['imageUrl'],
+                          userId: userId, // Pass user ID to EventTile
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
+          BottomNavigatorBar(),
         ],
       ),
-      bottomNavigationBar: BottomNavigatorBar(),
     );
   }
 }
@@ -97,6 +114,7 @@ class EventTile extends StatelessWidget {
   final String eventVenue;
   final String selectedDateTime;
   final String imageUrl;
+  final String userId; // User ID is now required
 
   const EventTile({
     super.key,
@@ -104,6 +122,7 @@ class EventTile extends StatelessWidget {
     required this.eventVenue,
     required this.selectedDateTime,
     required this.imageUrl,
+    required this.userId, // Ensure it's always required
   });
 
   @override
@@ -141,7 +160,8 @@ class EventTile extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => RegisterVehiclePage()),
+                              builder: (context) => RegisterVehiclePage(
+                                  userId: userId)), // Send User ID
                         );
                       },
                       child: Text('Offer a vehicle'),

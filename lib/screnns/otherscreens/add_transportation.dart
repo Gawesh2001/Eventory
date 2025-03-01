@@ -2,16 +2,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
+import 'package:eventory/screnns/transportation/transportation.dart';
 
 class VehicleRegistration extends StatefulWidget {
+  final String uid; // Add uid as a parameter
+  const VehicleRegistration({super.key, required this.uid}); // Constructor
+
   @override
   _VehicleRegistrationState createState() => _VehicleRegistrationState();
 }
 
 class _VehicleRegistrationState extends State<VehicleRegistration> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _vehicleTypeController = TextEditingController();
   final TextEditingController _modelController = TextEditingController();
   final TextEditingController _plateNumberController = TextEditingController();
   final TextEditingController _vehicleColorController = TextEditingController();
@@ -24,6 +28,73 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
   File? _vehicleLicenseFile;
   File? _driverLicenseFile;
 
+  String? _selectedVehicleType; // For dropdown selection
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<String> _generateVehicleId() async {
+    // Fetch the last vehicle ID from Firestore
+    final querySnapshot = await _firestore
+        .collection('vehicles')
+        .orderBy('vehicleId', descending: true)
+        .limit(1)
+        .get();
+
+    int newId = 100000; // Default starting ID
+
+    if (querySnapshot.docs.isNotEmpty) {
+      // Extract the last vehicle ID and increment it
+      String lastVehicleId = querySnapshot.docs.first['vehicleId'];
+      newId = int.parse(lastVehicleId.substring(1)) + 1;
+    }
+
+    return 'V$newId'; // Return the new vehicle ID
+  }
+
+  Future<void> _registerVehicle() async {
+    if (_formKey.currentState!.validate()) {
+      if (_selectedVehicleType == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please select a vehicle type!')),
+        );
+        return;
+      }
+
+      // Generate a new vehicle ID
+      String vehicleId = await _generateVehicleId();
+
+      // Upload data to Firestore
+      await _firestore.collection('vehicles').add({
+        'vehicleId': vehicleId,
+        'userId': widget.uid, // Include the uid in the document
+        'vehicleType': _selectedVehicleType,
+        'model': _modelController.text,
+        'plateNumber': _plateNumberController.text,
+        'vehicleColor': _vehicleColorController.text,
+        'seatingCapacity': _seatingCapacityController.text,
+        'ownerName': _ownerNameController.text,
+        'contactNumber': _contactNumberController.text,
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Vehicle Registered Successfully! 🚗✅')),
+      );
+
+      // Clear the form after submission
+      _formKey.currentState!.reset();
+      setState(() {
+        _selectedVehicleType = null;
+        _vehicleLicenseFile = null;
+        _driverLicenseFile = null;
+      });
+
+      // Navigate to the transportation.dart page
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => TransportationPage()),
+      );
+    }
+  }
+
   Future<void> _pickFile(bool isVehicleLicense) async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -35,23 +106,6 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
           _driverLicenseFile = File(pickedFile.path);
         }
       });
-    }
-  }
-
-  void _registerVehicle() {
-    if (_formKey.currentState!.validate()) {
-      if (_vehicleLicenseFile == null || _driverLicenseFile == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Please upload both Vehicle License and Driver License!')),
-        );
-        return;
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Vehicle Registered Successfully! 🚗✅')),
-      );
     }
   }
 
@@ -77,7 +131,13 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
           key: _formKey,
           child: ListView(
             children: [
-              _buildTextField(_vehicleTypeController, 'Vehicle Type'),
+              // Display the user ID
+              Text(
+                'User ID: ${widget.uid}', // Display the uid passed to this page
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              SizedBox(height: 20),
+              _buildDropdownField(), // Vehicle Type dropdown
               _buildTextField(_modelController, 'Model'),
               _buildTextField(_plateNumberController, 'Plate Number'),
               _buildTextField(_vehicleColorController, 'Vehicle Color'),
@@ -87,8 +147,8 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
               _buildTextField(_contactNumberController, 'Contact Number',
                   isNumber: true),
               SizedBox(height: 20),
-              _buildFileUploadButton('Upload Vehicle License', true),
-              _buildFileUploadButton('Upload Driver License', false),
+              _buildFileUploadButton('Upload Vehicle License (Optional)', true),
+              _buildFileUploadButton('Upload Driver License (Optional)', false),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _registerVehicle,
@@ -104,6 +164,51 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDropdownField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: DropdownButtonFormField<String>(
+        value: _selectedVehicleType,
+        decoration: InputDecoration(
+          labelText: 'Vehicle Type',
+          labelStyle: TextStyle(color: Colors.white),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.orange),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.orangeAccent),
+          ),
+          filled: true,
+          fillColor: Color(0xff1e1e1e),
+        ),
+        dropdownColor: Color(0xff1e1e1e),
+        style: TextStyle(color: Colors.white),
+        items: [
+          DropdownMenuItem(value: 'Car', child: Text('Car')),
+          DropdownMenuItem(value: 'Van', child: Text('Van')),
+          DropdownMenuItem(value: 'Bus', child: Text('Bus')),
+          DropdownMenuItem(value: 'Bike', child: Text('Bike')),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _selectedVehicleType = value;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please select a vehicle type';
+          }
+          return null;
+        },
+        isExpanded: true,
+        hint: Text('Select Vehicle Type',
+            style: TextStyle(color: Colors.white70)),
       ),
     );
   }
@@ -127,6 +232,8 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: Colors.orangeAccent),
           ),
+          filled: true,
+          fillColor: Color(0xff1e1e1e),
         ),
         validator: (value) => value!.isEmpty ? '$label is required' : null,
       ),

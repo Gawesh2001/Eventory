@@ -5,7 +5,8 @@ import 'package:eventory/navigators/bottomnavigatorbar.dart';
 import 'package:eventory/screnns/otherscreens/add_transportation.dart'; // Import the VehicleRegistration page
 
 class provider extends StatefulWidget {
-  const provider({super.key});
+  final String uid; // Add uid as a parameter
+  const provider({super.key, required this.uid}); // Constructor
 
   @override
   State<provider> createState() => _ProviderState();
@@ -76,6 +77,12 @@ class _ProviderState extends State<provider> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Display the user ID
+              Text(
+                'User ID: ${widget.uid}', // Display the uid passed to this page
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              SizedBox(height: 20),
               // Display image at the top
               ClipRRect(
                 borderRadius: BorderRadius.circular(15),
@@ -90,11 +97,13 @@ class _ProviderState extends State<provider> {
               // Add Transportation Button
               ElevatedButton.icon(
                 onPressed: () {
-                  // Navigate to VehicleRegistration page
+                  // Navigate to VehicleRegistration page and pass the uid
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => VehicleRegistration()),
+                      builder: (context) =>
+                          VehicleRegistration(uid: widget.uid), // Pass uid here
+                    ),
                   );
                 },
                 icon: Icon(Icons.local_shipping, color: Colors.white),

@@ -5,7 +5,7 @@ import 'package:eventory/navigators/bottomnavigatorbar.dart';
 import 'package:eventory/screnns/otherscreens/profileedit.dart';
 import 'package:flutter/material.dart';
 import 'addevent.dart';
-import 'provider.dart';
+import 'provider.dart'; // Import the provider.dart file
 import 'settings.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -285,10 +285,20 @@ class _UserProfileState extends State<UserProfile> {
           icon: Icons.handyman,
           title: 'Become a Provider',
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const provider()),
-            );
+            // Pass the uid to the provider.dart page
+            if (user != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      provider(uid: user!.uid), // Pass uid here
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('User not logged in!')),
+              );
+            }
           },
         ),
       ],

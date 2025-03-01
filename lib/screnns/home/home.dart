@@ -408,22 +408,22 @@ class _HomeState extends State<Home> {
       padding: EdgeInsets.all(23),
       decoration: BoxDecoration(
         color: Color(0xffF1F7F7),
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: Colors.black26,
-            blurRadius: 4,
-            offset: Offset(0, 2),
+            blurRadius: 10,
+            offset: Offset(5, 10),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            width: 150,
-            height: 150,
+            width: 165,
+            height: 350,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(10),
               image: DecorationImage(
                 image: NetworkImage(eventData?['imageUrl'] ??
                     'https://via.placeholder.com/150'),
@@ -431,14 +431,14 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-          SizedBox(width: 8),
+          SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   eventData?['eventName'] ?? 'Event Name',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                 ),
                 Text(eventData?['eventVenue'] ?? 'Venue'),
                 SizedBox(height: 4),
@@ -462,8 +462,8 @@ class _HomeState extends State<Home> {
     }
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      padding: EdgeInsets.all(20),
+      margin: EdgeInsets.symmetric(horizontal: 11, vertical: 16),
+      padding: EdgeInsets.all(13),
       decoration: BoxDecoration(
         color: Color(0xffF1F7F7),
         borderRadius: BorderRadius.circular(20),
@@ -471,7 +471,7 @@ class _HomeState extends State<Home> {
           BoxShadow(
             color: Colors.black26,
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: Offset(5, 10),
           ),
         ],
       ),

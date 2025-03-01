@@ -1,102 +1,138 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterVehiclePage extends StatefulWidget {
-  const RegisterVehiclePage({super.key});
+  final String userId; // User ID passed from the previous screen
+
+  const RegisterVehiclePage({super.key, required this.userId});
 
   @override
   _RegisterVehiclePageState createState() => _RegisterVehiclePageState();
 }
 
 class _RegisterVehiclePageState extends State<RegisterVehiclePage> {
-  final _formKey = GlobalKey<FormState>();
-
-  final TextEditingController _vehicleTypeController = TextEditingController();
-  final TextEditingController _modelController = TextEditingController();
-  final TextEditingController _plateNumberController = TextEditingController();
-  final TextEditingController _vehicleColorController = TextEditingController();
-  final TextEditingController _seatingCapacityController =
-      TextEditingController();
-  final TextEditingController _ownerNameController = TextEditingController();
-  final TextEditingController _contactNumberController =
-      TextEditingController();
+  late String userId;
 
   @override
-  void dispose() {
-    _vehicleTypeController.dispose();
-    _modelController.dispose();
-    _plateNumberController.dispose();
-    _vehicleColorController.dispose();
-    _seatingCapacityController.dispose();
-    _ownerNameController.dispose();
-    _contactNumberController.dispose();
-    super.dispose();
-  }
-
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      // Handle form submission (e.g., send data to Firestore)
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Vehicle Registered Successfully!')),
-      );
-      Navigator.pop(context); // Return to previous screen
-    }
+  void initState() {
+    super.initState();
+    userId = widget.userId; // Get the user ID passed from the previous screen
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Register Vehicle'),
-        backgroundColor: Colors.orange,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              _buildTextField(_vehicleTypeController, 'Vehicle Type'),
-              _buildTextField(_modelController, 'Model'),
-              _buildTextField(_plateNumberController, 'Plate Number'),
-              _buildTextField(_vehicleColorController, 'Vehicle Color'),
-              _buildTextField(_seatingCapacityController, 'Seating Capacity',
-                  isNumber: true),
-              _buildTextField(_ownerNameController, 'Owner Full Name'),
-              _buildTextField(_contactNumberController, 'Contact Number',
-                  isNumber: true),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _submitForm,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                ),
-                child: Text('Confirm', style: TextStyle(fontSize: 16)),
-              ),
-            ],
+      appBar: AppBar(title: Text("Register Vehicle")),
+      body: Column(
+        children: [
+          // Displaying the userId at the top
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'User ID: $userId',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
           ),
-        ),
+
+          // StreamBuilder to fetch the vehicles registered by the user
+          Expanded(
+            child: StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection(
+                      'vehicles') // Assuming you have a 'vehicles' collection in Firestore
+                  .where('userId',
+                      isEqualTo:
+                          userId) // Fetch vehicles for the specific user based on userId
+                  .snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                var vehicles = snapshot.data!.docs;
+                if (vehicles.isEmpty) {
+                  return Center(child: Text("No vehicles registered"));
+                }
+
+                return ListView.builder(
+                  itemCount: vehicles.length,
+                  itemBuilder: (context, index) {
+                    var vehicle = vehicles[index];
+                    // Ensure 'seatingCapacity' is parsed as an integer
+                    int seatingCapacity =
+                        int.tryParse(vehicle['seatingCapacity'].toString()) ??
+                            0;
+
+                    return VehicleCard(
+                      ownerName: vehicle['ownerName'],
+                      plateNumber: vehicle['plateNumber'],
+                      vehicleId: vehicle['vehicleId'],
+                      seatingCapacity: seatingCapacity,
+                      model: vehicle['model'],
+                      vehicleType: vehicle['vehicleType'],
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
+}
 
-  Widget _buildTextField(TextEditingController controller, String label,
-      {bool isNumber = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(),
+class VehicleCard extends StatelessWidget {
+  final String ownerName;
+  final String plateNumber;
+  final String vehicleId;
+  final int seatingCapacity;
+  final String model;
+  final String vehicleType;
+
+  const VehicleCard({
+    super.key,
+    required this.ownerName,
+    required this.plateNumber,
+    required this.vehicleId,
+    required this.seatingCapacity,
+    required this.model,
+    required this.vehicleType,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.all(10),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Owner: $ownerName',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text('Plate Number: $plateNumber',
+                style: TextStyle(fontSize: 14, color: Colors.grey)),
+            Text('Vehicle ID: $vehicleId',
+                style: TextStyle(fontSize: 14, color: Colors.grey)),
+            Text('Seating Capacity: $seatingCapacity',
+                style: TextStyle(fontSize: 14, color: Colors.grey)),
+            Text('Model: $model',
+                style: TextStyle(fontSize: 14, color: Colors.grey)),
+            Text('Vehicle Type: $vehicleType',
+                style: TextStyle(fontSize: 14, color: Colors.grey)),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                // Handle the "Offer" button action
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text('Vehicle offered')));
+              },
+              child: Text('Offer Vehicle'),
+            ),
+          ],
         ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Please enter $label';
-          }
-          return null;
-        },
       ),
     );
   }
