@@ -5,17 +5,27 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:qr_flutter/qr_flutter.dart';
+import 'package:qr_flutter/qr_flutter.dart'; // Import qr_flutter package
 import 'package:path_provider/path_provider.dart'; // Required for saving files locally
-import 'package:flutter_email_sender/flutter_email_sender.dart'; // Required for sending emails
-import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth to get the user email
+import 'package:pdf/widgets.dart' as pw; // For PDF generation
+import 'package:open_file/open_file.dart'; // For opening the downloaded PDF
+import 'package:flutter_email_sender/flutter_email_sender.dart'; // For sending emails
+import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore
 
 class PaymentsPage extends StatefulWidget {
-  final int bookingId;
   final int totalPrice;
+  final String eventId;
+  final int totalTickets;
 
-  const PaymentsPage(
-      {super.key, required this.bookingId, required this.totalPrice});
+  const PaymentsPage({
+    super.key,
+    required this.totalPrice,
+    required this.eventId,
+    required this.totalTickets,
+    String? userId,
+    required int bookingId,
+  });
 
   @override
   _PaymentsPageState createState() => _PaymentsPageState();
@@ -26,19 +36,37 @@ class _PaymentsPageState extends State<PaymentsPage> {
   final _expiryMonthController = TextEditingController();
   final _expiryYearController = TextEditingController();
   final _cvvController = TextEditingController();
-  String userEmail = '';
+
+  User? _user;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  int _nextBookingId = 100001; // Default starting booking ID
 
   @override
   void initState() {
     super.initState();
-    _getUserEmail();
+    _getCurrentUser();
+    _fetchLastBookingId();
   }
 
-  Future<void> _getUserEmail() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+  Future<void> _getCurrentUser() async {
+    // Get current user from Firebase Authentication
+    _user = FirebaseAuth.instance.currentUser;
+    setState(() {});
+  }
+
+  Future<void> _fetchLastBookingId() async {
+    // Fetch the last booking ID from Firestore
+    final querySnapshot = await _firestore
+        .collection('Bookings')
+        .orderBy('bookingId', descending: true)
+        .limit(1)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      final lastBookingId = querySnapshot.docs.first['bookingId'] as int;
       setState(() {
-        userEmail = user.email ?? '';
+        _nextBookingId =
+            lastBookingId + 1; // Increment by 1 for the next booking
       });
     }
   }
@@ -49,29 +77,23 @@ class _PaymentsPageState extends State<PaymentsPage> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => Center(child: CircularProgressIndicator()),
+        builder: (context) => const Center(child: CircularProgressIndicator()),
       );
 
       // Simulate a delay for payment processing
-      await Future.delayed(Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 2));
+
+      // Store booking details in Firestore
+      await _storeBookingDetails();
+
+      // Generate QR code with eventId and bookingId
+      final qrCodeBytes = await _generateQRCode(_nextBookingId, widget.eventId);
 
       // Close loading indicator
       Navigator.of(context).pop();
 
-      // Generate QR code
-      final qrCodeBytes = await _generateQRCode(widget.bookingId);
-
-      // Send email with QR code as an attachment
-      if (userEmail.isNotEmpty) {
-        await _sendEmail(qrCodeBytes);
-      } else {
-        throw Exception("User email is not available.");
-      }
-
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Payment successful! Email sent to $userEmail")),
-      );
+      // Show dialog to display QR code and send email
+      await _showQRCodeDialog(context, qrCodeBytes);
     } catch (e) {
       // Close loading indicator
       Navigator.of(context).pop();
@@ -83,10 +105,29 @@ class _PaymentsPageState extends State<PaymentsPage> {
     }
   }
 
-  Future<Uint8List> _generateQRCode(int bookingId) async {
+  Future<void> _storeBookingDetails() async {
+    if (_user == null) {
+      throw Exception("User is not authenticated.");
+    }
+
+    // Store booking details in Firestore
+    await _firestore.collection('Bookings').doc(_nextBookingId.toString()).set({
+      'bookingId': _nextBookingId,
+      'eventId': widget.eventId,
+      'totalTickets': widget.totalTickets,
+      'totalPriceLKR': widget.totalPrice,
+      'userId': _user!.uid,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<Uint8List> _generateQRCode(int bookingId, String eventId) async {
+    // Combine bookingId and eventId into a single string for the QR code
+    final qrData = "Booking ID: $bookingId, Event ID: $eventId";
+
     // Create a QrPainter instance for the QR code
     final qrPainter = QrPainter(
-      data: bookingId.toString(),
+      data: qrData,
       version: QrVersions.auto,
       errorCorrectionLevel: QrErrorCorrectLevel.L,
     );
@@ -108,49 +149,137 @@ class _PaymentsPageState extends State<PaymentsPage> {
     return byteData!.buffer.asUint8List();
   }
 
-  Future<String> _saveQRCode(Uint8List qrCodeBytes) async {
-    // Get the app's documents directory
-    final directory = await getApplicationDocumentsDirectory();
-
-    // Create a file and write the QR code bytes
-    final file = File('${directory.path}/booking_${widget.bookingId}_qr.png');
-    await file.writeAsBytes(qrCodeBytes);
-
-    // Return the file path for email attachment
-    return file.path;
+  Future<void> _showQRCodeDialog(
+      BuildContext context, Uint8List qrCodeBytes) async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("QR Code Generated"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              QrImageView(
+                data:
+                    "Booking ID: $_nextBookingId, Event ID: ${widget.eventId}",
+                version: QrVersions.auto,
+                size: 200,
+              ),
+              const SizedBox(height: 20),
+              const Text("Screenshot this or download."),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  if (_user != null) {
+                    await _sendEmail(qrCodeBytes, _user!.email!);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text("User is not authenticated.")),
+                    );
+                  }
+                },
+                child: const Text("Send Email"),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await _downloadQRCodeAsPDF(qrCodeBytes);
+                },
+                child: const Text("Download QR Code"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
-  Future<void> _sendEmail(Uint8List qrCodeBytes) async {
-    final Email email = Email(
-      body: 'Here is your booking QR code.',
-      subject: 'Booking Confirmation - ${widget.bookingId}',
-      recipients: [userEmail], // Use dynamic user email
-      attachmentPaths: [await _saveQRCode(qrCodeBytes)],
-      isHTML: false,
-    );
-
+  Future<void> _sendEmail(Uint8List qrCodeBytes, String email) async {
     try {
-      await FlutterEmailSender.send(email);
+      // Save the QR code and get the file path
+      final qrCodePath = await _saveQRCode(qrCodeBytes);
+
+      // Create the email message
+      final Email sendEmail = Email(
+        body: 'Here is your booking QR code.',
+        subject: 'Booking Confirmation - $_nextBookingId',
+        recipients: [email],
+        isHTML: false,
+        attachmentPaths: [qrCodePath],
+      );
+
+      // Send the email
+      await FlutterEmailSender.send(sendEmail);
 
       // Show confirmation message after email is sent
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Email sent to $userEmail")),
+        SnackBar(content: Text("Email sent to $email")),
       );
     } catch (e) {
-      // If sending email fails, show error message
+      // Handle errors
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error sending email: $e")),
       );
     }
   }
 
+  Future<void> _downloadQRCodeAsPDF(Uint8List qrCodeBytes) async {
+    try {
+      // Create a PDF document
+      final pdf = pw.Document();
+
+      // Add a page with the QR code image
+      pdf.addPage(
+        pw.Page(
+          build: (pw.Context context) {
+            return pw.Center(
+              child: pw.Image(
+                pw.MemoryImage(qrCodeBytes),
+              ),
+            );
+          },
+        ),
+      );
+
+      // Save the PDF to a file
+      final directory = await getApplicationDocumentsDirectory();
+      final file = File('${directory.path}/booking_${_nextBookingId}_qr.pdf');
+      await file.writeAsBytes(await pdf.save());
+
+      // Open the PDF file
+      OpenFile.open(file.path);
+
+      // Show confirmation message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("QR code downloaded as PDF.")),
+      );
+    } catch (e) {
+      // Handle errors
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error downloading QR code: $e")),
+      );
+    }
+  }
+
+  Future<String> _saveQRCode(Uint8List qrCodeBytes) async {
+    // Get the app's documents directory
+    final directory = await getApplicationDocumentsDirectory();
+
+    // Create a file and write the QR code bytes
+    final file = File('${directory.path}/booking_${_nextBookingId}_qr.png');
+    await file.writeAsBytes(qrCodeBytes);
+
+    // Return the file path for email attachment
+    return file.path;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Payment", style: TextStyle(color: Colors.white)),
+        title: const Text("Payment", style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.orange,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Container(
         color: Colors.grey[900],
@@ -158,27 +287,21 @@ class _PaymentsPageState extends State<PaymentsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Display user email at the top of the screen
-            Text(
-              "User Email: $userEmail",
-              style: TextStyle(fontSize: 16, color: Colors.white70),
-            ),
-            SizedBox(height: 8),
             // Booking ID and Total Amount
             Text(
-              "Booking ID: ${widget.bookingId}",
-              style: TextStyle(fontSize: 16, color: Colors.white70),
+              "Booking ID: $_nextBookingId",
+              style: const TextStyle(fontSize: 16, color: Colors.white70),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
-              "Total Amount: \$${widget.totalPrice}",
-              style: TextStyle(
+              "Total Amount: LKR ${widget.totalPrice}.00",
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
             // Card Number Field
             TextField(
               controller: _cardNumberController,
@@ -189,20 +312,18 @@ class _PaymentsPageState extends State<PaymentsPage> {
               ],
               decoration: InputDecoration(
                 labelText: 'Card Number',
-                labelStyle: TextStyle(color: Colors.white70),
+                labelStyle: const TextStyle(color: Colors.white70),
                 filled: true,
                 fillColor: Colors.grey[800],
-                prefixIcon: Icon(Icons.credit_card,
-                    color: const Color.fromARGB(255, 255, 255, 255)),
+                prefixIcon: const Icon(Icons.credit_card,
+                    color: Color.fromARGB(255, 255, 255, 255)),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
               ),
-              style: TextStyle(color: Colors.white),
             ),
-            SizedBox(height: 20),
-
+            const SizedBox(height: 16),
             // Expiry Date Fields
             Row(
               children: [
@@ -216,7 +337,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
                     ],
                     decoration: InputDecoration(
                       labelText: 'MM',
-                      labelStyle: TextStyle(color: Colors.white70),
+                      labelStyle: const TextStyle(color: Colors.white70),
                       filled: true,
                       fillColor: Colors.grey[800],
                       border: OutlineInputBorder(
@@ -224,10 +345,9 @@ class _PaymentsPageState extends State<PaymentsPage> {
                         borderSide: BorderSide.none,
                       ),
                     ),
-                    style: TextStyle(color: Colors.white),
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 16),
                 Expanded(
                   child: TextField(
                     controller: _expiryYearController,
@@ -238,7 +358,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
                     ],
                     decoration: InputDecoration(
                       labelText: 'YY',
-                      labelStyle: TextStyle(color: Colors.white70),
+                      labelStyle: const TextStyle(color: Colors.white70),
                       filled: true,
                       fillColor: Colors.grey[800],
                       border: OutlineInputBorder(
@@ -246,13 +366,11 @@ class _PaymentsPageState extends State<PaymentsPage> {
                         borderSide: BorderSide.none,
                       ),
                     ),
-                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 20),
-
+            const SizedBox(height: 16),
             // CVV Field
             TextField(
               controller: _cvvController,
@@ -263,38 +381,34 @@ class _PaymentsPageState extends State<PaymentsPage> {
               ],
               decoration: InputDecoration(
                 labelText: 'CVV',
-                labelStyle: TextStyle(color: Colors.white70),
+                labelStyle: const TextStyle(color: Colors.white70),
                 filled: true,
                 fillColor: Colors.grey[800],
-                prefixIcon: Icon(Icons.lock,
-                    color: const Color.fromARGB(255, 241, 241, 241)),
+                prefixIcon: const Icon(Icons.lock, color: Colors.white),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
               ),
-              style: TextStyle(color: Colors.white),
             ),
-            SizedBox(height: 30),
-
-            // Spacer to push the button to the bottom
-            Spacer(),
-
-            // Proceed Button
-            SizedBox(
-              width: double.infinity,
+            const SizedBox(height: 30),
+            // Pay Button
+            Center(
               child: ElevatedButton(
                 onPressed: () => _payWithCard(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
-                  padding: EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 15,
+                  ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(13),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(
-                  "Proceed to Pay",
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+                child: const Text(
+                  'Pay Now',
+                  style: TextStyle(fontSize: 18),
                 ),
               ),
             ),

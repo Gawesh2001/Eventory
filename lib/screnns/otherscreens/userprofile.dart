@@ -10,6 +10,7 @@ import 'settings.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart'; // Added Firebase import
+import 'QRscanpage.dart'; // Import the QR scan page
 
 class UserProfile extends StatefulWidget {
   const UserProfile({Key? key}) : super(key: key);
@@ -244,10 +245,14 @@ class _UserProfileState extends State<UserProfile> {
                   MaterialPageRoute(builder: (context) => const ProfileEdit()));
             }),
         DrawerListTile(
-          icon: Icons.account_balance_wallet,
-          title: 'Wallet',
+          icon: Icons.qr_code_scanner,
+          title: 'QR Scan',
           onTap: () {
-            // Navigate to Wallet page
+            // Navigate to QR Scan page
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => QRScannerPage()),
+            // );
           },
         ),
         DrawerListTile(

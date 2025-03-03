@@ -1,9 +1,8 @@
-// ignore_for_file: use_build_context_synchronously, avoid_print
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:eventory/screnns/otherscreens/payments.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class EventPage extends StatefulWidget {
   final String eventId;
@@ -17,11 +16,14 @@ class EventPage extends StatefulWidget {
 class _EventPageState extends State<EventPage> {
   Map<String, dynamic>? eventData;
   Map<String, int> ticketCounts = {}; // Stores selected ticket counts
+  String? userEmail;
+  String? userId; // Store the user ID
 
   @override
   void initState() {
     super.initState();
     fetchEventData();
+    fetchUserDetails();
   }
 
   Future<void> fetchEventData() async {
@@ -38,6 +40,19 @@ class _EventPageState extends State<EventPage> {
       }
     } catch (e) {
       print("Error fetching event data: $e");
+    }
+  }
+
+  Future<void> fetchUserDetails() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      setState(() {
+        userEmail =
+            user.email; // Fetch the user's email from Firebase Authentication
+        userId = user.uid; // Fetch the user ID from Firebase Authentication
+      });
+    } else {
+      print("No user is logged in.");
     }
   }
 
@@ -83,19 +98,25 @@ class _EventPageState extends State<EventPage> {
     int newBookingId =
         lastBooking == null ? 100001 : (lastBooking['bookingId'] as int) + 1;
 
-    // Get user's email from Firestore
-    String userEmail =
-        "user@example.com"; // Use actual user's email from authentication
+    if (userEmail != null) {
+      // Send email to user about the booking
+      await _sendConfirmationEmail(userEmail!, newBookingId, totalPrice);
+    }
 
-    // Send email to user about the booking
-    await _sendConfirmationEmail(userEmail, newBookingId, totalPrice);
+    // Calculate the total ticket count
+    int totalTickets = calculateTotalTickets();
 
+    // Pass the userId, totalTickets, and other details to the PaymentsPage
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => PaymentsPage(
           bookingId: newBookingId,
           totalPrice: totalPrice.toInt(), // Ensure integer type for totalPrice
+          eventId: widget.eventId, // Pass the eventId to the PaymentsPage
+          userId: userId, // Pass the userId to the PaymentsPage
+          totalTickets:
+              totalTickets, // Pass the totalTickets to the PaymentsPage
         ),
       ),
     );
@@ -193,6 +214,12 @@ class _EventPageState extends State<EventPage> {
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.green)),
+            SizedBox(height: 20),
+            if (userId != null)
+              Text(
+                "User ID: $userId",
+                style: TextStyle(color: Colors.white),
+              ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: proceedToPayment,
