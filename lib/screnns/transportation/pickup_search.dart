@@ -1,8 +1,10 @@
+// ignore_for_file: library_private_types_in_public_api, deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'choose_ride.dart';
 
 class PickupLocationSearch extends StatefulWidget {
-  const PickupLocationSearch({super.key});
+  const PickupLocationSearch({super.key, required String eventId});
 
   @override
   _PickupLocationSearchState createState() => _PickupLocationSearchState();

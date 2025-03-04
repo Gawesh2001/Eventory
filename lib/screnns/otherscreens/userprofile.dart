@@ -249,10 +249,10 @@ class _UserProfileState extends State<UserProfile> {
           title: 'QR Scan',
           onTap: () {
             // Navigate to QR Scan page
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(builder: (context) => QRScannerPage()),
-            // );
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => QRScannerScreen()),
+            );
           },
         ),
         DrawerListTile(

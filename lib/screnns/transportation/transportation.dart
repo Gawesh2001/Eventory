@@ -1,8 +1,10 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:eventory/navigators/bottomnavigatorbar.dart';
-import 'package:eventory/screnns/transportation/pickup_search.dart';
+import 'package:eventory/screnns/transportation/bookride.dart';
 import 'package:eventory/screnns/transportation/register.dart';
 import 'package:eventory/screnns/otherscreens/userprofile.dart'; // Import UserProfile
 
@@ -86,6 +88,7 @@ class _TransportationPageState extends State<TransportationPage>
                       itemBuilder: (context, index) {
                         var event = events[index];
                         return EventTile(
+                          eventId: event.id, // Pass event ID
                           eventName: event['eventName'],
                           eventVenue: event['eventVenue'],
                           selectedDateTime:
@@ -110,6 +113,7 @@ class _TransportationPageState extends State<TransportationPage>
 }
 
 class EventTile extends StatelessWidget {
+  final String eventId;
   final String eventName;
   final String eventVenue;
   final String selectedDateTime;
@@ -118,6 +122,7 @@ class EventTile extends StatelessWidget {
 
   const EventTile({
     super.key,
+    required this.eventId, // Ensure event ID is passed
     required this.eventName,
     required this.eventVenue,
     required this.selectedDateTime,
@@ -128,60 +133,88 @@ class EventTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.all(10),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Image.network(
-              imageUrl,
-              width: 100,
-              height: 100,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(eventName,
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                Text('Venue: $eventVenue',
-                    style: TextStyle(fontSize: 14, color: Colors.grey)),
-                Text('Date: $selectedDateTime',
-                    style: TextStyle(fontSize: 14, color: Colors.grey)),
-                SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => RegisterVehiclePage(
-                                  userId: userId)), // Send User ID
-                        );
-                      },
-                      child: Text('Offer a vehicle'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => PickupLocationSearch()),
-                        );
-                      },
-                      child: Text('Book Ride'),
-                    ),
-                  ],
+      margin: EdgeInsets.all(15),
+      child: Container(
+        padding: EdgeInsets.all(8),
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8), // Border radius added
+                child: Image.network(
+                  imageUrl,
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.cover,
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(eventName,
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text('Venue: $eventVenue',
+                      style: TextStyle(fontSize: 14, color: Colors.grey)),
+                  Text('Date: $selectedDateTime',
+                      style: TextStyle(fontSize: 14, color: Colors.grey)),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Reduced button size using padding
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => RegisterVehiclePage(
+                                      userId: userId,
+                                      eventId:
+                                          eventId)), // Send both User ID & Event ID
+                            );
+                          },
+                          child: Text('Offer a vehicle'),
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 8),
+                            minimumSize: Size(100, 40), // Button size reduced
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Bookride(
+                                      userId: userId,
+                                      eventId:
+                                          eventId)), // Send event ID to PickupLocationSearch
+                            );
+                          },
+                          child: Text('Book Ride'),
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 8),
+                            minimumSize: Size(100, 40), // Button size reduced
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

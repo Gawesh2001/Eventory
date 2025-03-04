@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, unnecessary_import, library_private_types_in_public_api
+// ignore_for_file: use_build_context_synchronously, unnecessary_import, library_private_types_in_public_api, depend_on_referenced_packages
 
 import 'dart:typed_data';
 import 'dart:io';

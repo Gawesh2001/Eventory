@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api, use_key_in_widget_constructors
+// ignore_for_file: library_private_types_in_public_api, use_key_in_widget_constructors, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -54,13 +54,16 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
     if (_formKey.currentState!.validate()) {
       if (_selectedVehicleType == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please select a vehicle type!')),
+          const SnackBar(content: Text('Please select a vehicle type!')),
         );
         return;
       }
 
       // Generate a new vehicle ID
       String vehicleId = await _generateVehicleId();
+
+      // Parse seating capacity to an integer
+      int seatingCapacity = int.tryParse(_seatingCapacityController.text) ?? 0;
 
       // Upload data to Firestore
       await _firestore.collection('vehicles').add({
@@ -70,13 +73,15 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
         'model': _modelController.text,
         'plateNumber': _plateNumberController.text,
         'vehicleColor': _vehicleColorController.text,
-        'seatingCapacity': _seatingCapacityController.text,
+        'seatingCapacity': seatingCapacity,
+        'availableSeats':
+            seatingCapacity, // Set availableSeats equal to seatingCapacity
         'ownerName': _ownerNameController.text,
         'contactNumber': _contactNumberController.text,
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Vehicle Registered Successfully! 🚗✅')),
+        const SnackBar(content: Text('Vehicle Registered Successfully! 🚗✅')),
       );
 
       // Clear the form after submission
@@ -90,7 +95,7 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
       // Navigate to the transportation.dart page
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => TransportationPage()),
+        MaterialPageRoute(builder: (context) => const TransportationPage()),
       );
     }
   }
@@ -113,18 +118,18 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Vehicle Registration',
+        title: const Text('Vehicle Registration',
             style: TextStyle(color: Colors.orange)),
-        backgroundColor: Color(0xff121212),
+        backgroundColor: const Color(0xff121212),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.orange),
+          icon: const Icon(Icons.arrow_back, color: Colors.orange),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
       ),
-      backgroundColor: Color(0xff121212),
+      backgroundColor: const Color(0xff121212),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Form(
@@ -134,9 +139,9 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
               // Display the user ID
               Text(
                 'User ID: ${widget.uid}', // Display the uid passed to this page
-                style: TextStyle(color: Colors.white, fontSize: 16),
+                style: const TextStyle(color: Colors.white, fontSize: 16),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               _buildDropdownField(), // Vehicle Type dropdown
               _buildTextField(_modelController, 'Model'),
               _buildTextField(_plateNumberController, 'Plate Number'),
@@ -146,19 +151,19 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
               _buildTextField(_ownerNameController, 'Owner Full Name'),
               _buildTextField(_contactNumberController, 'Contact Number',
                   isNumber: true),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               _buildFileUploadButton('Upload Vehicle License (Optional)', true),
               _buildFileUploadButton('Upload Driver License (Optional)', false),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _registerVehicle,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
-                  padding: EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
-                child: Text('Register Vehicle',
+                child: const Text('Register Vehicle',
                     style: TextStyle(fontSize: 18, color: Colors.white)),
               ),
             ],
@@ -175,21 +180,21 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
         value: _selectedVehicleType,
         decoration: InputDecoration(
           labelText: 'Vehicle Type',
-          labelStyle: TextStyle(color: Colors.white),
+          labelStyle: const TextStyle(color: Colors.white),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.orange),
+            borderSide: const BorderSide(color: Colors.orange),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.orangeAccent),
+            borderSide: const BorderSide(color: Colors.orangeAccent),
           ),
           filled: true,
-          fillColor: Color(0xff1e1e1e),
+          fillColor: const Color(0xff1e1e1e),
         ),
-        dropdownColor: Color(0xff1e1e1e),
-        style: TextStyle(color: Colors.white),
-        items: [
+        dropdownColor: const Color(0xff1e1e1e),
+        style: const TextStyle(color: Colors.white),
+        items: const [
           DropdownMenuItem(value: 'Car', child: Text('Car')),
           DropdownMenuItem(value: 'Van', child: Text('Van')),
           DropdownMenuItem(value: 'Bus', child: Text('Bus')),
@@ -207,7 +212,7 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
           return null;
         },
         isExpanded: true,
-        hint: Text('Select Vehicle Type',
+        hint: const Text('Select Vehicle Type',
             style: TextStyle(color: Colors.white70)),
       ),
     );
@@ -220,20 +225,20 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
       child: TextFormField(
         controller: controller,
         keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-        style: TextStyle(color: Colors.white),
+        style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(color: Colors.white),
+          labelStyle: const TextStyle(color: Colors.white),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.orange),
+            borderSide: const BorderSide(color: Colors.orange),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.orangeAccent),
+            borderSide: const BorderSide(color: Colors.orangeAccent),
           ),
           filled: true,
-          fillColor: Color(0xff1e1e1e),
+          fillColor: const Color(0xff1e1e1e),
         ),
         validator: (value) => value!.isEmpty ? '$label is required' : null,
       ),
@@ -244,12 +249,13 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(color: Colors.white, fontSize: 16)),
-        SizedBox(height: 10),
+        Text(label, style: const TextStyle(color: Colors.white, fontSize: 16)),
+        const SizedBox(height: 10),
         ElevatedButton.icon(
           onPressed: () => _pickFile(isVehicleLicense),
-          icon: Icon(Icons.upload_file, color: Colors.white),
-          label: Text('Choose File', style: TextStyle(color: Colors.white)),
+          icon: const Icon(Icons.upload_file, color: Colors.white),
+          label:
+              const Text('Choose File', style: TextStyle(color: Colors.white)),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.orange,
             shape:
@@ -258,11 +264,11 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
         ),
         if (isVehicleLicense && _vehicleLicenseFile != null)
           Text('File selected: ${_vehicleLicenseFile!.path.split('/').last}',
-              style: TextStyle(color: Colors.white70)),
+              style: const TextStyle(color: Colors.white70)),
         if (!isVehicleLicense && _driverLicenseFile != null)
           Text('File selected: ${_driverLicenseFile!.path.split('/').last}',
-              style: TextStyle(color: Colors.white70)),
-        SizedBox(height: 10),
+              style: const TextStyle(color: Colors.white70)),
+        const SizedBox(height: 10),
       ],
     );
   }
