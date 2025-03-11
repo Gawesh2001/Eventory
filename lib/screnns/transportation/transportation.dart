@@ -179,12 +179,12 @@ class EventTile extends StatelessWidget {
                                           eventId)), // Send both User ID & Event ID
                             );
                           },
-                          child: Text('Offer a vehicle'),
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 8),
                             minimumSize: Size(100, 40), // Button size reduced
                           ),
+                          child: Text('Offer a vehicle'),
                         ),
                       ),
                       Padding(
@@ -200,12 +200,12 @@ class EventTile extends StatelessWidget {
                                           eventId)), // Send event ID to PickupLocationSearch
                             );
                           },
-                          child: Text('Book Ride'),
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 8),
                             minimumSize: Size(100, 40), // Button size reduced
                           ),
+                          child: Text('Book Ride'),
                         ),
                       ),
                     ],

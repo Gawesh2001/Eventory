@@ -9,9 +9,11 @@ import 'package:qr_flutter/qr_flutter.dart'; // Import qr_flutter package
 import 'package:path_provider/path_provider.dart'; // Required for saving files locally
 import 'package:pdf/widgets.dart' as pw; // For PDF generation
 import 'package:open_file/open_file.dart'; // For opening the downloaded PDF
-import 'package:flutter_email_sender/flutter_email_sender.dart'; // For sending emails
 import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth
 import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore
+import 'package:mailer/mailer.dart'; // For sending emails
+import 'package:mailer/smtp_server.dart'; // For SMTP server configuration
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // For loading .env file
 
 class PaymentsPage extends StatefulWidget {
   final int totalPrice;
@@ -46,6 +48,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
     super.initState();
     _getCurrentUser();
     _fetchLastBookingId();
+    dotenv.load(); // Load .env file
   }
 
   Future<void> _getCurrentUser() async {
@@ -199,17 +202,55 @@ class _PaymentsPageState extends State<PaymentsPage> {
       // Save the QR code and get the file path
       final qrCodePath = await _saveQRCode(qrCodeBytes);
 
-      // Create the email message
-      final Email sendEmail = Email(
-        body: 'Here is your booking QR code.',
-        subject: 'Booking Confirmation - $_nextBookingId',
-        recipients: [email],
-        isHTML: false,
-        attachmentPaths: [qrCodePath],
+      // Fetch event details from Firestore
+      final eventDoc =
+          await _firestore.collection('events').doc(widget.eventId).get();
+      if (!eventDoc.exists) {
+        throw Exception("Event not found.");
+      }
+
+      final eventData = eventDoc.data() as Map<String, dynamic>;
+      final eventName = eventData['eventName'];
+      final eventVenue = eventData['eventVenue'];
+      final imageUrl = eventData['imageUrl'];
+
+      // Load email credentials from .env
+      final emailAddress = dotenv.get('EMAIL');
+      final emailPassword = dotenv.get('EMAIL_PASSWORD');
+      final smtpServer = dotenv.get('SMTP_SERVER');
+      final smtpPort = int.parse(dotenv.get('SMTP_PORT'));
+
+      // Configure SMTP server
+      final smtp = SmtpServer(
+        smtpServer,
+        port: smtpPort,
+        username: emailAddress,
+        password: emailPassword,
       );
 
+      // Create the email message
+      final message = Message()
+        ..from = Address(emailAddress, 'Event Booking System')
+        ..recipients.add(email)
+        ..subject = 'Booking Confirmation - $_nextBookingId'
+        ..html = '''
+          <h1>Booking Confirmation</h1>
+          <p>Thank you for booking with us! Here are your booking details:</p>
+           <p><img src="$imageUrl" alt="Event Image" width="200"></p>
+          <p><strong>Event Name:</strong> $eventName</p>
+          <p><strong>Event Venue:</strong> $eventVenue</p>
+          <p><strong>Total Tickets:</strong> ${widget.totalTickets}</p>
+          <p><strong>Total Price:</strong> LKR ${widget.totalPrice}.00</p>
+          <p><strong>Booking ID:</strong> $_nextBookingId</p>
+          <p>Here is your QR code for the event:</p>
+          <img src="cid:qrCode" alt="QR Code" width="200" height="200">
+        '''
+        ..attachments = [
+          FileAttachment(File(qrCodePath))..cid = 'qrCode',
+        ];
+
       // Send the email
-      await FlutterEmailSender.send(sendEmail);
+      await send(message, smtp);
 
       // Show confirmation message after email is sent
       ScaffoldMessenger.of(context).showSnackBar(
