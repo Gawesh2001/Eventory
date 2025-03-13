@@ -1,4 +1,3 @@
-// ignore_for_file: library_private_types_in_public_api
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -21,55 +20,61 @@ class _RegisterVehiclePageState extends State<RegisterVehiclePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Register Vehicle")),
-      body: Column(
-        children: [
-          Expanded(
-            child: StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection('vehicles')
-                  .where('userId', isEqualTo: widget.userId)
-                  .snapshots(),
-              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+      appBar: AppBar(
+        title: const Text("Register Vehicle"),
+        centerTitle: true,
+        backgroundColor: Colors.orange,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection('vehicles')
+                    .where('userId', isEqualTo: widget.userId)
+                    .snapshots(),
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                var vehicles = snapshot.data!.docs;
-                if (vehicles.isEmpty) {
-                  return const Center(child: Text("No vehicles registered"));
-                }
+                  var vehicles = snapshot.data!.docs;
+                  if (vehicles.isEmpty) {
+                    return const Center(child: Text("No vehicles registered"));
+                  }
 
-                return ListView.builder(
-                  itemCount: vehicles.length,
-                  itemBuilder: (context, index) {
-                    var vehicle = vehicles[index];
-                    int seatingCapacity =
-                        int.tryParse(vehicle['seatingCapacity'].toString()) ??
-                            0;
+                  return ListView.builder(
+                    itemCount: vehicles.length,
+                    itemBuilder: (context, index) {
+                      var vehicle = vehicles[index];
+                      int seatingCapacity =
+                          int.tryParse(vehicle['seatingCapacity'].toString()) ?? 0;
 
-                    return VehicleCard(
-                      ownerName: vehicle['ownerName'],
-                      plateNumber: vehicle['plateNumber'],
-                      vehicleId: vehicle['vehicleId'],
-                      seatingCapacity: seatingCapacity,
-                      model: vehicle['model'],
-                      vehicleType: vehicle['vehicleType'],
-                      userId: widget.userId,
-                      eventId: widget.eventId,
-                    );
-                  },
-                );
-              },
+                      return VehicleCard(
+                        ownerName: vehicle['ownerName'],
+                        plateNumber: vehicle['plateNumber'],
+                        vehicleId: vehicle['vehicleId'],
+                        seatingCapacity: seatingCapacity,
+                        model: vehicle['model'],
+                        vehicleType: vehicle['vehicleType'],
+                        userId: widget.userId,
+                        eventId: widget.eventId,
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-class VehicleCard extends StatelessWidget {
+class VehicleCard extends StatefulWidget {
   final String ownerName;
   final String plateNumber;
   final String vehicleId;
@@ -91,8 +96,27 @@ class VehicleCard extends StatelessWidget {
     required this.eventId,
   });
 
+  @override
+  _VehicleCardState createState() => _VehicleCardState();
+}
+
+class _VehicleCardState extends State<VehicleCard> {
+  final TextEditingController locationController = TextEditingController();
+  final TextEditingController stayInTimePeriodController = TextEditingController();
+  TimeOfDay? startTime;
+  TimeOfDay? endTime;
+
   Future<void> _offerVehicle(BuildContext context) async {
     final firestore = FirebaseFirestore.instance;
+    final location = locationController.text;
+    final stayInTimePeriod = stayInTimePeriodController.text;
+
+    if (location.isEmpty || stayInTimePeriod.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all the fields.')),
+      );
+      return;
+    }
 
     final offerVehicles = await firestore.collection('offerVehicles').get();
 
@@ -106,16 +130,17 @@ class VehicleCard extends StatelessWidget {
 
     await firestore.collection('offerVehicles').add({
       'offerVehicleId': offerVehicleId,
-      'userId': userId,
-      'eventId': eventId,
-      'ownerName': ownerName,
-      'plateNumber': plateNumber,
-      'vehicleId': vehicleId,
-      'seatingCapacity': seatingCapacity,
-      'availableSeats':
-          seatingCapacity, // Set availableSeats based on seatingCapacity
-      'model': model,
-      'vehicleType': vehicleType,
+      'userId': widget.userId,
+      'eventId': widget.eventId,
+      'ownerName': widget.ownerName,
+      'plateNumber': widget.plateNumber,
+      'vehicleId': widget.vehicleId,
+      'seatingCapacity': widget.seatingCapacity,
+      'availableSeats': widget.seatingCapacity,
+      'model': widget.model,
+      'vehicleType': widget.vehicleType,
+      'location': location,
+      'stayInTimePeriod': stayInTimePeriod,
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -123,60 +148,54 @@ class VehicleCard extends StatelessWidget {
     );
   }
 
-  String _getVehicleImage() {
-    switch (vehicleType.toLowerCase()) {
-      case 'bus':
-        return 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDKdpJKMeVFuOqNrhAf7A_cxAArJjmAISmFA7qSmHjJnVlYSv0yaanyMCTcstAsnwa_ZA&usqp=CAU';
-      case 'car':
-        return 'https://static.vecteezy.com/system/resources/previews/008/459/863/non_2x/gorgeous-car-for-2d-cartoon-animation-cute-cartoon-car-free-vector.jpg';
-      case 'bike':
-        return 'https://t3.ftcdn.net/jpg/00/40/41/06/360_F_40410609_VJAIk9BK7EaiNwToWBk0sn0ijySf9cQU.jpg';
-      case 'van':
-        return 'https://static.vecteezy.com/system/resources/previews/047/709/176/non_2x/realistic-truck-illustration-vector.jpg';
-      default:
-        return 'https://via.placeholder.com/150';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.all(10),
+      elevation: 5,
+      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.network(
-              _getVehicleImage(),
-              height: 150,
-              width: 150,
-              fit: BoxFit.cover,
+            Text('Owner: ${widget.ownerName}', style: Theme.of(context).textTheme.titleMedium),
+            Text('Plate Number: ${widget.plateNumber}'),
+            Text('Vehicle Type: ${widget.vehicleType}'),
+            TextField(
+              controller: locationController,
+              decoration: const InputDecoration(labelText: 'Location'),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Owner: $ownerName',
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold)),
-                  Text('Plate Number: $plateNumber',
-                      style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                  Text('Vehicle ID: $vehicleId',
-                      style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                  Text('Seating Capacity: $seatingCapacity',
-                      style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                  Text('Model: $model',
-                      style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                  Text('Vehicle Type: $vehicleType',
-                      style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                  const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: () => _offerVehicle(context),
-                    child: const Text('Offer Vehicle'),
-                  ),
-                ],
-              ),
+            TextField(
+              controller: stayInTimePeriodController,
+              readOnly: true,
+              decoration: const InputDecoration(labelText: 'Stay-in Time Period'),
+              onTap: () async {
+                TimeOfDay? start = await showTimePicker(
+                  context: context,
+                  initialTime: TimeOfDay.now(),
+                );
+                if (start != null) {
+                  TimeOfDay? end = await showTimePicker(
+                    context: context,
+                    initialTime: start,
+                  );
+                  if (end != null) {
+                    setState(() {
+                      startTime = start;
+                      endTime = end;
+                      stayInTimePeriodController.text = "${start.format(context)} - ${end.format(context)}";
+                    });
+                  }
+                }
+              },
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () => _offerVehicle(context),
+              child: const Text('Offer Vehicle'),
             ),
           ],
         ),
@@ -184,3 +203,4 @@ class VehicleCard extends StatelessWidget {
     );
   }
 }
+

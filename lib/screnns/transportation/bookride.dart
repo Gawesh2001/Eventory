@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -16,8 +17,7 @@ class Bookride extends StatelessWidget {
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('offerVehicles')
-            .where('eventId',
-                isEqualTo: eventId) // Fetch records where eventId matches
+            .where('eventId', isEqualTo: eventId) // Fetch records where eventId matches
             .snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
@@ -34,19 +34,21 @@ class Bookride extends StatelessWidget {
             itemCount: vehicles.length,
             itemBuilder: (context, index) {
               var vehicle = vehicles[index];
+
               return VehicleTile(
                 offerVehicleId: vehicle.id,
                 model: vehicle['model'],
                 ownerName: vehicle['ownerName'],
                 plateNumber: vehicle['plateNumber'],
                 seatingCapacity: vehicle['seatingCapacity'],
-                availableSeats:
-                    int.tryParse(vehicle['availableSeats'].toString()) ?? 0,
+                availableSeats: int.tryParse(vehicle['availableSeats'].toString()) ?? 0,
                 userId: vehicle['userId'],
                 vehicleId: vehicle['vehicleId'],
                 vehicleType: vehicle['vehicleType'],
                 eventId: eventId,
                 currentUserId: userId,
+                location: vehicle['location'] ?? "Unknown",
+                stayInTimePeriod: vehicle['stayInTimePeriod'] ?? "Not Specified",
               );
             },
           );
@@ -68,6 +70,8 @@ class VehicleTile extends StatelessWidget {
   final String vehicleType;
   final String eventId;
   final String currentUserId;
+  final String location;
+  final String stayInTimePeriod;
 
   const VehicleTile({
     super.key,
@@ -82,6 +86,8 @@ class VehicleTile extends StatelessWidget {
     required this.vehicleType,
     required this.eventId,
     required this.currentUserId,
+    required this.location,
+    required this.stayInTimePeriod,
   });
 
   Future<void> _bookRide(BuildContext context) async {
@@ -125,8 +131,7 @@ class VehicleTile extends StatelessWidget {
                         Navigator.pop(context);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Invalid number of seats!')),
+                          const SnackBar(content: Text('Invalid number of seats!')),
                         );
                       }
                     },
@@ -157,6 +162,8 @@ class VehicleTile extends StatelessWidget {
         'model': model,
         'plateNumber': plateNumber,
         'vehicleType': vehicleType,
+        'location': location,
+        'stayInTimePeriod': stayInTimePeriod,
       });
 
       // Update the availableSeats in the offerVehicles collection
@@ -170,8 +177,7 @@ class VehicleTile extends StatelessWidget {
         builder: (context) {
           return AlertDialog(
             title: const Text("Booking Confirmed"),
-            content: Text(
-                "You've booked $seatsBooked seats with $ownerName for the vehicle: $model."),
+            content: Text("You've booked $seatsBooked seats with $ownerName for the vehicle: $model."),
             actions: [
               TextButton(
                 onPressed: () {
@@ -215,8 +221,7 @@ class VehicleTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Vehicle Model: $model",
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text("Owner: $ownerName",
                 style: const TextStyle(fontSize: 14, color: Colors.grey)),
@@ -226,6 +231,11 @@ class VehicleTile extends StatelessWidget {
                 style: const TextStyle(fontSize: 14, color: Colors.grey)),
             Text("Vehicle Type: $vehicleType",
                 style: const TextStyle(fontSize: 14, color: Colors.grey)),
+            const SizedBox(height: 8),
+            Text("Location: $location",
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            Text("Stay Period: $stayInTimePeriod",
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text("Available Seats: $availableSeats",
                 style: const TextStyle(
