@@ -19,6 +19,7 @@ class _HomeState extends State<Home> {
   String selectedCategory = 'All'; // Default category is All
   String searchQuery = ''; // Search query
   final TextEditingController _searchController = TextEditingController();
+  String? dpUrl;
 
   Stream<QuerySnapshot> getFilteredStream() {
     print("Selected category: $selectedCategory");
@@ -405,7 +406,7 @@ class _HomeState extends State<Home> {
       width: 350,
       height: 200,
       margin: EdgeInsets.symmetric(horizontal: 8),
-      padding: EdgeInsets.all(23),
+      padding: EdgeInsets.all(13),
       decoration: BoxDecoration(
         color: Color(0xffF1F7F7),
         borderRadius: BorderRadius.circular(20),

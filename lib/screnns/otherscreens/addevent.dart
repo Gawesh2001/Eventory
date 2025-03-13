@@ -10,6 +10,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class addevent extends StatefulWidget {
   const addevent({super.key});
@@ -49,17 +51,16 @@ class _addeventState extends State<addevent> {
   DateTime? selectedDateTime;
   XFile? policeCertificate;
   XFile? eventPhoto;
-  XFile? nicCardImage;
+  XFile? nicCardImageFront;
+  XFile? nicCardImageBack;
   LatLng? selectedLocation;
-  String eventID = Uuid().v4();
-  String? imageUrl;
+  String eventID = "E1000000000"; // Default starting event ID
+  bool _isSaving = false; // Track saving state
 
   final eventNameController = TextEditingController();
   final eventVenueController = TextEditingController();
   final eventManagerController = TextEditingController();
   final eventIDController = TextEditingController();
-  final imageUrlController =
-      TextEditingController(); // New controller for image URL
   Map<String, TextEditingController> ticketPriceControllers = {
     'Normal': TextEditingController(),
     'VIP': TextEditingController(),
@@ -70,14 +71,47 @@ class _addeventState extends State<addevent> {
   final ImagePicker picker = ImagePicker();
 
   @override
+  void initState() {
+    super.initState();
+    _fetchLastEventID(); // Fetch the last event ID when the widget initializes
+  }
+
+  @override
   void dispose() {
     eventNameController.dispose();
     eventVenueController.dispose();
     eventManagerController.dispose();
     eventIDController.dispose();
-    imageUrlController.dispose(); // Dispose the new controller
     ticketPriceControllers.forEach((_, controller) => controller.dispose());
     super.dispose();
+  }
+
+  // Fetch the last event ID from Firestore
+  Future<void> _fetchLastEventID() async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('events')
+          .orderBy('eventID', descending: true)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        String lastEventID = snapshot.docs.first['eventID'];
+        // Extract the numeric part of the ID and increment it
+        int numericPart = int.parse(lastEventID.substring(1));
+        setState(() {
+          eventID = "E${numericPart + 1}"; // Increment and update eventID
+          eventIDController.text = eventID; // Update the text field
+        });
+      } else {
+        // If no events exist, start with the default ID
+        setState(() {
+          eventIDController.text = eventID;
+        });
+      }
+    } catch (e) {
+      print("Error fetching last event ID: $e");
+    }
   }
 
   Future<void> _selectDateTime(BuildContext context) async {
@@ -107,15 +141,17 @@ class _addeventState extends State<addevent> {
   }
 
   Future<void> _pickImage(bool isPoliceCertificate,
-      {bool isNICCard = false}) async {
+      {bool isNICCardFront = false, bool isNICCardBack = false}) async {
     final XFile? pickedFile =
         await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         if (isPoliceCertificate) {
           policeCertificate = pickedFile;
-        } else if (isNICCard) {
-          nicCardImage = pickedFile;
+        } else if (isNICCardFront) {
+          nicCardImageFront = pickedFile;
+        } else if (isNICCardBack) {
+          nicCardImageBack = pickedFile;
         } else {
           eventPhoto = pickedFile;
         }
@@ -123,44 +159,120 @@ class _addeventState extends State<addevent> {
     }
   }
 
+  Future<Map<String, String>?> _uploadImageToCloudinary(XFile file) async {
+    try {
+      final uri =
+          Uri.parse('https://api.cloudinary.com/v1_1/dfnzttf4v/image/upload');
+      final request = http.MultipartRequest('POST', uri)
+        ..fields['upload_preset'] = 'eventoryuploads'
+        ..files.add(await http.MultipartFile.fromPath('file', file.path));
+
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        final responseData = await response.stream.bytesToString();
+        final jsonResponse = jsonDecode(responseData);
+        return {
+          'url': jsonResponse['secure_url'],
+          'public_id': jsonResponse['public_id'],
+        };
+      } else {
+        print("Failed to upload image to Cloudinary: ${response.statusCode}");
+        return null;
+      }
+    } catch (e) {
+      print("Error uploading image to Cloudinary: $e");
+      return null;
+    }
+  }
+
   Future<void> _saveEvent() async {
     setState(() {
-      eventName = eventNameController.text;
-      eventVenue = eventVenueController.text;
-      eventManagerName = eventManagerController.text;
-      normalTicketPrice =
-          double.tryParse(ticketPriceControllers['Normal']!.text);
-      vipTicketPrice = double.tryParse(ticketPriceControllers['VIP']!.text);
-      specialTicketPrice =
-          double.tryParse(ticketPriceControllers['Special']!.text);
-      otherTicketPrice = double.tryParse(ticketPriceControllers['Other']!.text);
-      imageUrl =
-          imageUrlController.text; // Get the image URL from the controller
+      _isSaving = true; // Start loading
     });
 
-    // Create event data map to store in Firestore
-    Map<String, dynamic> eventData = {
-      'eventName': eventName,
-      'eventVenue': eventVenue,
-      'eventManagerName': eventManagerName,
-      'normalTicketPrice': normalTicketPrice,
-      'vipTicketPrice': vipTicketPrice,
-      'specialTicketPrice': specialTicketPrice,
-      'otherTicketPrice': otherTicketPrice,
-      'selectedCategory': selectedCategory,
-      'selectedDateTime': selectedDateTime,
-      'eventID': eventID,
-      'imageUrl': imageUrl, // Save the image URL to Firestore
-      'location': selectedLocation != null
-          ? {
-              'latitude': selectedLocation!.latitude,
-              'longitude': selectedLocation!.longitude
-            }
-          : null,
-      'createdAt': Timestamp.now(),
-    };
-
     try {
+      setState(() {
+        eventName = eventNameController.text;
+        eventVenue = eventVenueController.text;
+        eventManagerName = eventManagerController.text;
+        normalTicketPrice =
+            double.tryParse(ticketPriceControllers['Normal']!.text);
+        vipTicketPrice = double.tryParse(ticketPriceControllers['VIP']!.text);
+        specialTicketPrice =
+            double.tryParse(ticketPriceControllers['Special']!.text);
+        otherTicketPrice =
+            double.tryParse(ticketPriceControllers['Other']!.text);
+      });
+
+      // Upload images to Cloudinary and get their URLs and public IDs
+      Map<String, String>? policeCertificateData;
+      Map<String, String>? eventPhotoData;
+      Map<String, String>? nicCardImageFrontData;
+      Map<String, String>? nicCardImageBackData;
+
+      if (policeCertificate != null) {
+        policeCertificateData =
+            await _uploadImageToCloudinary(policeCertificate!);
+      }
+      if (eventPhoto != null) {
+        eventPhotoData = await _uploadImageToCloudinary(eventPhoto!);
+      }
+      if (nicCardImageFront != null) {
+        nicCardImageFrontData =
+            await _uploadImageToCloudinary(nicCardImageFront!);
+      }
+      if (nicCardImageBack != null) {
+        nicCardImageBackData =
+            await _uploadImageToCloudinary(nicCardImageBack!);
+      }
+
+      // Create event data map to store in Firestore
+      Map<String, dynamic> eventData = {
+        'eventName': eventName,
+        'eventVenue': eventVenue,
+        'eventManagerName': eventManagerName,
+        'normalTicketPrice': normalTicketPrice,
+        'vipTicketPrice': vipTicketPrice,
+        'specialTicketPrice': specialTicketPrice,
+        'otherTicketPrice': otherTicketPrice,
+        'selectedCategory': selectedCategory,
+        'selectedDateTime': selectedDateTime,
+        'eventID': eventID,
+        'policeCertificate': policeCertificateData != null
+            ? {
+                'url': policeCertificateData['url'],
+                'public_id': policeCertificateData['public_id'],
+              }
+            : null,
+        'eventPhoto': eventPhotoData != null
+            ? {
+                'url': eventPhotoData['url'],
+                'public_id': eventPhotoData['public_id'],
+              }
+            : null,
+        'imageUrl':
+            eventPhotoData?['url'], // Add the eventPhoto URL to imageUrl
+        'nicCardImageFront': nicCardImageFrontData != null
+            ? {
+                'url': nicCardImageFrontData['url'],
+                'public_id': nicCardImageFrontData['public_id'],
+              }
+            : null,
+        'nicCardImageBack': nicCardImageBackData != null
+            ? {
+                'url': nicCardImageBackData['url'],
+                'public_id': nicCardImageBackData['public_id'],
+              }
+            : null,
+        'location': selectedLocation != null
+            ? {
+                'latitude': selectedLocation!.latitude,
+                'longitude': selectedLocation!.longitude,
+              }
+            : null,
+        'createdAt': Timestamp.now(),
+      };
+
       await FirebaseFirestore.instance
           .collection('events')
           .doc(eventID)
@@ -171,25 +283,14 @@ class _addeventState extends State<addevent> {
         SnackBar(content: Text("Event saved successfully!")),
       );
     } catch (e) {
+      // Show an error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to save event: $e")),
       );
-    }
-  }
-
-  Future<String?> _uploadImage(XFile file, String path) async {
-    try {
-      // Upload image to Firebase Storage
-      Reference storageRef = FirebaseStorage.instance.ref().child(path);
-      UploadTask uploadTask = storageRef.putFile(File(file.path));
-
-      TaskSnapshot snapshot = await uploadTask;
-      String downloadUrl = await snapshot.ref.getDownloadURL();
-
-      return downloadUrl; // Return the download URL for storage
-    } catch (e) {
-      print("Error uploading image: $e");
-      return null;
+    } finally {
+      setState(() {
+        _isSaving = false; // Stop loading
+      });
     }
   }
 
@@ -208,12 +309,6 @@ class _addeventState extends State<addevent> {
             'Lat: ${selectedLocation!.latitude}, Long: ${selectedLocation!.longitude}';
       });
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    eventIDController.text = eventID; // Initialize the event ID field
   }
 
   @override
@@ -408,24 +503,6 @@ class _addeventState extends State<addevent> {
               ),
               SizedBox(height: 16),
 
-              // Image URL
-              Text("Image URL",
-                  style: TextStyle(color: Colors.white, fontSize: 16)),
-              SizedBox(height: 8),
-              TextField(
-                controller: imageUrlController,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: 'Enter image URL',
-                  hintStyle: TextStyle(color: Colors.white70),
-                  filled: true,
-                  fillColor: Colors.grey[800],
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-              SizedBox(height: 16),
-
               // Police Certificate
               Text("Police Certificate",
                   style: TextStyle(color: Colors.white, fontSize: 16)),
@@ -520,20 +597,20 @@ class _addeventState extends State<addevent> {
               ),
               SizedBox(height: 16),
 
-              // NIC Card Image
-              Text("NIC Card Image",
+              // NIC Card Image Front
+              Text("NIC Card Image Front",
                   style: TextStyle(color: Colors.white, fontSize: 16)),
               SizedBox(height: 8),
               Row(
                 children: [
-                  nicCardImage != null
+                  nicCardImageFront != null
                       ? Container(
                           width: 80,
                           height: 80,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
                             image: DecorationImage(
-                              image: FileImage(File(nicCardImage!.path)),
+                              image: FileImage(File(nicCardImageFront!.path)),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -555,9 +632,56 @@ class _addeventState extends State<addevent> {
                   ElevatedButton(
                     style:
                         ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                    onPressed: () => _pickImage(false, isNICCard: true),
+                    onPressed: () => _pickImage(false, isNICCardFront: true),
                     child: Text(
-                      "Upload NIC Card Image",
+                      "Upload NIC Card Front",
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16),
+
+              // NIC Card Image Back
+              Text("NIC Card Image Back",
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  nicCardImageBack != null
+                      ? Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            image: DecorationImage(
+                              image: FileImage(File(nicCardImageBack!.path)),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        )
+                      : Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[800],
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            Icons.image,
+                            color: Colors.white,
+                            size: 40,
+                          ),
+                        ),
+                  SizedBox(width: 30),
+                  ElevatedButton(
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                    onPressed: () => _pickImage(false, isNICCardBack: true),
+                    child: Text(
+                      "Upload NIC Card Back",
                       style: TextStyle(
                         color: Colors.white,
                       ),
@@ -572,13 +696,32 @@ class _addeventState extends State<addevent> {
                 child: ElevatedButton(
                   style:
                       ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-                  onPressed: _saveEvent,
-                  child: Text(
-                    "Save Event",
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
+                  onPressed: _isSaving
+                      ? null
+                      : _saveEvent, // Disable button while saving
+                  child: _isSaving
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(
+                                color: Colors.white), // Loading indicator
+                            SizedBox(width: 10),
+                            Text(
+                              "Saving...",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Text(
+                          "Save Event",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
               SizedBox(height: 26),

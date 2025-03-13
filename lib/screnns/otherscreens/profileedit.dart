@@ -7,6 +7,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ProfileEdit extends StatefulWidget {
   const ProfileEdit({super.key});
@@ -50,19 +52,35 @@ class _ProfileEditState extends State<ProfileEdit> {
           .collection('userDetails')
           .doc(user.uid)
           .get();
+
       if (profileSnapshot.exists) {
         setState(() {
           _username = profileSnapshot['userName'];
           _contactNumber = profileSnapshot['contactNumber'];
-          _photoUrl = profileSnapshot['photoURL'];
+
+          // Check if dpurl exists in the document before accessing it
+          _photoUrl = profileSnapshot.data() != null &&
+                  (profileSnapshot.data() as Map<String, dynamic>)
+                      .containsKey('dpurl')
+              ? profileSnapshot['dpurl']
+              : 'https://img.freepik.com/premium-vector/professional-male-avatar-profile-picture-employee-work_1322206-66590.jpg';
+
           _usernameController.text = _username ?? '';
           _contactController.text = _contactNumber ?? '';
-          _dateOfBirth = (profileSnapshot['DOB'] != null)
+          _dateOfBirth = (profileSnapshot.data() as Map<String, dynamic>)
+                      .containsKey('DOB') &&
+                  profileSnapshot['DOB'] != null
               ? (profileSnapshot['DOB'] as Timestamp).toDate()
               : null;
           _dobController.text = _dateOfBirth != null
               ? '${_dateOfBirth?.toLocal()}'.split(' ')[0]
               : '';
+        });
+      } else {
+        // If no profile data exists, use the default profile picture
+        setState(() {
+          _photoUrl =
+              'https://img.freepik.com/premium-vector/professional-male-avatar-profile-picture-employee-work_1322206-66590.jpg';
         });
       }
     }
@@ -93,34 +111,72 @@ class _ProfileEditState extends State<ProfileEdit> {
     }
   }
 
-  Future<void> _uploadProfileImage(String userId) async {
-    if (_profileImage != null) {
+  Future<void> _deleteProfileImage() async {
+    final userId = _auth.currentUser?.uid;
+    if (userId != null && _photoUrl != null) {
       try {
-        // Upload image to Firebase Storage
-        final ref = _storage.ref().child('profilePictures/$userId.jpg');
-        await ref.putFile(_profileImage!);
+        // Delete the image from Cloudinary
+        final publicId = _photoUrl!.split('/').last.split('.').first;
+        await _deleteImageFromCloudinary(publicId);
 
-        // Get the download URL
-        String downloadUrl = await ref.getDownloadURL();
-
-        // Update Firestore with the new photoURL
+        // Remove the dpurl from Firestore
         await FirebaseFirestore.instance
             .collection('userDetails')
             .doc(userId)
-            .set(
-          {'photoURL': downloadUrl},
-          SetOptions(merge: true),
-        );
+            .update({'dpurl': FieldValue.delete()});
 
-        // Update the _photoUrl to reflect in UI
+        // Update the UI
         setState(() {
-          _photoUrl = downloadUrl;
+          _photoUrl = null;
+          _profileImage = null;
         });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Profile picture deleted successfully!')),
+        );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to upload profile picture: $e')),
+          SnackBar(content: Text('Failed to delete profile picture: $e')),
         );
       }
+    }
+  }
+
+  Future<void> _uploadProfileImageToCloudinary(File file) async {
+    try {
+      final uri =
+          Uri.parse('https://api.cloudinary.com/v1_1/dfnzttf4v/image/upload');
+      final request = http.MultipartRequest('POST', uri)
+        ..fields['upload_preset'] = 'eventoryuploads'
+        ..files.add(await http.MultipartFile.fromPath('file', file.path));
+
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        final responseData = await response.stream.bytesToString();
+        final jsonResponse = jsonDecode(responseData);
+        return jsonResponse['secure_url'];
+      } else {
+        throw Exception('Failed to upload image to Cloudinary');
+      }
+    } catch (e) {
+      throw Exception('Error uploading image to Cloudinary: $e');
+    }
+  }
+
+  Future<void> _deleteImageFromCloudinary(String publicId) async {
+    try {
+      final uri =
+          Uri.parse('https://api.cloudinary.com/v1_1/dfnzttf4v/image/destroy');
+      final request = http.MultipartRequest('POST', uri)
+        ..fields['public_id'] = publicId
+        ..fields['upload_preset'] = 'eventoryuploads';
+
+      final response = await request.send();
+      if (response.statusCode != 200) {
+        throw Exception('Failed to delete image from Cloudinary');
+      }
+    } catch (e) {
+      throw Exception('Error deleting image from Cloudinary: $e');
     }
   }
 
@@ -131,8 +187,25 @@ class _ProfileEditState extends State<ProfileEdit> {
       final userId = _auth.currentUser?.uid;
       if (userId != null) {
         try {
-          // Upload profile image if selected
-          await _uploadProfileImage(userId);
+          // Upload profile image to Cloudinary if selected
+          if (_profileImage != null) {
+            final imageUrl =
+                await _uploadProfileImageToCloudinary(_profileImage!) as String;
+            setState(() {
+              _photoUrl = imageUrl;
+            });
+
+            // Save the image URL to Firestore
+            await FirebaseFirestore.instance
+                .collection('userDetails')
+                .doc(userId)
+                .set(
+              {
+                'dpurl': imageUrl,
+              },
+              SetOptions(merge: true),
+            );
+          }
 
           // Update other user details in Firestore
           await FirebaseFirestore.instance
@@ -183,7 +256,7 @@ class _ProfileEditState extends State<ProfileEdit> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 20),
-                // Profile Picture with Upload Icon
+                // Profile Picture with Upload and Delete Icons
                 Center(
                   child: Stack(
                     children: [
@@ -212,6 +285,23 @@ class _ProfileEditState extends State<ProfileEdit> {
                           ),
                         ),
                       ),
+                      if (_photoUrl != null)
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: GestureDetector(
+                            onTap: _deleteProfileImage,
+                            child: CircleAvatar(
+                              radius: 12,
+                              backgroundColor: Colors.red,
+                              child: Icon(
+                                Icons.delete,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),

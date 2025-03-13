@@ -1,6 +1,7 @@
 // ignore_for_file: use_key_in_widget_constructors, unused_element, unnecessary_brace_in_string_interps, unused_import, unused_field, library_private_types_in_public_api, prefer_final_fields
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:eventory/Friends/addfriends.dart';
 import 'package:eventory/navigators/bottomnavigatorbar.dart';
 import 'package:eventory/screnns/otherscreens/profileedit.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +35,7 @@ class _UserProfileState extends State<UserProfile> {
     _getUserDetails(); // Fetch user details from Firestore
   }
 
+  String? _photoUrl;
   // Method to fetch user details (username) from Firestore
   Future<void> _getUserDetails() async {
     if (user != null) {
@@ -45,6 +47,10 @@ class _UserProfileState extends State<UserProfile> {
       if (userDoc.exists && userDoc.data() != null) {
         setState(() {
           username = userDoc['userName']; // Fetch username from Firestore
+          _photoUrl = userDoc.data() != null &&
+                  (userDoc.data() as Map<String, dynamic>).containsKey('dpurl')
+              ? userDoc['dpurl']
+              : 'https://img.freepik.com/premium-vector/professional-male-avatar-profile-picture-employee-work_1322206-66590.jpg'; // Default image
         });
       }
     }
@@ -142,27 +148,28 @@ class _UserProfileState extends State<UserProfile> {
                     children: [
                       CircleAvatar(
                         radius: 50,
-                        backgroundImage: _profileImage != null
-                            ? FileImage(_profileImage!)
+                        backgroundImage: _photoUrl != null &&
+                                _photoUrl!.isNotEmpty
+                            ? NetworkImage(_photoUrl!)
                             : AssetImage('assets/profile.png') as ImageProvider,
                         backgroundColor: Colors.grey[800],
                       ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: GestureDetector(
-                          onTap: _pickImage,
-                          child: CircleAvatar(
-                            radius: 12,
-                            backgroundColor: Colors.orange,
-                            child: Icon(
-                              Icons.camera_alt,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                          ),
-                        ),
-                      ),
+                      // Positioned(
+                      //   bottom: 0,
+                      //   right: 0,
+                      //   child: GestureDetector(
+                      //     onTap: _pickImage,
+                      //     child: CircleAvatar(
+                      //       radius: 12,
+                      //       backgroundColor: Colors.orange,
+                      // child: Icon(
+                      //   Icons.camera_alt,
+                      //   color: Colors.white,
+                      //   size: 16,
+                      // ),
+                      // ),
+                      //   ),
+                      //  ),
                     ],
                   ),
                   SizedBox(width: 16),
@@ -263,10 +270,23 @@ class _UserProfileState extends State<UserProfile> {
           },
         ),
         DrawerListTile(
-          icon: Icons.group,
-          title: 'Friends',
+          icon: Icons.person_add,
+          title: 'Add Friends',
           onTap: () {
-            // Navigate to Friends page
+            if (user != null) {
+              // Navigate to AddFriendsPage and pass userID
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      addFriendsPage(userId: user!.uid), // Pass userID here
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('User not logged in!')),
+              );
+            }
           },
         ),
         DrawerListTile(
