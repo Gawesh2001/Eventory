@@ -28,8 +28,10 @@ class _TransportationPageState extends State<TransportationPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(
-        length: 2, vsync: this, initialIndex: 1); // Default to "Transportation"
+    _tabController = TabController(length: 2, vsync: this, initialIndex: 1);
+    _tabController.addListener(() {
+      setState(() {}); // Rebuild UI when tab changes
+    });
     _fetchUserId();
     fetchEvents();
   }
@@ -140,29 +142,26 @@ class _TransportationPageState extends State<TransportationPage>
                                   color: Colors.orange[700]),
                             ),
                             // Add button only on the accommodation side
-                            if (_tabController.index == 0)
+                            if (_tabController.index ==
+                                0) // Now it dynamically updates
                               ElevatedButton(
                                 onPressed: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          AddAccommodationPage(),
-                                    ),
+                                        builder: (context) =>
+                                            AddAccommodationPage()),
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color.fromARGB(
-                                      255, 255, 255, 255), // Button color
+                                  backgroundColor: Colors.white, // Button color
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(
                                         8), // Rounded corners
                                   ),
                                 ),
-                                child: Icon(
-                                  Icons.add,
-                                  color: Colors.orange[700], // Icon color
-                                ),
+                                child: Icon(Icons.add,
+                                    color: Colors.orange[700]), // Icon color
                               ),
                           ],
                         ),

@@ -816,7 +816,7 @@ class AccommodationCard extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.orange[700],
-                    fontSize: 16,
+                    fontSize: 20,
                   ),
                 ),
               ],

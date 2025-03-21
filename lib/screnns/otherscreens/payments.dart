@@ -19,14 +19,17 @@ class PaymentsPage extends StatefulWidget {
   final int totalPrice;
   final String eventId;
   final int totalTickets;
+  final List<Map<String, dynamic>>
+      tickets; // List of tickets with IDs and names
+  final int bookingId;
 
   const PaymentsPage({
     super.key,
     required this.totalPrice,
     required this.eventId,
     required this.totalTickets,
-    String? userId,
-    required int bookingId,
+    required this.tickets,
+    required this.bookingId,
   });
 
   @override
@@ -41,13 +44,11 @@ class _PaymentsPageState extends State<PaymentsPage> {
 
   User? _user;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  int _nextBookingId = 100001; // Default starting booking ID
 
   @override
   void initState() {
     super.initState();
     _getCurrentUser();
-    _fetchLastBookingId();
     dotenv.load(); // Load .env file
   }
 
@@ -55,23 +56,6 @@ class _PaymentsPageState extends State<PaymentsPage> {
     // Get current user from Firebase Authentication
     _user = FirebaseAuth.instance.currentUser;
     setState(() {});
-  }
-
-  Future<void> _fetchLastBookingId() async {
-    // Fetch the last booking ID from Firestore
-    final querySnapshot = await _firestore
-        .collection('Bookings')
-        .orderBy('bookingId', descending: true)
-        .limit(1)
-        .get();
-
-    if (querySnapshot.docs.isNotEmpty) {
-      final lastBookingId = querySnapshot.docs.first['bookingId'] as int;
-      setState(() {
-        _nextBookingId =
-            lastBookingId + 1; // Increment by 1 for the next booking
-      });
-    }
   }
 
   Future<void> _payWithCard(BuildContext context) async {
@@ -89,8 +73,12 @@ class _PaymentsPageState extends State<PaymentsPage> {
       // Store booking details in Firestore
       await _storeBookingDetails();
 
+      // Upload tickets to Firestore
+      await _uploadTickets();
+
       // Generate QR code with eventId and bookingId
-      final qrCodeBytes = await _generateQRCode(_nextBookingId, widget.eventId);
+      final qrCodeBytes =
+          await _generateQRCode(widget.bookingId, widget.eventId);
 
       // Close loading indicator
       Navigator.of(context).pop();
@@ -114,14 +102,39 @@ class _PaymentsPageState extends State<PaymentsPage> {
     }
 
     // Store booking details in Firestore
-    await _firestore.collection('Bookings').doc(_nextBookingId.toString()).set({
-      'bookingId': _nextBookingId,
+    await _firestore
+        .collection('Bookings')
+        .doc(widget.bookingId.toString())
+        .set({
+      'bookingId': widget.bookingId,
       'eventId': widget.eventId,
       'totalTickets': widget.totalTickets,
       'totalPriceLKR': widget.totalPrice,
       'userId': _user!.uid,
       'timestamp': FieldValue.serverTimestamp(),
     });
+  }
+
+  Future<void> _uploadTickets() async {
+    if (_user == null) {
+      throw Exception("User is not authenticated.");
+    }
+
+    // Upload each ticket to the Tickets collection
+    for (var ticket in widget.tickets) {
+      await _firestore
+          .collection('Tickets')
+          .doc(ticket['ticketId'].toString())
+          .set({
+        'ticketId': ticket['ticketId'],
+        'ticketName': ticket['ticketName'],
+        'ticketPrice': ticket['ticketPrice'],
+        'bookingId': widget.bookingId,
+        'eventId': widget.eventId,
+        'userId': _user!.uid,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    }
   }
 
   Future<Uint8List> _generateQRCode(int bookingId, String eventId) async {
@@ -164,7 +177,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
             children: [
               QrImageView(
                 data:
-                    "Booking ID: $_nextBookingId, Event ID: ${widget.eventId}",
+                    "Booking ID: ${widget.bookingId}, Event ID: ${widget.eventId}",
                 version: QrVersions.auto,
                 size: 200,
               ),
@@ -232,7 +245,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
       final message = Message()
         ..from = Address(emailAddress, 'Event Booking System')
         ..recipients.add(email)
-        ..subject = 'Booking Confirmation - $_nextBookingId'
+        ..subject = 'Booking Confirmation - ${widget.bookingId}'
         ..html = '''
           <h1>Booking Confirmation</h1>
           <p>Thank you for booking with us! Here are your booking details:</p>
@@ -241,7 +254,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
           <p><strong>Event Venue:</strong> $eventVenue</p>
           <p><strong>Total Tickets:</strong> ${widget.totalTickets}</p>
           <p><strong>Total Price:</strong> LKR ${widget.totalPrice}.00</p>
-          <p><strong>Booking ID:</strong> $_nextBookingId</p>
+          <p><strong>Booking ID:</strong> ${widget.bookingId}</p>
           <p>Here is your QR code for the event:</p>
           <img src="cid:qrCode" alt="QR Code" width="200" height="200">
         '''
@@ -284,7 +297,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
 
       // Save the PDF to a file
       final directory = await getApplicationDocumentsDirectory();
-      final file = File('${directory.path}/booking_${_nextBookingId}_qr.pdf');
+      final file = File('${directory.path}/booking_${widget.bookingId}_qr.pdf');
       await file.writeAsBytes(await pdf.save());
 
       // Open the PDF file
@@ -307,7 +320,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
     final directory = await getApplicationDocumentsDirectory();
 
     // Create a file and write the QR code bytes
-    final file = File('${directory.path}/booking_${_nextBookingId}_qr.png');
+    final file = File('${directory.path}/booking_${widget.bookingId}_qr.png');
     await file.writeAsBytes(qrCodeBytes);
 
     // Return the file path for email attachment
@@ -330,7 +343,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
           children: [
             // Booking ID and Total Amount
             Text(
-              "Booking ID: $_nextBookingId",
+              "Booking ID: ${widget.bookingId}",
               style: const TextStyle(fontSize: 16, color: Colors.white70),
             ),
             const SizedBox(height: 8),
@@ -340,6 +353,31 @@ class _PaymentsPageState extends State<PaymentsPage> {
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 30),
+            // Display Ticket IDs
+            const Text(
+              "Ticket IDs:",
+              style: TextStyle(fontSize: 18, color: Colors.white),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: ListView.builder(
+                itemCount: widget.tickets.length,
+                itemBuilder: (context, index) {
+                  final ticket = widget.tickets[index];
+                  return ListTile(
+                    title: Text(
+                      "Ticket ID: ${ticket['ticketId']}",
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    subtitle: Text(
+                      "Type: ${ticket['ticketName']}, Price: LKR ${ticket['ticketPrice']}",
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(height: 30),
