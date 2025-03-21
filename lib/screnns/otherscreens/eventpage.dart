@@ -2,7 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:eventory/screnns/otherscreens/payments.dart';
+import 'package:eventory/screnns/otherscreens/payments.dart'; // Adjust the import path as needed
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -49,9 +49,8 @@ class _EventPageState extends State<EventPage> {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       setState(() {
-        userEmail =
-            user.email; // Fetch the user's email from Firebase Authentication
-        userId = user.uid; // Fetch the user ID from Firebase Authentication
+        userEmail = user.email; // Fetch the user's email
+        userId = user.uid; // Fetch the user ID
       });
     } else {
       print("No user is logged in.");
@@ -82,43 +81,87 @@ class _EventPageState extends State<EventPage> {
     });
   }
 
+  Future<int> getLastTicketId() async {
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('Tickets')
+        .orderBy('ticketId', descending: true)
+        .limit(1)
+        .get();
+
+    if (snapshot.docs.isNotEmpty) {
+      final lastTicketId = snapshot.docs.first['ticketId'];
+
+      // Handle both int and String types for ticketId
+      if (lastTicketId is int) {
+        return lastTicketId; // Return the last ticket ID
+      } else if (lastTicketId is String) {
+        // If ticketId is stored as a String, parse it to int
+        final parsedId = int.tryParse(lastTicketId);
+        if (parsedId != null) {
+          return parsedId; // Return the parsed ticket ID
+        }
+      }
+    }
+
+    // Default starting ticket ID if no tickets exist
+    return 1000;
+  }
+
   void proceedToPayment() async {
     double totalPrice = calculateTotalPrice();
     if (totalPrice == 0) return;
 
     // Fetch last booking ID from Firestore
-    QuerySnapshot snapshot = await FirebaseFirestore.instance
-        .collection('bookings')
+    QuerySnapshot bookingSnapshot = await FirebaseFirestore.instance
+        .collection('Bookings')
         .orderBy('bookingId', descending: true)
         .limit(1)
         .get();
 
     DocumentSnapshot? lastBooking =
-        snapshot.docs.isNotEmpty ? snapshot.docs.first : null;
+        bookingSnapshot.docs.isNotEmpty ? bookingSnapshot.docs.first : null;
 
     // Generate new booking ID (starting from 100001)
     int newBookingId =
         lastBooking == null ? 100001 : (lastBooking['bookingId'] as int) + 1;
+
+    // Fetch last ticket ID from Firestore
+    int lastTicketId = await getLastTicketId();
+    List<Map<String, dynamic>> tickets = [];
+
+    // Generate ticket IDs and store them in a list
+    for (var entry in ticketCounts.entries) {
+      if (entry.value > 0) {
+        for (int i = 0; i < entry.value; i++) {
+          lastTicketId++;
+          tickets.add({
+            'ticketId': lastTicketId, // Use the incremented ticket ID
+            'ticketName':
+                entry.key.replaceAll("TicketPrice", ""), // Add ticket name
+            'ticketPrice': eventData![entry.key], // Add ticket price
+            'bookingId': newBookingId,
+            'eventId': widget.eventId,
+            'userId': userId,
+          });
+        }
+      }
+    }
 
     if (userEmail != null) {
       // Send email to user about the booking
       await _sendConfirmationEmail(userEmail!, newBookingId, totalPrice);
     }
 
-    // Calculate the total ticket count
-    int totalTickets = calculateTotalTickets();
-
-    // Pass the userId, totalTickets, and other details to the PaymentsPage
+    // Pass the booking ID, tickets, and other details to the PaymentsPage
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => PaymentsPage(
+          totalPrice: totalPrice.toInt(),
+          eventId: widget.eventId,
+          totalTickets: calculateTotalTickets(),
+          tickets: tickets,
           bookingId: newBookingId,
-          totalPrice: totalPrice.toInt(), // Ensure integer type for totalPrice
-          eventId: widget.eventId, // Pass the eventId to the PaymentsPage
-          userId: userId, // Pass the userId to the PaymentsPage
-          totalTickets:
-              totalTickets, // Pass the totalTickets to the PaymentsPage
         ),
       ),
     );
@@ -130,7 +173,7 @@ class _EventPageState extends State<EventPage> {
       body:
           'Thank you for booking! Your booking ID is: $bookingId\nTotal Price: LKR ${totalPrice.toStringAsFixed(2)}',
       subject: 'Booking Confirmation - $bookingId',
-      recipients: [userEmail], // Send the email to the user
+      recipients: [userEmail],
       isHTML: false,
     );
 
@@ -146,11 +189,12 @@ class _EventPageState extends State<EventPage> {
     if (eventData == null) {
       return Scaffold(
         appBar: AppBar(
-          title: Text("Event Details", style: TextStyle(color: Colors.orange)),
+          title: const Text("Event Details",
+              style: TextStyle(color: Colors.orange)),
           backgroundColor: Colors.black,
-          iconTheme: IconThemeData(color: Colors.orange),
+          iconTheme: const IconThemeData(color: Colors.orange),
         ),
-        body: Center(child: CircularProgressIndicator()),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -158,41 +202,42 @@ class _EventPageState extends State<EventPage> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: Text(eventData!['eventName'] ?? "Event Details",
-            style: TextStyle(color: Colors.orange)),
+            style: const TextStyle(color: Colors.orange)),
         backgroundColor: Colors.black,
-        iconTheme: IconThemeData(color: Colors.orange),
+        iconTheme: const IconThemeData(color: Colors.orange),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  eventData!['imageUrl'] ?? "",
-                  width: double.infinity,
-                  height: 200,
-                  fit: BoxFit.cover,
-                )),
-            SizedBox(height: 16),
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                eventData!['imageUrl'] ?? "",
+                width: double.infinity,
+                height: 200,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(height: 16),
             Text(eventData!['eventName'] ?? "No Event Name",
-                style: TextStyle(
+                style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Colors.white)),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text("Venue: ${eventData!['eventVenue'] ?? 'Unknown'}",
-                style: TextStyle(fontSize: 18, color: Colors.grey)),
+                style: const TextStyle(fontSize: 18, color: Colors.grey)),
             Text("Location: ${eventData!['location'] ?? 'Unknown'}",
-                style: TextStyle(fontSize: 16, color: Colors.grey)),
-            SizedBox(height: 16),
-            Text("Select Tickets",
+                style: const TextStyle(fontSize: 16, color: Colors.grey)),
+            const SizedBox(height: 16),
+            const Text("Select Tickets",
                 style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: Colors.white)),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Column(
               children: [
                 if (eventData!['normalTicketPrice'] != null)
@@ -205,31 +250,31 @@ class _EventPageState extends State<EventPage> {
                   ticketSelector("VIP Ticket", "vipTicketPrice"),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text("Total Tickets: ${calculateTotalTickets()}",
-                style: TextStyle(
+                style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.white)),
             Text("Total Price: LKR ${calculateTotalPrice().toStringAsFixed(2)}",
-                style: TextStyle(
+                style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.green)),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             if (userId != null)
               Text(
                 "User ID: $userId",
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
               ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: proceedToPayment,
               style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14),
-                  textStyle: TextStyle(fontSize: 18, color: Colors.white),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  textStyle: const TextStyle(fontSize: 18, color: Colors.white),
                   backgroundColor: Colors.orange),
-              child: Center(
+              child: const Center(
                   child: Text(
                 "Book Ticket",
                 style:
@@ -249,17 +294,18 @@ class _EventPageState extends State<EventPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text("$label (LKR ${eventData![key]})",
-              style: TextStyle(fontSize: 16, color: Colors.white)),
+              style: const TextStyle(fontSize: 16, color: Colors.white)),
           Row(
             children: [
               IconButton(
-                icon: Icon(Icons.remove_circle_outline, color: Colors.red),
+                icon:
+                    const Icon(Icons.remove_circle_outline, color: Colors.red),
                 onPressed: () => updateTicketCount(key, -1),
               ),
               Text("${ticketCounts[key] ?? 0}",
-                  style: TextStyle(fontSize: 16, color: Colors.white)),
+                  style: const TextStyle(fontSize: 16, color: Colors.white)),
               IconButton(
-                icon: Icon(Icons.add_circle_outline, color: Colors.green),
+                icon: const Icon(Icons.add_circle_outline, color: Colors.green),
                 onPressed: () => updateTicketCount(key, 1),
               ),
             ],
