@@ -12,6 +12,8 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart'; // Added Firebase import
 import 'QRscanpage.dart'; // Import the QR scan page
+import 'package:eventory/screnns/Market/market.dart';
+import 'package:eventory/screnns/otherscreens/mytickets.dart';
 
 class UserProfile extends StatefulWidget {
   const UserProfile({Key? key}) : super(key: key);
@@ -289,6 +291,47 @@ class _UserProfileState extends State<UserProfile> {
             }
           },
         ),
+// Method to navigate to Market page
+        DrawerListTile(
+          icon: Icons.store,
+          title: 'Market place',
+          onTap: () {
+            if (user != null) {
+              // Pass the userId when navigating to the Market page
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Market(userId: user!.uid), // Pass userId here
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('User not logged in!')),
+              );
+            }
+          },
+        ),
+        DrawerListTile(
+          icon: Icons.confirmation_number,
+          title: 'My Tickets',
+          onTap: () {
+            if (user != null) {
+              // Pass the userId when navigating to the My tickets page
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MyTickets(userId: user!.uid), // Pass userId here
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('User not logged in!')),
+              );
+            }
+          },
+        ),
+
+
         DrawerListTile(
           icon: Icons.event,
           title: 'Events',

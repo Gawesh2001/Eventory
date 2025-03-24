@@ -3,6 +3,8 @@
 import 'package:eventory/screnns/home/home.dart';
 import 'package:flutter/material.dart';
 import 'package:eventory/screnns/transportation/transportation.dart';
+import 'package:eventory/screnns/Market//market.dart';
+
 // Import the Home page
 
 class BottomNavigatorBar extends StatelessWidget {
@@ -70,9 +72,13 @@ class BottomNavigatorBar extends StatelessWidget {
                 // Navigate to the Favorite page (you can replace this with your actual page)
               } else if (index == 2) {
                 // Navigate to the Calendar page (replace with your actual page)
-              } else if (index == 3) {
+              }/* else if (index == 3) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Market()),
+                );*/
                 // Navigate to the Market page (replace with your actual page)
-              } else if (index == 4) {
+               else if (index == 4) {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
