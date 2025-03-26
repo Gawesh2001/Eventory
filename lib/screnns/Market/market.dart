@@ -1,8 +1,12 @@
-import 'package:eventory/screnns/Market/sell.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:eventory/screnns/Market/sell.dart';
 import 'package:eventory/navigators/bottomnavigatorbar.dart';
-import 'marketpayment.dart'; // Import the new MarketPayment page
+import 'marketpayment.dart';
+import 'package:intl/intl.dart';
 
 class Market extends StatefulWidget {
   final String userId;
@@ -13,23 +17,44 @@ class Market extends StatefulWidget {
   _MarketState createState() => _MarketState();
 }
 
-class _MarketState extends State<Market> {
+class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   bool isLoading = false;
   String? errorMessage;
-  List<Map<String, dynamic>> marketListings = []; // Declare marketListings here
+  List<Map<String, dynamic>> marketListings = [];
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  String _selectedSort = 'Recent';
+  final List<String> _sortOptions = ['Recent', 'Price: Low to High', 'Price: High to Low', 'Date: Soonest'];
 
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
     _fetchMarketListings();
+    _animationController.forward();
   }
 
-  void _fetchMarketListings() async {
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchMarketListings() async {
     setState(() {
       isLoading = true;
-      errorMessage = null; // Reset error message
+      errorMessage = null;
     });
 
     try {
@@ -50,12 +75,19 @@ class _MarketState extends State<Market> {
 
         if (eventDoc.exists) {
           var eventData = eventDoc.data() as Map<String, dynamic>;
-          listings.add({
-            ...marketData,
-            'eventName': eventData['eventName'],
-            'eventPhoto': eventData['eventPhoto'],
-            'selectedDateTime': eventData['selectedDateTime'],
-          });
+          DateTime eventDate = eventData['selectedDateTime'].toDate();
+          int daysUntilEvent = eventDate.difference(DateTime.now()).inDays;
+
+          // Skip expired events (daysUntilEvent < 0)
+          if (daysUntilEvent >= 0) {
+            listings.add({
+              ...marketData,
+              'eventName': eventData['eventName'],
+              'eventPhoto': eventData['eventPhoto'],
+              'selectedDateTime': eventDate,
+              'docId': doc.id,
+            });
+          }
         }
       }
 
@@ -66,7 +98,7 @@ class _MarketState extends State<Market> {
       setState(() {
         errorMessage = "Error fetching market listings: ${e.toString()}";
       });
-      print("Error fetching market listings: $e"); // Log the error
+      print("Error fetching market listings: $e");
     } finally {
       setState(() {
         isLoading = false;
@@ -74,221 +106,486 @@ class _MarketState extends State<Market> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // Filter listings based on search query
-    final filteredListings = marketListings.where((listing) {
+  List<Map<String, dynamic>> _filterAndSortListings() {
+    List<Map<String, dynamic>> filtered = marketListings.where((listing) {
       final eventName = listing['eventName'].toString().toLowerCase();
       final ticketId = listing['ticketId'].toString().toLowerCase();
       return eventName.contains(_searchQuery) || ticketId.contains(_searchQuery);
     }).toList();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Market"),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+    switch (_selectedSort) {
+      case 'Price: Low to High':
+        filtered.sort((a, b) => a['currentPrice'].compareTo(b['currentPrice']));
+        break;
+      case 'Price: High to Low':
+        filtered.sort((a, b) => b['currentPrice'].compareTo(a['currentPrice']));
+        break;
+      case 'Date: Soonest':
+        filtered.sort((a, b) => a['selectedDateTime'].compareTo(b['selectedDateTime']));
+        break;
+      case 'Recent':
+      default:
+        break;
+    }
+
+    return filtered;
+  }
+
+  Widget _buildMarketCard(Map<String, dynamic> listing, int index) {
+    final eventDate = listing['selectedDateTime'];
+    final daysUntilEvent = eventDate.difference(DateTime.now()).inDays;
+    final discountPercentage = ((listing['originalPrice'] - listing['currentPrice']) /
+        listing['originalPrice'] * 100).round();
+
+    return AnimatedBuilder(
+      animation: CurvedAnimation(
+        parent: _animationController,
+        curve: Interval(0.1 * index, 1.0, curve: Curves.easeOut),
+      ),
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, 50 * (1 - _animationController.value)),
+          child: Opacity(
+            opacity: _animationController.value,
+            child: child,
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white,
+                  daysUntilEvent < 7 ? Color(0xFFFFF0E6) : Colors.white,
+                ],
+              ),
+            ),
+            child: InkWell(
+              onTap: () {
+                HapticFeedback.lightImpact();
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Stack(
+                    children: [
+                      CachedNetworkImage(
+                        imageUrl: listing['eventPhoto']['url'],
+                        height: 180,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: Colors.grey[200],
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xffFF611A)),
+                            ),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Icon(Icons.error),
+                      ),
+                      if (daysUntilEvent < 7)
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Color(0xffFF611A),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'SOON: ${daysUntilEvent}d',
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      Positioned(
+                        bottom: 10,
+                        left: 10,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '${discountPercentage}% OFF',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          listing['eventName'],
+                          style: GoogleFonts.poppins(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Text(
+                              "LKR ${NumberFormat('#,###').format(listing['currentPrice'])}",
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xffFF611A),
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              "LKR ${NumberFormat('#,###').format(listing['originalPrice'])}",
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Colors.grey,
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Icon(Icons.calendar_today, size: 18, color: Colors.grey[600]),
+                            SizedBox(width: 8),
+                            Text(
+                              DateFormat('EEE, MMM d • h:mm a').format(eventDate),
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(Icons.confirmation_number, size: 18, color: Colors.grey[600]),
+                            SizedBox(width: 8),
+                            Text(
+                              "Ticket ID: ${listing['ticketId']}",
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MarketPayment(
+                                    userId: widget.userId,
+                                    ticketId: listing['ticketId'].toString(),
+                                    eventName: listing['eventName'],
+                                    currentPrice: listing['currentPrice'].toInt(),
+                                  ),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xffFF611A),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: EdgeInsets.symmetric(vertical: 14),
+                              elevation: 4,
+                              shadowColor: Color(0xffFF611A).withOpacity(0.3),
+                            ),
+                            child: Text(
+                              "BUY NOW",
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final filteredListings = _filterAndSortListings();
+
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+        title: Text(
+          'Ticket Marketplace',
+          style: GoogleFonts.poppins(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Color(0xffFF611A)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.orange),
-            onPressed: _fetchMarketListings,
+            icon: Icon(Icons.refresh, size: 28),
+            onPressed: () {
+              _animationController.reset();
+              _fetchMarketListings().then((_) {
+                _animationController.forward();
+              });
+            },
           ),
         ],
       ),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: "Enter Event name or Ticket ID",
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-                        prefixIcon: const Icon(Icons.search, color: Colors.orange),
+            padding: const EdgeInsets.all(20.0),
+            child: Material(
+              elevation: 4,
+              borderRadius: BorderRadius.circular(30),
+              shadowColor: Color(0xffFF611A).withOpacity(0.2),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Colors.white,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: TextField(
+                          controller: _searchController,
+                          style: GoogleFonts.poppins(fontSize: 16),
+                          decoration: InputDecoration(
+                            hintText: "Search events or ticket IDs...",
+                            hintStyle: GoogleFonts.poppins(color: Colors.grey),
+                            border: InputBorder.none,
+                            icon: Icon(Icons.search, color: Color(0xffFF611A)),
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              _searchQuery = value.toLowerCase();
+                            });
+                          },
+                        ),
                       ),
-                      onChanged: (value) {
-                        setState(() {
-                          _searchQuery = value.toLowerCase();
-                        });
-                      },
                     ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.orange,
-                      borderRadius: BorderRadius.circular(20),
+                    AnimatedContainer(
+                      duration: Duration(milliseconds: 300),
+                      width: _searchQuery.isNotEmpty ? 100 : 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Color(0xffFF611A),
+                            Color(0xffFF9349),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(30),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(30),
+                          onTap: () {
+                            setState(() {
+                              _searchQuery = _searchController.text.toLowerCase();
+                            });
+                          },
+                          child: Center(
+                            child: AnimatedSwitcher(
+                              duration: Duration(milliseconds: 300),
+                              child: _searchQuery.isNotEmpty
+                                  ? Text(
+                                'SEARCH',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              )
+                                  : Icon(Icons.search, color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                    child: IconButton(
-                      icon: const Icon(Icons.search, color: Colors.white),
-                      onPressed: () {
-                        setState(() {
-                          _searchQuery = _searchController.text.toLowerCase();
-                        });
-                      },
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-          const SizedBox(height: 10),
-
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Row(
+              children: [
+                Icon(Icons.sort, color: Color(0xffFF611A)),
+                SizedBox(width: 8),
+                Text(
+                  'Sort by:',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(width: 8),
+                DropdownButton<String>(
+                  value: _selectedSort,
+                  icon: Icon(Icons.arrow_drop_down, color: Color(0xffFF611A)),
+                  underline: Container(),
+                  style: GoogleFonts.poppins(
+                    color: Colors.black87,
+                    fontSize: 14,
+                  ),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedSort = newValue!;
+                    });
+                  },
+                  items: _sortOptions.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+          ),
           if (errorMessage != null)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Text(
-                errorMessage!,
-                style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              child: Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red[50],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.red[200]!),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.red),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        errorMessage!,
+                        style: GoogleFonts.poppins(
+                          color: Colors.red[800],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-
           Expanded(
             child: isLoading
-                ? const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 6,
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xffFF611A)),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Loading Market Listings',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
               ),
             )
                 : filteredListings.isEmpty
                 ? Center(
-              child: Text(
-                "No listings found.",
-                style: TextStyle(color: Colors.red, fontSize: 18, fontWeight: FontWeight.bold),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.markunread_mailbox_outlined,
+                    size: 80,
+                    color: Colors.grey[300],
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'No listings available',
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Check back later or list your own tickets',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
               ),
             )
                 : ListView.builder(
-              padding: const EdgeInsets.all(16),
+              physics: BouncingScrollPhysics(),
               itemCount: filteredListings.length,
               itemBuilder: (context, index) {
-                var listing = filteredListings[index];
-                return Card(
-                  elevation: 4,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(15)),
-                        child: Image.network(
-                          listing['eventPhoto']['url'],
-                          height: 150,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              listing['eventName'],
-                              style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Text(
-                                  "LKR ${listing['currentPrice'].toInt()}", // Explicitly cast to int
-                                  style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.orange),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "LKR ${listing['originalPrice'].toInt()}", // Explicitly cast to int
-                                  style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                      decoration: TextDecoration.lineThrough),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Event Date: ${listing['selectedDateTime'].toDate().toString().split(' ')[0]}",
-                              style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Ticket ID: ${listing['ticketId']}",
-                              style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 16),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  // Navigate to MarketPayment page
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MarketPayment(
-                                        userId: widget.userId,
-                                        ticketId: listing['ticketId'].toString(),
-                                        eventId: listing['eventId'],
-                                        currentPrice: listing['currentPrice'].toInt(), // Explicitly cast to int
-                                      ),
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.orange,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                ),
-                                child: const Text(
-                                  "Buy Now",
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
+                return _buildMarketCard(filteredListings[index], index);
               },
             ),
           ),
@@ -298,11 +595,15 @@ class _MarketState extends State<Market> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => Sell(userId: widget.userId)),
-          );
+            MaterialPageRoute(
+              builder: (context) => Sell(userId: widget.userId),
+              fullscreenDialog: true,
+            ),
+          ).then((_) => _fetchMarketListings());
         },
-        backgroundColor: Colors.orange,
-        child: const Icon(Icons.add),
+        backgroundColor: Color(0xffFF611A),
+        elevation: 6,
+        child: Icon(Icons.add, size: 32),
       ),
       bottomNavigationBar: BottomNavigatorBar(),
     );
