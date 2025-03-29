@@ -16,7 +16,7 @@ import 'package:eventory/screnns/Market/market.dart';
 import 'package:eventory/screnns/otherscreens/mytickets.dart';
 
 class UserProfile extends StatefulWidget {
-  const UserProfile({Key? key}) : super(key: key);
+  const UserProfile({Key? key, required String userId}) : super(key: key);
 
   @override
   _UserProfileState createState() => _UserProfileState();
@@ -264,13 +264,7 @@ class _UserProfileState extends State<UserProfile> {
             );
           },
         ),
-        DrawerListTile(
-          icon: Icons.emoji_events,
-          title: 'Achievements',
-          onTap: () {
-            // Navigate to Achievements page
-          },
-        ),
+
         DrawerListTile(
           icon: Icons.person_add,
           title: 'Add Friends',
@@ -281,7 +275,7 @@ class _UserProfileState extends State<UserProfile> {
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
-                      addFriendsPage(userId: user!.uid), // Pass userID here
+                      AddFriendsPage(userId: user!.uid), // Pass userID here
                 ),
               );
             } else {
@@ -301,7 +295,8 @@ class _UserProfileState extends State<UserProfile> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Market(userId: user!.uid), // Pass userId here
+                  builder: (context) =>
+                      Market(userId: user!.uid), // Pass userId here
                 ),
               );
             } else {
@@ -320,7 +315,8 @@ class _UserProfileState extends State<UserProfile> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => MyTickets(userId: user!.uid), // Pass userId here
+                  builder: (context) =>
+                      MyTickets(userId: user!.uid), // Pass userId here
                 ),
               );
             } else {
@@ -331,14 +327,6 @@ class _UserProfileState extends State<UserProfile> {
           },
         ),
 
-
-        DrawerListTile(
-          icon: Icons.event,
-          title: 'Events',
-          onTap: () {
-            // Navigate to Events page
-          },
-        ),
         DrawerListTile(
           icon: Icons.manage_accounts,
           title: 'Enter Your Event Here',

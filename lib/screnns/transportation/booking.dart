@@ -17,7 +17,10 @@ class CarBookingPage extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => UserProfile()),
+                MaterialPageRoute(
+                    builder: (context) => UserProfile(
+                          userId: '',
+                        )),
               );
             },
           ),

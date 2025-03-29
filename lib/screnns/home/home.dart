@@ -16,14 +16,13 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  String selectedCategory = 'All'; // Default category is All
-  String searchQuery = ''; // Search query
+  String selectedCategory = 'All';
+  String searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
   String? dpUrl;
 
+  // Get filtered events stream based on category
   Stream<QuerySnapshot> getFilteredStream() {
-    print("Selected category: $selectedCategory");
-
     if (selectedCategory == 'All') {
       return FirebaseFirestore.instance
           .collection('events')
@@ -38,13 +37,38 @@ class _HomeState extends State<Home> {
     }
   }
 
+  // Get search results - Fixed implementation
   Stream<QuerySnapshot> getSearchResults(String query) {
-    return FirebaseFirestore.instance
-        .collection('events')
-        .where('condi', isEqualTo: 'yes')
-        .where('eventName', isGreaterThanOrEqualTo: query)
-        .where('eventName', isLessThan: '${query}z')
-        .snapshots();
+    if (query.isEmpty) {
+      return FirebaseFirestore.instance
+          .collection('events')
+          .where('condi', isEqualTo: 'yes')
+          .snapshots();
+    } else {
+      return FirebaseFirestore.instance
+          .collection('events')
+          .where('condi', isEqualTo: 'yes')
+          .where('eventName', isGreaterThanOrEqualTo: query)
+          .where('eventName', isLessThan: query + 'z')
+          .snapshots();
+    }
+  }
+
+  // Filter out past events
+  List<QueryDocumentSnapshot> filterEvents(List<QueryDocumentSnapshot> events) {
+    final now = DateTime.now();
+    return events.where((event) {
+      final eventData = event.data() as Map<String, dynamic>;
+      if (eventData['selectedDateTime'] is Timestamp) {
+        final eventDate = (eventData['selectedDateTime'] as Timestamp).toDate();
+        return eventDate.isAfter(now) || isSameDay(eventDate, now);
+      }
+      return false;
+    }).toList();
+  }
+
+  bool isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
   @override
@@ -53,20 +77,23 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Row(
           children: [
-            Icon(Icons.notifications, color: Colors.orange),
+            Icon(Icons.mosque_outlined, color: Colors.orange),
             SizedBox(width: 8),
-            const Text("Home"),
+            const Text("Eventory"),
           ],
         ),
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.black),
         actions: [
           IconButton(
-            icon: Icon(Icons.account_circle, color: Colors.black),
+            icon: Icon(Icons.person_4_outlined, color: Colors.black),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => UserProfile()),
+                MaterialPageRoute(
+                    builder: (context) => UserProfile(
+                          userId: '',
+                        )),
               );
             },
           ),
@@ -75,318 +102,274 @@ class _HomeState extends State<Home> {
       body: MainLayout(
         body: Column(
           children: [
+            // Search Bar
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Color(0xffF1F7F7),
-                  hintText: 'Search...',
-                  hintStyle: TextStyle(color: Colors.orange[300]),
-                  labelText: 'Search Events',
-                  labelStyle: TextStyle(color: Color(0xff6F7D7D)),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(40),
-                    borderSide: BorderSide(color: Colors.orange, width: 1),
+              child: Material(
+                elevation: 10,
+                shadowColor: Colors.black.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(40),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Color(0xffF1F7F7),
+                    hintText: 'Search events...',
+                    hintStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                    prefixIcon: Icon(Icons.search, color: Colors.orange),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(40),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(40),
+                      borderSide: BorderSide(color: Colors.black, width: 1),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(40),
+                      borderSide: BorderSide(color: Colors.black, width: 0),
+                    ),
                   ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                  onChanged: (value) {
+                    setState(() {
+                      searchQuery = value;
+                    });
+                  },
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    searchQuery = value;
-                  });
-                },
               ),
             ),
+
+            // Search Results
             if (searchQuery.isNotEmpty)
-              StreamBuilder<QuerySnapshot>(
-                stream: getSearchResults(searchQuery),
-                builder: (context, snapshot) {
-                  try {
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: getSearchResults(searchQuery),
+                  builder: (context, snapshot) {
                     if (snapshot.hasError) {
-                      // return Center(child: Text('Error loading events.'));
+                      return Center(child: Text('Error loading events.'));
                     }
-                  } catch (e) {
-                    return Center(child: Text('Error: ${e.toString()}'));
-                  }
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
 
-                  final events = snapshot.data?.docs ?? [];
+                    final events = filterEvents(snapshot.data?.docs ?? []);
 
-                  return Column(
-                    children: events.map((event) {
-                      final eventData = event.data() as Map<String, dynamic>?;
-                      return _buildSearchResultContainer(eventData);
-                    }).toList(),
-                  );
-                },
+                    if (events.isEmpty) {
+                      return Center(child: Text('No events found'));
+                    }
+
+                    return ListView.builder(
+                      itemCount: events.length,
+                      itemBuilder: (context, index) {
+                        final eventData =
+                            events[index].data() as Map<String, dynamic>;
+                        return _buildSearchResultContainer(
+                            eventData, events[index].id);
+                      },
+                    );
+                  },
+                ),
               ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  SizedBox(width: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        selectedCategory = 'All';
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: selectedCategory == 'All'
-                          ? Colors.orange
-                          : Colors.white60,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: Text('All', style: TextStyle(color: Colors.black)),
-                  ),
-                  SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        selectedCategory = 'Music';
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: selectedCategory == 'Music'
-                          ? Colors.orange
-                          : Colors.white60,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: Text('Music', style: TextStyle(color: Colors.black)),
-                  ),
-                  SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        selectedCategory = 'Theater';
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: selectedCategory == 'Theater'
-                          ? Colors.orange
-                          : Colors.white60,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child:
-                        Text('Theater', style: TextStyle(color: Colors.black)),
-                  ),
-                  SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        selectedCategory = 'Sport';
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: selectedCategory == 'Sport'
-                          ? Colors.orange
-                          : Colors.white60,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: Text('Sport', style: TextStyle(color: Colors.black)),
-                  ),
-                  SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        selectedCategory = 'Movie';
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: selectedCategory == 'Movie'
-                          ? Colors.orange
-                          : Colors.white60,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: Text('Movie', style: TextStyle(color: Colors.black)),
-                  ),
-                  SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        selectedCategory = 'Orchestral';
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: selectedCategory == 'Orchestral'
-                          ? Colors.orange
-                          : Colors.white60,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: Text('Orchestral',
-                        style: TextStyle(color: Colors.black)),
-                  ),
-                  SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        selectedCategory = 'Carnival';
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: selectedCategory == 'Carnival'
-                          ? Colors.orange
-                          : Colors.white60,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child:
-                        Text('Carnival', style: TextStyle(color: Colors.black)),
-                  ),
-                  SizedBox(width: 16),
-                ],
-              ),
-            ),
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: getFilteredStream(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Center(child: Text('Error loading events.'));
-                  }
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                  final events = snapshot.data?.docs ?? [];
 
-                  return SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text.rich(TextSpan(children: [
-                            TextSpan(
-                              text: 'Happening ',
-                              style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black, // "Happening" in black
-                              ),
+            if (searchQuery.isEmpty) ...[
+              // Category Chips
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    children: [
+                      SizedBox(width: 16),
+                      _buildCategoryChip('All'),
+                      SizedBox(width: 8),
+                      _buildCategoryChip('Music'),
+                      SizedBox(width: 8),
+                      _buildCategoryChip('Theater'),
+                      SizedBox(width: 8),
+                      _buildCategoryChip('Sport'),
+                      SizedBox(width: 8),
+                      _buildCategoryChip('Movie'),
+                      SizedBox(width: 8),
+                      _buildCategoryChip('Orchestral'),
+                      SizedBox(width: 8),
+                      _buildCategoryChip('Carnival'),
+                      SizedBox(width: 16),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Events Content
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: getFilteredStream(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error loading events.'));
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+
+                    final events = filterEvents(snapshot.data?.docs ?? []);
+
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        return SingleChildScrollView(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: constraints.maxHeight,
                             ),
-                            TextSpan(
-                              text: 'This Week',
-                              style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.orange, // "This Week" in orange
-                              ),
-                            ),
-                          ])),
-                        ),
-                        SizedBox(
-                          height: 220,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: List.generate(events.length, (index) {
-                                final eventData = events[index].data()
-                                    as Map<String, dynamic>?;
-                                DateTime eventDate = DateTime.now();
-                                if (eventData?['selectedDateTime']
-                                    is Timestamp) {
-                                  eventDate = (eventData?['selectedDateTime']
-                                          as Timestamp)
-                                      .toDate();
-                                }
-                                bool isUpcoming = eventDate
-                                        .isAfter(DateTime.now()) &&
-                                    eventDate.isBefore(
-                                        DateTime.now().add(Duration(days: 7)));
-                                // Add the event if it is within the next 7 days
-                                if (isUpcoming) {
-                                  return InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => EventPage(
-                                            eventId: events[index].id,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Happening This Week Section
+                                if (events.any((event) {
+                                  final eventData =
+                                      event.data() as Map<String, dynamic>;
+                                  final eventDate =
+                                      (eventData['selectedDateTime']
+                                              as Timestamp)
+                                          .toDate();
+                                  return eventDate.isBefore(
+                                      DateTime.now().add(Duration(days: 7)));
+                                }))
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        16, 16, 16, 8),
+                                    child: Text.rich(
+                                      TextSpan(children: [
+                                        TextSpan(
+                                          text: 'Happening ',
+                                          style: TextStyle(
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
                                           ),
                                         ),
-                                      );
-                                    },
-                                    child: _buildHorizontalEventContainer(
-                                        eventData),
-                                  );
-                                } else {
-                                  return Container(); // Skip if not in next 7 days
-                                }
-                              }),
+                                        TextSpan(
+                                          text: 'This Week',
+                                          style: TextStyle(
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.orange,
+                                          ),
+                                        ),
+                                      ]),
+                                    ),
+                                  ),
+
+                                // Horizontal Scroll for This Week's Events
+                                if (events.any((event) {
+                                  final eventData =
+                                      event.data() as Map<String, dynamic>;
+                                  final eventDate =
+                                      (eventData['selectedDateTime']
+                                              as Timestamp)
+                                          .toDate();
+                                  return eventDate.isBefore(
+                                      DateTime.now().add(Duration(days: 7)));
+                                }))
+                                  Container(
+                                    height: 180,
+                                    padding: EdgeInsets.only(bottom: 16),
+                                    child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 16),
+                                      itemCount: events.where((event) {
+                                        final eventData = event.data()
+                                            as Map<String, dynamic>;
+                                        final eventDate =
+                                            (eventData['selectedDateTime']
+                                                    as Timestamp)
+                                                .toDate();
+                                        return eventDate.isBefore(DateTime.now()
+                                            .add(Duration(days: 7)));
+                                      }).length,
+                                      itemBuilder: (context, index) {
+                                        final filteredEvents =
+                                            events.where((event) {
+                                          final eventData = event.data()
+                                              as Map<String, dynamic>;
+                                          final eventDate =
+                                              (eventData['selectedDateTime']
+                                                      as Timestamp)
+                                                  .toDate();
+                                          return eventDate.isBefore(
+                                              DateTime.now()
+                                                  .add(Duration(days: 7)));
+                                        }).toList();
+
+                                        final eventData = filteredEvents[index]
+                                            .data() as Map<String, dynamic>;
+                                        return Padding(
+                                          padding: EdgeInsets.only(right: 16),
+                                          child: _buildHorizontalEventContainer(
+                                              eventData,
+                                              filteredEvents[index].id),
+                                        );
+                                      },
+                                    ),
+                                  ),
+
+                                // Upcoming Events Section
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                                  child: Text.rich(
+                                    TextSpan(children: [
+                                      TextSpan(
+                                        text: 'Upcoming ',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.orange,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: 'Events',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                      )
+                                    ]),
+                                  ),
+                                ),
+
+                                // Grid View for All Upcoming Events
+                                GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  padding: EdgeInsets.symmetric(horizontal: 16),
+                                  itemCount: events.length,
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 16.0,
+                                    mainAxisSpacing: 16.0,
+                                    childAspectRatio: 0.75,
+                                  ),
+                                  itemBuilder: (context, index) {
+                                    final eventData = events[index].data()
+                                        as Map<String, dynamic>;
+                                    return _buildEventContainer(
+                                        eventData, events[index].id);
+                                  },
+                                ),
+                              ],
                             ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text.rich(TextSpan(children: [
-                            TextSpan(
-                              text: 'Upcoming ',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.orange, // "Upcoming" in orange
-                              ),
-                            ),
-                            TextSpan(
-                              text: 'Events',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black, // "Events" in black
-                              ),
-                            )
-                          ])),
-                        ),
-                        GridView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: events.length,
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 0.5,
-                            mainAxisSpacing: 6.0,
-                            childAspectRatio: 0.6,
-                          ),
-                          itemBuilder: (context, index) {
-                            final eventData =
-                                events[index].data() as Map<String, dynamic>?;
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          EventPage(eventId: events[index].id)),
-                                );
-                              },
-                              child: _buildEventContainer(eventData),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),
@@ -394,174 +377,368 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildHorizontalEventContainer(Map<String, dynamic>? eventData) {
-    String formattedDateTime = '';
-    if (eventData?['selectedDateTime'] is Timestamp) {
-      DateTime dateTime =
-          (eventData?['selectedDateTime'] as Timestamp).toDate();
-      formattedDateTime = DateFormat('h:mm a').format(dateTime);
-    }
-
-    return Container(
-      width: 350,
-      height: 200,
-      margin: EdgeInsets.symmetric(horizontal: 8),
-      padding: EdgeInsets.all(13),
-      decoration: BoxDecoration(
-        color: Color(0xffF1F7F7),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 10,
-            offset: Offset(5, 10),
-          ),
-        ],
+  Widget _buildCategoryChip(String category) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedCategory = selectedCategory == category ? 'All' : category;
+        });
+      },
+      child: Chip(
+        label: Text(category),
+        backgroundColor:
+            selectedCategory == category ? Colors.orange : Colors.grey[200],
+        labelStyle: TextStyle(
+          color: selectedCategory == category ? Colors.white : Colors.black,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        elevation: 8,
+        shadowColor: Colors.black.withOpacity(0.5),
+        side: BorderSide.none,
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 165,
-            height: 350,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              image: DecorationImage(
-                image: NetworkImage(eventData?['imageUrl'] ??
-                    'https://via.placeholder.com/150'),
+    );
+  }
+
+  Widget _buildHorizontalEventContainer(
+      Map<String, dynamic> eventData, String eventId) {
+    final dateTime = (eventData['selectedDateTime'] as Timestamp).toDate();
+    final formattedDate = DateFormat('MMM d').format(dateTime);
+    final formattedTime = DateFormat('h:mm a').format(dateTime);
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EventPage(eventId: eventId),
+          ),
+        );
+      },
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.85,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Event Image (Left Side)
+            ClipRRect(
+              borderRadius: BorderRadius.horizontal(
+                left: Radius.circular(16),
+                right: Radius.circular(0),
+              ),
+              child: Image.network(
+                eventData['imageUrl'] ?? 'https://via.placeholder.com/300x150',
+                width: 120,
+                height: double.infinity,
                 fit: BoxFit.cover,
               ),
             ),
-          ),
-          SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  eventData?['eventName'] ?? 'Event Name',
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+
+            // Event Details (Right Side)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Event Name
+                    Text(
+                      eventData['eventName'] ?? 'Event Name',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+
+                    // Date and Time
+                    Row(
+                      children: [
+                        Icon(Icons.calendar_today,
+                            size: 16, color: Colors.grey),
+                        SizedBox(width: 4),
+                        Text(
+                          formattedDate,
+                          style: TextStyle(fontSize: 14, color: Colors.grey),
+                        ),
+                        SizedBox(width: 8),
+                        Icon(Icons.access_time, size: 16, color: Colors.grey),
+                        SizedBox(width: 4),
+                        Text(
+                          formattedTime,
+                          style: TextStyle(fontSize: 14, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+
+                    // Venue
+                    Row(
+                      children: [
+                        Icon(Icons.location_on, size: 16, color: Colors.grey),
+                        SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            eventData['eventVenue'] ?? 'Venue not specified',
+                            style: TextStyle(fontSize: 14, color: Colors.grey),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // Price
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        'LKR ${eventData['normalTicketPrice']?.toString() ?? '0'}',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                Text(eventData?['eventVenue'] ?? 'Venue'),
-                SizedBox(height: 4),
-                Text(formattedDateTime.isEmpty ? 'Time' : formattedDateTime),
-                SizedBox(height: 4),
-                Text('Price: LKR: ${eventData?['normalTicketPrice'] ?? '0'}'),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildEventContainer(Map<String, dynamic>? eventData) {
-    String formattedDateTime = '';
-    if (eventData?['selectedDateTime'] is Timestamp) {
-      DateTime dateTime =
-          (eventData?['selectedDateTime'] as Timestamp).toDate();
-      formattedDateTime = DateFormat('h:mm a').format(dateTime);
-    }
+  Widget _buildEventContainer(Map<String, dynamic> eventData, String eventId) {
+    final dateTime = (eventData['selectedDateTime'] as Timestamp).toDate();
+    final formattedDate = DateFormat('MMM d').format(dateTime);
+    final formattedTime = DateFormat('h:mm a').format(dateTime);
 
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 11, vertical: 16),
-      padding: EdgeInsets.all(13),
-      decoration: BoxDecoration(
-        color: Color(0xffF1F7F7),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 8,
-            offset: Offset(5, 10),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EventPage(eventId: eventId),
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            height: 110,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              image: DecorationImage(
-                image: NetworkImage(eventData?['imageUrl'] ??
-                    'https://via.placeholder.com/150'),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 6,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Event Image
+            ClipRRect(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+              child: Image.network(
+                eventData['imageUrl'] ?? 'https://via.placeholder.com/300x150',
+                height: 100,
                 fit: BoxFit.cover,
               ),
             ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            eventData?['eventName'] ?? 'Event Name',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          Text(eventData?['eventVenue'] ?? 'Event Venue',
-              style: TextStyle(fontSize: 12)),
-          Text(
-            formattedDateTime.isEmpty
-                ? 'Event Date and Time'
-                : formattedDateTime,
-            style: TextStyle(fontSize: 16),
-          ),
-          SizedBox(height: 4),
-          Text('Price: LKR: ${eventData?['normalTicketPrice'] ?? '0'}'),
-        ],
+
+            // Event Details
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Event Name
+                  Text(
+                    eventData['eventName'] ?? 'Event Name',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+
+                  SizedBox(height: 4),
+
+                  // Date and Time
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today, size: 12, color: Colors.grey),
+                      SizedBox(width: 4),
+                      Text(
+                        formattedDate,
+                        style: TextStyle(fontSize: 10, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+
+                  Row(
+                    children: [
+                      Icon(Icons.access_time, size: 12, color: Colors.grey),
+                      SizedBox(width: 4),
+                      Text(
+                        formattedTime,
+                        style: TextStyle(fontSize: 10, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: 4),
+
+                  // Venue
+                  Row(
+                    children: [
+                      Icon(Icons.location_on, size: 12, color: Colors.grey),
+                      SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          eventData['eventVenue'] ?? 'Venue not specified',
+                          style: TextStyle(fontSize: 10, color: Colors.grey),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: 8),
+
+                  // Price
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      'LKR ${eventData['normalTicketPrice']?.toString() ?? '0'}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildSearchResultContainer(Map<String, dynamic>? eventData) {
-    String formattedDateTime = '';
-    if (eventData?['selectedDateTime'] is Timestamp) {
-      DateTime dateTime =
-          (eventData?['selectedDateTime'] as Timestamp).toDate();
-      formattedDateTime = DateFormat('h:mm a').format(dateTime);
-    }
+  Widget _buildSearchResultContainer(
+      Map<String, dynamic> eventData, String eventId) {
+    final dateTime = (eventData['selectedDateTime'] as Timestamp).toDate();
+    final formattedDate = DateFormat('MMM d, y').format(dateTime);
+    final formattedTime = DateFormat('h:mm a').format(dateTime);
 
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      padding: EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Color(0xffF1F7F7),
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 8,
-            offset: Offset(0, 2),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EventPage(eventId: eventId),
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            height: 150,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              image: DecorationImage(
-                image: NetworkImage(eventData?['imageUrl'] ??
-                    'https://via.placeholder.com/150'),
+        );
+      },
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // Event Image
+            ClipRRect(
+              borderRadius: BorderRadius.horizontal(left: Radius.circular(12)),
+              child: Image.network(
+                eventData['imageUrl'] ?? 'https://via.placeholder.com/100',
+                width: 100,
+                height: 100,
                 fit: BoxFit.cover,
               ),
             ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            eventData?['eventName'] ?? 'Event Name',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          Text(eventData?['eventVenue'] ?? 'Event Venue',
-              style: TextStyle(fontSize: 12)),
-          Text(
-            formattedDateTime.isEmpty
-                ? 'Event Date and Time'
-                : formattedDateTime,
-            style: TextStyle(fontSize: 16),
-          ),
-          SizedBox(height: 4),
-          Text('Price: LKR: ${eventData?['normalTicketPrice'] ?? '0'}'),
-        ],
+
+            // Event Details
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      eventData['eventName'] ?? 'Event Name',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Icons.calendar_today,
+                            size: 12, color: Colors.grey),
+                        SizedBox(width: 4),
+                        Text(
+                          formattedDate,
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.access_time, size: 12, color: Colors.grey),
+                        SizedBox(width: 4),
+                        Text(
+                          formattedTime,
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'LKR ${eventData['normalTicketPrice']?.toString() ?? '0'}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

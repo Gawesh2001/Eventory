@@ -1,146 +1,320 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class addFriendsPage extends StatefulWidget {
+class AddFriendsPage extends StatefulWidget {
   final String userId;
 
-  // Constructor to accept userId
-  const addFriendsPage({Key? key, required this.userId}) : super(key: key);
+  const AddFriendsPage({Key? key, required this.userId}) : super(key: key);
 
   @override
   _AddFriendsPageState createState() => _AddFriendsPageState();
 }
 
-class _AddFriendsPageState extends State<addFriendsPage> {
+class _AddFriendsPageState extends State<AddFriendsPage> {
   String? userName;
   String? dpUrl;
-  bool isFollowing = false; // For managing follow status
-  bool isFollowed = false; // For managing followed status
+  int followersCount = 0;
+  int followingCount = 0;
+  bool isFriend = false;
+  bool isLoading = true;
+  String? currentUserId;
 
   @override
   void initState() {
     super.initState();
+    currentUserId = FirebaseAuth.instance.currentUser?.uid;
     _getUserDetails();
+    _getFollowStats();
+    _checkFriendshipStatus();
   }
 
-  // Method to fetch user details from Firestore
   Future<void> _getUserDetails() async {
-    DocumentSnapshot userDoc = await FirebaseFirestore.instance
-        .collection('userDetails')
-        .doc(widget.userId)
-        .get();
+    try {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('userDetails')
+          .doc(widget.userId)
+          .get();
 
-    if (userDoc.exists && userDoc.data() != null) {
-      setState(() {
-        userName = userDoc['userName'];
-        dpUrl = userDoc['dpurl'] ??
-            'https://img.freepik.com/premium-vector/professional-male-avatar-profile-picture-employee-work_1322206-66590.jpg'; // Default image
-      });
+      if (userDoc.exists) {
+        setState(() {
+          userName = userDoc['userName'];
+          dpUrl = userDoc['dpurl'] ??
+              'https://img.freepik.com/premium-vector/professional-male-avatar-profile-picture-employee-work_1322206-66590.jpg';
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print("Error fetching user details: $e");
+      setState(() => isLoading = false);
     }
   }
 
-  // Method to handle follow/unfollow functionality
-  void _toggleFollow() {
-    setState(() {
-      isFollowing = !isFollowing;
-    });
+  Future<void> _getFollowStats() async {
+    try {
+      DocumentSnapshot statsDoc = await FirebaseFirestore.instance
+          .collection('userDetails')
+          .doc(widget.userId)
+          .get();
 
-    // You could update Firestore to track follow status if required
-    // FirebaseFirestore.instance.collection('userDetails').doc(widget.userId)
-    //     .update({'following': isFollowing});
+      if (statsDoc.exists) {
+        setState(() {
+          followersCount = statsDoc['followers'] ?? 0;
+          followingCount = statsDoc['following'] ?? 0;
+        });
+      }
+    } catch (e) {
+      print("Error fetching follow stats: $e");
+    }
+  }
+
+  Future<void> _checkFriendshipStatus() async {
+    if (currentUserId == null) return;
+
+    try {
+      DocumentSnapshot friendDoc = await FirebaseFirestore.instance
+          .collection('userDetails')
+          .doc(widget.userId)
+          .collection('friends')
+          .doc(currentUserId)
+          .get();
+
+      setState(() {
+        isFriend = friendDoc.exists;
+      });
+    } catch (e) {
+      print("Error checking friendship status: $e");
+    }
+  }
+
+  Future<void> _handleAddFriend() async {
+    if (currentUserId == null) return;
+
+    setState(() => isLoading = true);
+
+    try {
+      final batch = FirebaseFirestore.instance.batch();
+
+      // Add to current user's following
+      batch.set(
+        FirebaseFirestore.instance
+            .collection('userDetails')
+            .doc(currentUserId)
+            .collection('following')
+            .doc(widget.userId),
+        {'timestamp': FieldValue.serverTimestamp()},
+      );
+
+      // Add to target user's followers
+      batch.set(
+        FirebaseFirestore.instance
+            .collection('userDetails')
+            .doc(widget.userId)
+            .collection('followers')
+            .doc(currentUserId),
+        {'timestamp': FieldValue.serverTimestamp()},
+      );
+
+      // Update counters
+      batch.update(
+        FirebaseFirestore.instance.collection('userDetails').doc(currentUserId),
+        {'following': FieldValue.increment(1)},
+      );
+
+      batch.update(
+        FirebaseFirestore.instance.collection('userDetails').doc(widget.userId),
+        {'followers': FieldValue.increment(1)},
+      );
+
+      await batch.commit();
+
+      setState(() {
+        isFriend = true;
+        followersCount++;
+        isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Friend request sent to $userName')),
+      );
+    } catch (e) {
+      print("Error adding friend: $e");
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send friend request')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add Friends"),
-        backgroundColor: Color(0xff121212),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.orange),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        title: const Text("Add Friends", style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 0,
       ),
-      backgroundColor: Color(0xff121212),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // User Info Container
-              Container(
-                padding: EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Colors.grey[800],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundImage: dpUrl != null && dpUrl!.isNotEmpty
-                          ? NetworkImage(dpUrl!)
-                          : AssetImage('assets/profile.png') as ImageProvider,
-                      backgroundColor: Colors.grey[800],
+      backgroundColor: Colors.white,
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  // Profile Header
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.1),
+                          spreadRadius: 1,
+                          blurRadius: 3,
+                        ),
+                      ],
                     ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            userName ??
-                                'Loading...', // Show username if available
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold),
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundImage: NetworkImage(dpUrl!),
+                          backgroundColor: Colors.grey[200],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          userName ?? 'User',
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
                           ),
-                          SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              ElevatedButton(
-                                onPressed: _toggleFollow,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      isFollowing ? Colors.grey : Colors.orange,
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildStatItem('Followers', followersCount),
+                            const SizedBox(width: 20),
+                            _buildStatItem('Following', followingCount),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        if (currentUserId != widget.userId)
+                          SizedBox(
+                            width: 200,
+                            child: ElevatedButton(
+                              onPressed: isFriend ? null : _handleAddFriend,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    isFriend ? Colors.grey[300] : Colors.blue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
-                                child:
-                                    Text(isFollowing ? 'Following' : 'Follow'),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
                               ),
-                              SizedBox(width: 10),
-                              ElevatedButton(
-                                onPressed: () {
-                                  // Handle "Followed" action (or add additional functionality here)
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      isFollowed ? Colors.grey : Colors.orange,
+                              child: Text(
+                                isFriend ? 'Request Sent' : 'Add Friend',
+                                style: TextStyle(
+                                  color: isFriend ? Colors.black : Colors.white,
+                                  fontSize: 16,
                                 ),
-                                child: Text('Followed'),
                               ),
-                            ],
-                          )
-                        ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Mutual Friends Section
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border(
+                        top: BorderSide(color: Colors.grey[200]!),
+                        bottom: BorderSide(color: Colors.grey[200]!),
                       ),
                     ),
-                  ],
-                ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'People You May Know',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSuggestedFriends(),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(height: 20),
-              // Additional UI content can go here
-              Text(
-                'User ID: ${widget.userId}',
-                style: TextStyle(color: Colors.white70, fontSize: 14),
-              ),
-            ],
+            ),
+    );
+  }
+
+  Widget _buildStatItem(String label, int count) {
+    return Column(
+      children: [
+        Text(
+          count.toString(),
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
           ),
         ),
-      ),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.grey,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSuggestedFriends() {
+    // This would ideally come from your database
+    // For demo purposes, we'll use a static list
+    final suggestedFriends = [
+      {'name': 'Alex Johnson', 'mutual': 5, 'image': ''},
+      {'name': 'Sarah Miller', 'mutual': 12, 'image': ''},
+      {'name': 'David Wilson', 'mutual': 3, 'image': ''},
+    ];
+
+    return Column(
+      children: suggestedFriends.map((friend) {
+        return ListTile(
+          leading: CircleAvatar(
+            radius: 25,
+            backgroundColor: Colors.grey[200],
+            child: const Icon(Icons.person, color: Colors.grey),
+          ),
+          title: Text(friend['name'] as String),
+          subtitle: Text('${friend['mutual']} mutual friends'),
+          trailing: ElevatedButton(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            ),
+            child: const Text(
+              'Add',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

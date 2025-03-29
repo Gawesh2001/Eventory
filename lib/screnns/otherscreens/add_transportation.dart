@@ -5,10 +5,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
 import 'package:eventory/screnns/transportation/transportation.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class VehicleRegistration extends StatefulWidget {
-  final String uid; // Add uid as a parameter
-  const VehicleRegistration({super.key, required this.uid}); // Constructor
+  final String uid;
+  const VehicleRegistration({super.key, required this.uid});
 
   @override
   _VehicleRegistrationState createState() => _VehicleRegistrationState();
@@ -27,27 +29,49 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
 
   File? _vehicleLicenseFile;
   File? _driverLicenseFile;
-
-  String? _selectedVehicleType; // For dropdown selection
+  String? _selectedVehicleType;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  bool _isUploading = false;
+
+  Future<Map<String, String>?> _uploadImageToCloudinary(File file) async {
+    try {
+      final uri =
+          Uri.parse('https://api.cloudinary.com/v1_1/dfnzttf4v/image/upload');
+      final request = http.MultipartRequest('POST', uri)
+        ..fields['upload_preset'] = 'eventoryuploads'
+        ..files.add(await http.MultipartFile.fromPath('file', file.path));
+
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        final responseData = await response.stream.bytesToString();
+        final jsonResponse = jsonDecode(responseData);
+        return {
+          'url': jsonResponse['secure_url'],
+          'public_id': jsonResponse['public_id'],
+        };
+      } else {
+        print("Failed to upload image to Cloudinary: ${response.statusCode}");
+        return null;
+      }
+    } catch (e) {
+      print("Error uploading image to Cloudinary: $e");
+      return null;
+    }
+  }
 
   Future<String> _generateVehicleId() async {
-    // Fetch the last vehicle ID from Firestore
     final querySnapshot = await _firestore
         .collection('vehicles')
         .orderBy('vehicleId', descending: true)
         .limit(1)
         .get();
 
-    int newId = 100000; // Default starting ID
-
+    int newId = 100000;
     if (querySnapshot.docs.isNotEmpty) {
-      // Extract the last vehicle ID and increment it
       String lastVehicleId = querySnapshot.docs.first['vehicleId'];
       newId = int.parse(lastVehicleId.substring(1)) + 1;
     }
-
-    return 'V$newId'; // Return the new vehicle ID
+    return 'V$newId';
   }
 
   Future<void> _registerVehicle() async {
@@ -59,44 +83,90 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
         return;
       }
 
-      // Generate a new vehicle ID
-      String vehicleId = await _generateVehicleId();
+      if (_vehicleLicenseFile == null || _driverLicenseFile == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please upload both photos!')),
+        );
+        return;
+      }
 
-      // Parse seating capacity to an integer
-      int seatingCapacity = int.tryParse(_seatingCapacityController.text) ?? 0;
-
-      // Upload data to Firestore
-      await _firestore.collection('vehicles').add({
-        'vehicleId': vehicleId,
-        'userId': widget.uid, // Include the uid in the document
-        'vehicleType': _selectedVehicleType,
-        'model': _modelController.text,
-        'plateNumber': _plateNumberController.text,
-        'vehicleColor': _vehicleColorController.text,
-        'seatingCapacity': seatingCapacity,
-        'availableSeats':
-            seatingCapacity, // Set availableSeats equal to seatingCapacity
-        'ownerName': _ownerNameController.text,
-        'contactNumber': _contactNumberController.text,
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vehicle Registered Successfully! 🚗✅')),
-      );
-
-      // Clear the form after submission
-      _formKey.currentState!.reset();
       setState(() {
-        _selectedVehicleType = null;
-        _vehicleLicenseFile = null;
-        _driverLicenseFile = null;
+        _isUploading = true;
       });
 
-      // Navigate to the transportation.dart page
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const TransportationPage()),
-      );
+      try {
+        // Upload vehicle photo to Cloudinary
+        final vehiclePhotoData =
+            await _uploadImageToCloudinary(_vehicleLicenseFile!);
+        if (vehiclePhotoData == null) {
+          throw Exception('Failed to upload vehicle photo');
+        }
+
+        // Upload driver license to Cloudinary
+        final driverLicenseData =
+            await _uploadImageToCloudinary(_driverLicenseFile!);
+        if (driverLicenseData == null) {
+          throw Exception('Failed to upload driver license');
+        }
+
+        // Generate a new vehicle ID
+        String vehicleId = await _generateVehicleId();
+
+        // Parse seating capacity to an integer
+        int seatingCapacity =
+            int.tryParse(_seatingCapacityController.text) ?? 0;
+
+        // Upload data to Firestore
+        await _firestore.collection('vehicles').add({
+          'vehicleId': vehicleId,
+          'userId': widget.uid,
+          'vehicleType': _selectedVehicleType,
+          'model': _modelController.text,
+          'plateNumber': _plateNumberController.text,
+          'vehicleColor': _vehicleColorController.text,
+          'seatingCapacity': seatingCapacity,
+          'availableSeats': seatingCapacity,
+          'ownerName': _ownerNameController.text,
+          'contactNumber': _contactNumberController.text,
+          'vehicleImage': vehiclePhotoData['url'], // New separate column
+          'Vphoto': {
+            'url': vehiclePhotoData['url'],
+            'public_id': vehiclePhotoData['public_id'],
+          },
+          'Dphoto': {
+            'url': driverLicenseData['url'],
+            'public_id': driverLicenseData['public_id'],
+          },
+          'createdAt': FieldValue.serverTimestamp(),
+          'status': 'pending', // Added status field
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Vehicle Registered Successfully! 🚗✅')),
+        );
+
+        // Clear the form after submission
+        _formKey.currentState!.reset();
+        setState(() {
+          _selectedVehicleType = null;
+          _vehicleLicenseFile = null;
+          _driverLicenseFile = null;
+          _isUploading = false;
+        });
+
+        // Navigate to the transportation page
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const TransportationPage()),
+        );
+      } catch (e) {
+        setState(() {
+          _isUploading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error registering vehicle: $e')),
+        );
+      }
     }
   }
 
@@ -130,46 +200,58 @@ class _VehicleRegistrationState extends State<VehicleRegistration> {
         ),
       ),
       backgroundColor: const Color(0xff121212),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              // Display the user ID
-              Text(
-                'User ID: ${widget.uid}', // Display the uid passed to this page
-                style: const TextStyle(color: Colors.white, fontSize: 16),
+      body: _isUploading
+          ? const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(color: Colors.orange),
+                  SizedBox(height: 20),
+                  Text('Uploading images...',
+                      style: TextStyle(color: Colors.white)),
+                ],
               ),
-              const SizedBox(height: 20),
-              _buildDropdownField(), // Vehicle Type dropdown
-              _buildTextField(_modelController, 'Model'),
-              _buildTextField(_plateNumberController, 'Plate Number'),
-              _buildTextField(_vehicleColorController, 'Vehicle Color'),
-              _buildTextField(_seatingCapacityController, 'Seating Capacity',
-                  isNumber: true),
-              _buildTextField(_ownerNameController, 'Owner Full Name'),
-              _buildTextField(_contactNumberController, 'Contact Number',
-                  isNumber: true),
-              const SizedBox(height: 20),
-              _buildFileUploadButton('Upload Vehicle License (Optional)', true),
-              _buildFileUploadButton('Upload Driver License (Optional)', false),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _registerVehicle,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  children: [
+                    Text(
+                      'User ID: ${widget.uid}',
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildDropdownField(),
+                    _buildTextField(_modelController, 'Model'),
+                    _buildTextField(_plateNumberController, 'Plate Number'),
+                    _buildTextField(_vehicleColorController, 'Vehicle Color'),
+                    _buildTextField(
+                        _seatingCapacityController, 'Seating Capacity',
+                        isNumber: true),
+                    _buildTextField(_ownerNameController, 'Owner Full Name'),
+                    _buildTextField(_contactNumberController, 'Contact Number',
+                        isNumber: true),
+                    const SizedBox(height: 20),
+                    _buildFileUploadButton('Upload Vehicle Photo', true),
+                    _buildFileUploadButton('Upload Driver License', false),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _isUploading ? null : _registerVehicle,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: const Text('Register Vehicle',
+                          style: TextStyle(fontSize: 18, color: Colors.white)),
+                    ),
+                  ],
                 ),
-                child: const Text('Register Vehicle',
-                    style: TextStyle(fontSize: 18, color: Colors.white)),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 

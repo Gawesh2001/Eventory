@@ -1,5 +1,6 @@
 // ignore_for_file: camel_case_types, use_key_in_widget_constructors
 
+import 'package:eventory/screnns/accomedation/add_accomedations.dart';
 import 'package:flutter/material.dart';
 import 'package:eventory/navigators/bottomnavigatorbar.dart';
 import 'package:eventory/screnns/otherscreens/add_transportation.dart'; // Import the VehicleRegistration page
@@ -78,11 +79,11 @@ class _ProviderState extends State<provider> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Display the user ID
-              Text(
-                'User ID: ${widget.uid}', // Display the uid passed to this page
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
-              SizedBox(height: 20),
+              // Text(
+              //   'User ID: ${widget.uid}', // Display the uid passed to this page
+              //   style: TextStyle(color: Colors.white, fontSize: 16),
+              // ),
+              SizedBox(height: 0),
               // Display image at the top
               ClipRRect(
                 borderRadius: BorderRadius.circular(15),
@@ -125,7 +126,13 @@ class _ProviderState extends State<provider> {
               // Add Accommodation Button
               ElevatedButton.icon(
                 onPressed: () {
-                  // Navigate to Add Accommodation page (TODO: Implement)
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          AddAccommodationPage(), // Pass uid here
+                    ),
+                  );
                 },
                 icon: Icon(Icons.hotel, color: Colors.white),
                 label: Text(

@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +20,7 @@ class _RegisterVehiclePageState extends State<RegisterVehiclePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Register Vehicle"),
+        title: const Text("Offer Your Vehicle"),
         centerTitle: true,
         backgroundColor: Colors.orange,
       ),
@@ -50,7 +49,8 @@ class _RegisterVehiclePageState extends State<RegisterVehiclePage> {
                     itemBuilder: (context, index) {
                       var vehicle = vehicles[index];
                       int seatingCapacity =
-                          int.tryParse(vehicle['seatingCapacity'].toString()) ?? 0;
+                          int.tryParse(vehicle['seatingCapacity'].toString()) ??
+                              0;
 
                       return VehicleCard(
                         ownerName: vehicle['ownerName'],
@@ -61,6 +61,8 @@ class _RegisterVehiclePageState extends State<RegisterVehiclePage> {
                         vehicleType: vehicle['vehicleType'],
                         userId: widget.userId,
                         eventId: widget.eventId,
+                        vehicleImage:
+                            vehicle['vehicleImage'], // Pass the image URL
                       );
                     },
                   );
@@ -83,6 +85,7 @@ class VehicleCard extends StatefulWidget {
   final String vehicleType;
   final String userId;
   final String eventId;
+  final String? vehicleImage; // Make it nullable
 
   const VehicleCard({
     super.key,
@@ -94,6 +97,7 @@ class VehicleCard extends StatefulWidget {
     required this.vehicleType,
     required this.userId,
     required this.eventId,
+    this.vehicleImage, // Optional parameter
   });
 
   @override
@@ -102,7 +106,8 @@ class VehicleCard extends StatefulWidget {
 
 class _VehicleCardState extends State<VehicleCard> {
   final TextEditingController locationController = TextEditingController();
-  final TextEditingController stayInTimePeriodController = TextEditingController();
+  final TextEditingController stayInTimePeriodController =
+      TextEditingController();
   TimeOfDay? startTime;
   TimeOfDay? endTime;
 
@@ -139,8 +144,10 @@ class _VehicleCardState extends State<VehicleCard> {
       'availableSeats': widget.seatingCapacity,
       'model': widget.model,
       'vehicleType': widget.vehicleType,
+      'vehicleImage': widget.vehicleImage, // Include the image in the offer
       'location': location,
       'stayInTimePeriod': stayInTimePeriod,
+      'status': 'available', // Add status field
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -161,17 +168,66 @@ class _VehicleCardState extends State<VehicleCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Owner: ${widget.ownerName}', style: Theme.of(context).textTheme.titleMedium),
+            // Vehicle Image (if available)
+            if (widget.vehicleImage != null && widget.vehicleImage!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.network(
+                    widget.vehicleImage!,
+                    height: 150,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      height: 150,
+                      color: Colors.grey[300],
+                      child: const Center(
+                        child: Icon(Icons.error, color: Colors.red),
+                      ),
+                    ),
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        height: 150,
+                        color: Colors.grey[300],
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+
+            Text('Owner: ${widget.ownerName}',
+                style: Theme.of(context).textTheme.titleMedium),
             Text('Plate Number: ${widget.plateNumber}'),
             Text('Vehicle Type: ${widget.vehicleType}'),
+            Text('Model: ${widget.model}'),
+            Text('Seats: ${widget.seatingCapacity}'),
+
+            const SizedBox(height: 10),
             TextField(
               controller: locationController,
-              decoration: const InputDecoration(labelText: 'Location'),
+              decoration: const InputDecoration(
+                labelText: 'Location',
+                border: OutlineInputBorder(),
+              ),
             ),
+            const SizedBox(height: 10),
             TextField(
               controller: stayInTimePeriodController,
               readOnly: true,
-              decoration: const InputDecoration(labelText: 'Stay-in Time Period'),
+              decoration: const InputDecoration(
+                labelText: 'Stay-in Time Period',
+                border: OutlineInputBorder(),
+              ),
               onTap: () async {
                 TimeOfDay? start = await showTimePicker(
                   context: context,
@@ -186,16 +242,30 @@ class _VehicleCardState extends State<VehicleCard> {
                     setState(() {
                       startTime = start;
                       endTime = end;
-                      stayInTimePeriodController.text = "${start.format(context)} - ${end.format(context)}";
+                      stayInTimePeriodController.text =
+                          "${start.format(context)} - ${end.format(context)}";
                     });
                   }
                 }
               },
             ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () => _offerVehicle(context),
-              child: const Text('Offer Vehicle'),
+            const SizedBox(height: 15),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => _offerVehicle(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text(
+                  'Offer Vehicle',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
             ),
           ],
         ),
@@ -203,4 +273,3 @@ class _VehicleCardState extends State<VehicleCard> {
     );
   }
 }
-

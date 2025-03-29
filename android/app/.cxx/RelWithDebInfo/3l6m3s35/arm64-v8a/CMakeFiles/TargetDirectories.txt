@@ -1,0 +1,2 @@
+D:/Campus Stuff/Computing/Eventory/Eventory/android/app/.cxx/RelWithDebInfo/3l6m3s35/arm64-v8a/CMakeFiles/edit_cache.dir
+D:/Campus Stuff/Computing/Eventory/Eventory/android/app/.cxx/RelWithDebInfo/3l6m3s35/arm64-v8a/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,2 @@
+D:/Campus Stuff/Computing/Eventory/Eventory/android/app/.cxx/Debug/2s5o5537/armeabi-v7a/CMakeFiles/edit_cache.dir
+D:/Campus Stuff/Computing/Eventory/Eventory/android/app/.cxx/Debug/2s5o5537/armeabi-v7a/CMakeFiles/rebuild_cache.dir

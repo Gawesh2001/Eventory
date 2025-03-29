@@ -93,14 +93,17 @@ class _TransportationPageState extends State<TransportationPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Transportation"),
+        title: const Text("Transportation & Accommodation"),
         actions: [
           IconButton(
             icon: const Icon(Icons.account_circle, size: 28),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const UserProfile()),
+                MaterialPageRoute(
+                    builder: (context) => const UserProfile(
+                          userId: '',
+                        )),
               );
             },
           ),
@@ -221,7 +224,7 @@ class _TransportationPageState extends State<TransportationPage>
                       const SizedBox(height: 10),
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 8),
+                            horizontal: 2, vertical: 8),
                         child: StreamBuilder(
                           stream: fetchAccommodations(),
                           builder:
