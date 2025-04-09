@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
@@ -6,10 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eventory/helpers/theme_helper.dart';
 import 'package:intl/intl.dart';
-=======
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
 
 class RegisterVehiclePage extends StatefulWidget {
   final String userId;
@@ -25,7 +20,6 @@ class RegisterVehiclePage extends StatefulWidget {
   _RegisterVehiclePageState createState() => _RegisterVehiclePageState();
 }
 
-<<<<<<< HEAD
 class _RegisterVehiclePageState extends State<RegisterVehiclePage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
@@ -72,16 +66,6 @@ class _RegisterVehiclePageState extends State<RegisterVehiclePage>
         backgroundColor: AppColors.cardColor(context),
         elevation: 0,
         iconTheme: IconThemeData(color: AppColors.orangePrimary),
-=======
-class _RegisterVehiclePageState extends State<RegisterVehiclePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Offer Your Vehicle"),
-        centerTitle: true,
-        backgroundColor: Colors.orange,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
@@ -95,7 +79,6 @@ class _RegisterVehiclePageState extends State<RegisterVehiclePage> {
                     .snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (!snapshot.hasData) {
-<<<<<<< HEAD
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -121,14 +104,10 @@ class _RegisterVehiclePageState extends State<RegisterVehiclePage> {
                         ],
                       ),
                     );
-=======
-                    return const Center(child: CircularProgressIndicator());
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   }
 
                   var vehicles = snapshot.data!.docs;
                   if (vehicles.isEmpty) {
-<<<<<<< HEAD
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -163,12 +142,6 @@ class _RegisterVehiclePageState extends State<RegisterVehiclePage> {
                   return ListView.builder(
                     physics: const BouncingScrollPhysics(),
                     padding: const EdgeInsets.symmetric(vertical: 16),
-=======
-                    return const Center(child: Text("No vehicles registered"));
-                  }
-
-                  return ListView.builder(
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     itemCount: vehicles.length,
                     itemBuilder: (context, index) {
                       var vehicle = vehicles[index];
@@ -176,15 +149,16 @@ class _RegisterVehiclePageState extends State<RegisterVehiclePage> {
                           int.tryParse(vehicle['seatingCapacity'].toString()) ??
                               0;
 
-<<<<<<< HEAD
                       return AnimatedBuilder(
                         animation: CurvedAnimation(
                           parent: _animationController,
-                          curve: Interval(0.1 * index, 1.0, curve: Curves.easeOut),
+                          curve:
+                              Interval(0.1 * index, 1.0, curve: Curves.easeOut),
                         ),
                         builder: (context, child) {
                           return Transform.translate(
-                            offset: Offset(0, 50 * (1 - _animationController.value)),
+                            offset: Offset(
+                                0, 50 * (1 - _animationController.value)),
                             child: Opacity(
                               opacity: _animationController.value,
                               child: child,
@@ -202,19 +176,6 @@ class _RegisterVehiclePageState extends State<RegisterVehiclePage> {
                           eventId: widget.eventId,
                           vehicleImage: vehicle['vehicleImage'],
                         ),
-=======
-                      return VehicleCard(
-                        ownerName: vehicle['ownerName'],
-                        plateNumber: vehicle['plateNumber'],
-                        vehicleId: vehicle['vehicleId'],
-                        seatingCapacity: seatingCapacity,
-                        model: vehicle['model'],
-                        vehicleType: vehicle['vehicleType'],
-                        userId: widget.userId,
-                        eventId: widget.eventId,
-                        vehicleImage:
-                            vehicle['vehicleImage'], // Pass the image URL
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                       );
                     },
                   );
@@ -228,11 +189,7 @@ class _RegisterVehiclePageState extends State<RegisterVehiclePage> {
   }
 }
 
-<<<<<<< HEAD
 class VehicleCard extends StatelessWidget {
-=======
-class VehicleCard extends StatefulWidget {
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
   final String ownerName;
   final String plateNumber;
   final String vehicleId;
@@ -241,11 +198,7 @@ class VehicleCard extends StatefulWidget {
   final String vehicleType;
   final String userId;
   final String eventId;
-<<<<<<< HEAD
   final String? vehicleImage;
-=======
-  final String? vehicleImage; // Make it nullable
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
 
   const VehicleCard({
     super.key,
@@ -257,7 +210,6 @@ class VehicleCard extends StatefulWidget {
     required this.vehicleType,
     required this.userId,
     required this.eventId,
-<<<<<<< HEAD
     this.vehicleImage,
   });
 
@@ -421,184 +373,10 @@ class VehicleCard extends StatefulWidget {
               ),
             ],
           ),
-=======
-    this.vehicleImage, // Optional parameter
-  });
-
-  @override
-  _VehicleCardState createState() => _VehicleCardState();
-}
-
-class _VehicleCardState extends State<VehicleCard> {
-  final TextEditingController locationController = TextEditingController();
-  final TextEditingController stayInTimePeriodController =
-      TextEditingController();
-  TimeOfDay? startTime;
-  TimeOfDay? endTime;
-
-  Future<void> _offerVehicle(BuildContext context) async {
-    final firestore = FirebaseFirestore.instance;
-    final location = locationController.text;
-    final stayInTimePeriod = stayInTimePeriodController.text;
-
-    if (location.isEmpty || stayInTimePeriod.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all the fields.')),
-      );
-      return;
-    }
-
-    final offerVehicles = await firestore.collection('offerVehicles').get();
-
-    int offerVehicleId = 500000;
-    if (offerVehicles.docs.isNotEmpty) {
-      final lastOffer = offerVehicles.docs
-          .map((doc) => doc['offerVehicleId'] as int)
-          .reduce((a, b) => a > b ? a : b);
-      offerVehicleId = lastOffer + 1;
-    }
-
-    await firestore.collection('offerVehicles').add({
-      'offerVehicleId': offerVehicleId,
-      'userId': widget.userId,
-      'eventId': widget.eventId,
-      'ownerName': widget.ownerName,
-      'plateNumber': widget.plateNumber,
-      'vehicleId': widget.vehicleId,
-      'seatingCapacity': widget.seatingCapacity,
-      'availableSeats': widget.seatingCapacity,
-      'model': widget.model,
-      'vehicleType': widget.vehicleType,
-      'vehicleImage': widget.vehicleImage, // Include the image in the offer
-      'location': location,
-      'stayInTimePeriod': stayInTimePeriod,
-      'status': 'available', // Add status field
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Vehicle offered with ID: $offerVehicleId')),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 5,
-      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Vehicle Image (if available)
-            if (widget.vehicleImage != null && widget.vehicleImage!.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.network(
-                    widget.vehicleImage!,
-                    height: 150,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      height: 150,
-                      color: Colors.grey[300],
-                      child: const Center(
-                        child: Icon(Icons.error, color: Colors.red),
-                      ),
-                    ),
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        height: 150,
-                        color: Colors.grey[300],
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                                : null,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-
-            Text('Owner: ${widget.ownerName}',
-                style: Theme.of(context).textTheme.titleMedium),
-            Text('Plate Number: ${widget.plateNumber}'),
-            Text('Vehicle Type: ${widget.vehicleType}'),
-            Text('Model: ${widget.model}'),
-            Text('Seats: ${widget.seatingCapacity}'),
-
-            const SizedBox(height: 10),
-            TextField(
-              controller: locationController,
-              decoration: const InputDecoration(
-                labelText: 'Location',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: stayInTimePeriodController,
-              readOnly: true,
-              decoration: const InputDecoration(
-                labelText: 'Stay-in Time Period',
-                border: OutlineInputBorder(),
-              ),
-              onTap: () async {
-                TimeOfDay? start = await showTimePicker(
-                  context: context,
-                  initialTime: TimeOfDay.now(),
-                );
-                if (start != null) {
-                  TimeOfDay? end = await showTimePicker(
-                    context: context,
-                    initialTime: start,
-                  );
-                  if (end != null) {
-                    setState(() {
-                      startTime = start;
-                      endTime = end;
-                      stayInTimePeriodController.text =
-                          "${start.format(context)} - ${end.format(context)}";
-                    });
-                  }
-                }
-              },
-            ),
-            const SizedBox(height: 15),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => _offerVehicle(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text(
-                  'Offer Vehicle',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ],
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
         ),
       ),
     );
   }
-<<<<<<< HEAD
 
   Future<void> _showOfferDialog(BuildContext context) async {
     TextEditingController locationController = TextEditingController();
@@ -719,7 +497,7 @@ class _VehicleCardState extends State<VehicleCard> {
                           );
                           if (end != null) {
                             timePeriodController.text =
-                            "${start.format(context)} - ${end.format(context)}";
+                                "${start.format(context)} - ${end.format(context)}";
                           }
                         }
                       },
@@ -954,6 +732,3 @@ class _VehicleCardState extends State<VehicleCard> {
     return newId.toString();
   }
 }
-=======
-}
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f

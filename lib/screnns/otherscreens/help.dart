@@ -14,9 +14,11 @@ class HelpSupportPage extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: isDarkMode ? AppColors.scaffoldBackground(context) : Colors.white,
+      backgroundColor:
+          isDarkMode ? AppColors.scaffoldBackground(context) : Colors.white,
       appBar: AppBar(
-        systemOverlayStyle: isDarkMode ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+        systemOverlayStyle:
+            isDarkMode ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         title: Text(
           'Help & Support',
           style: GoogleFonts.poppins(
@@ -25,9 +27,11 @@ class HelpSupportPage extends StatelessWidget {
             color: isDarkMode ? AppColors.textColor(context) : Colors.black87,
           ),
         ),
-        backgroundColor: isDarkMode ? AppColors.cardColor(context) : Colors.white,
+        backgroundColor:
+            isDarkMode ? AppColors.cardColor(context) : Colors.white,
         elevation: 0,
-        iconTheme: IconThemeData(color: isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A)),
+        iconTheme: IconThemeData(
+            color: isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A)),
       ),
       body: SingleChildScrollView(
         physics: BouncingScrollPhysics(),
@@ -59,14 +63,17 @@ class HelpSupportPage extends StatelessWidget {
                     width: double.infinity,
                     margin: EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
-                      color: isDarkMode ? Colors.blueGrey[800] : Color(0xFFFFEEE6),
+                      color:
+                          isDarkMode ? Colors.blueGrey[800] : Color(0xFFFFEEE6),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Center(
                       child: Icon(
                         Icons.support_agent,
                         size: 80,
-                        color: isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A),
+                        color: isDarkMode
+                            ? AppColors.orangePrimary
+                            : Color(0xffFF611A),
                       ),
                     ),
                   ),
@@ -76,7 +83,9 @@ class HelpSupportPage extends StatelessWidget {
                     style: GoogleFonts.poppins(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
-                      color: isDarkMode ? AppColors.textColor(context) : Colors.black87,
+                      color: isDarkMode
+                          ? AppColors.textColor(context)
+                          : Colors.black87,
                     ),
                   ),
                   SizedBox(height: 10),
@@ -138,7 +147,9 @@ class HelpSupportPage extends StatelessWidget {
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: isDarkMode ? AppColors.textColor(context) : Colors.black87,
+                      color: isDarkMode
+                          ? AppColors.textColor(context)
+                          : Colors.black87,
                     ),
                   ),
                   SizedBox(height: 15),
@@ -154,23 +165,29 @@ class HelpSupportPage extends StatelessWidget {
               questions: [
                 {
                   'question': 'How do I buy tickets on Eventory?',
-                  'answer': 'Navigate to the home, select an event, and follow the checkout process.',
+                  'answer':
+                      'Navigate to the home, select an event, and follow the checkout process.',
                 },
                 {
                   'question': 'Can I resell a ticket I no longer need?',
-                  'answer': 'Yes! Go to "My Tickets," select the ticket, and list it for resale. Resale tickets cannot be priced above the original value.',
+                  'answer':
+                      'Yes! Go to "My Tickets," select the ticket, and list it for resale. Resale tickets cannot be priced above the original value.',
                 },
                 {
-                  'question': 'When will I receive payment after reselling a ticket?',
-                  'answer': 'If your ticket is purchased, payment will be transferred to your account within 5 days.',
+                  'question':
+                      'When will I receive payment after reselling a ticket?',
+                  'answer':
+                      'If your ticket is purchased, payment will be transferred to your account within 5 days.',
                 },
                 {
                   'question': 'What happens if my resale ticket isn\'t sold?',
-                  'answer': 'The listing stays active until the event date or until you remove it manually.',
+                  'answer':
+                      'The listing stays active until the event date or until you remove it manually.',
                 },
                 {
                   'question': 'Can I edit my resale ticket after posting?',
-                  'answer': 'Yes, you can modify the price (within allowed limits) or remove the listing at any time.',
+                  'answer':
+                      'Yes, you can modify the price (within allowed limits) or remove the listing at any time.',
                 },
               ],
             ),
@@ -183,7 +200,8 @@ class HelpSupportPage extends StatelessWidget {
               questions: [
                 {
                   'question': 'How is my data protected?',
-                  'answer': 'We store your data securely and never share it without your permission.',
+                  'answer':
+                      'We store your data securely and never share it without your permission.',
                 },
               ],
             ),
@@ -196,11 +214,13 @@ class HelpSupportPage extends StatelessWidget {
               questions: [
                 {
                   'question': 'Can I get a refund for a purchased ticket?',
-                  'answer': 'Tickets are non-refundable, but resale is allowed through the marketplace.',
+                  'answer':
+                      'Tickets are non-refundable, but resale is allowed through the marketplace.',
                 },
                 {
                   'question': 'Are there any charges or fees for reselling?',
-                  'answer': 'Currently, Eventory does not take any commission or service charge on resale listings.',
+                  'answer':
+                      'Currently, Eventory does not take any commission or service charge on resale listings.',
                 },
               ],
             ),
@@ -229,7 +249,9 @@ class HelpSupportPage extends StatelessWidget {
                     style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
-                      color: isDarkMode ? AppColors.textColor(context) : Colors.black87,
+                      color: isDarkMode
+                          ? AppColors.textColor(context)
+                          : Colors.black87,
                     ),
                   ),
                   SizedBox(height: 10),
@@ -242,7 +264,6 @@ class HelpSupportPage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 25),
-
                   _buildContactCard(
                     context: context,
                     icon: Icons.email,
@@ -256,9 +277,7 @@ class HelpSupportPage extends StatelessWidget {
                       launchUrl(emailLaunchUri);
                     },
                   ),
-
                   SizedBox(height: 15),
-
                   _buildContactCard(
                     context: context,
                     icon: Icons.phone,
@@ -272,9 +291,7 @@ class HelpSupportPage extends StatelessWidget {
                       launchUrl(phoneLaunchUri);
                     },
                   ),
-
                   SizedBox(height: 15),
-
                   _buildContactCard(
                     context: context,
                     icon: Icons.location_on,
@@ -285,9 +302,7 @@ class HelpSupportPage extends StatelessWidget {
                         scheme: 'https',
                         host: 'www.google.com',
                         path: '/maps/search/',
-                        queryParameters: {
-                          'query': 'C-100,Pitipana,Homagama'
-                        },
+                        queryParameters: {'query': 'C-100,Pitipana,Homagama'},
                       );
                       launchUrl(mapsUri);
                     },

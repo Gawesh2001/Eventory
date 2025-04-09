@@ -69,13 +69,9 @@ class _Sign_InState extends State<Sign_In> {
 
     // Call your sign-in function here
     dynamic result = await _auth.signInWithEmailAndPassword(email, password);
-<<<<<<< HEAD
 // After successful login:
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('showWelcomeAfterLogin', true);
-=======
-
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
     if (result == null) {
       _showDialog('Login failed. Please check your credentials.');
     } else {
@@ -194,18 +190,6 @@ class _Sign_InState extends State<Sign_In> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(height: 80),
-<<<<<<< HEAD
-=======
-                    Container(
-                      padding: EdgeInsets.only(left: 0),
-                      child: IconButton(
-                        icon: Icon(Icons.arrow_back, color: Color(0xffFF611A)),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     Center(
                       child: Padding(
                         padding: const EdgeInsets.only(left: 20.0),

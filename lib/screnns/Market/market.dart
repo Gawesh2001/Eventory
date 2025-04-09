@@ -7,10 +7,7 @@ import 'package:eventory/screnns/Market/sell.dart';
 import 'package:eventory/navigators/bottomnavigatorbar.dart';
 import 'marketpayment.dart';
 import 'package:intl/intl.dart';
-<<<<<<< HEAD
 import 'package:eventory/helpers/theme_helper.dart'; // Added import
-=======
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
 
 class Market extends StatefulWidget {
   final String userId;
@@ -30,7 +27,12 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   String _selectedSort = 'Recent';
-  final List<String> _sortOptions = ['Recent', 'Price: Low to High', 'Price: High to Low', 'Date: Soonest'];
+  final List<String> _sortOptions = [
+    'Recent',
+    'Price: Low to High',
+    'Price: High to Low',
+    'Date: Soonest'
+  ];
 
   @override
   void initState() {
@@ -114,7 +116,8 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
     List<Map<String, dynamic>> filtered = marketListings.where((listing) {
       final eventName = listing['eventName'].toString().toLowerCase();
       final ticketId = listing['ticketId'].toString().toLowerCase();
-      return eventName.contains(_searchQuery) || ticketId.contains(_searchQuery);
+      return eventName.contains(_searchQuery) ||
+          ticketId.contains(_searchQuery);
     }).toList();
 
     switch (_selectedSort) {
@@ -125,7 +128,8 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
         filtered.sort((a, b) => b['currentPrice'].compareTo(a['currentPrice']));
         break;
       case 'Date: Soonest':
-        filtered.sort((a, b) => a['selectedDateTime'].compareTo(b['selectedDateTime']));
+        filtered.sort(
+            (a, b) => a['selectedDateTime'].compareTo(b['selectedDateTime']));
         break;
       case 'Recent':
       default:
@@ -138,8 +142,11 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
   Widget _buildMarketCard(Map<String, dynamic> listing, int index) {
     final eventDate = listing['selectedDateTime'];
     final daysUntilEvent = eventDate.difference(DateTime.now()).inDays;
-    final discountPercentage = ((listing['originalPrice'] - listing['currentPrice']) /
-        listing['originalPrice'] * 100).round();
+    final discountPercentage =
+        ((listing['originalPrice'] - listing['currentPrice']) /
+                listing['originalPrice'] *
+                100)
+            .round();
 
     return AnimatedBuilder(
       animation: CurvedAnimation(
@@ -165,28 +172,17 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
           clipBehavior: Clip.antiAlias,
           child: Container(
             decoration: BoxDecoration(
-<<<<<<< HEAD
               color: AppColors.cardColor(context),
               gradient: daysUntilEvent < 7
                   ? LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.cardColor(context),
-                  AppColors.orangePrimary.withOpacity(0.1),
-                ],
-              )
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppColors.cardColor(context),
+                        AppColors.orangePrimary.withOpacity(0.1),
+                      ],
+                    )
                   : null,
-=======
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white,
-                  daysUntilEvent < 7 ? Color(0xFFFFF0E6) : Colors.white,
-                ],
-              ),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
             ),
             child: InkWell(
               onTap: () {
@@ -203,41 +199,29 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
                         width: double.infinity,
                         fit: BoxFit.cover,
                         placeholder: (context, url) => Container(
-<<<<<<< HEAD
                           color: Theme.of(context).hoverColor,
                           child: Center(
                             child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(AppColors.orangePrimary),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppColors.orangePrimary),
                             ),
                           ),
                         ),
                         errorWidget: (context, url, error) => Container(
                           color: Theme.of(context).hoverColor,
-                          child: Icon(Icons.error, color: AppColors.textColor(context)),
+                          child: Icon(Icons.error,
+                              color: AppColors.textColor(context)),
                         ),
-=======
-                          color: Colors.grey[200],
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xffFF611A)),
-                            ),
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => Icon(Icons.error),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                       ),
                       if (daysUntilEvent < 7)
                         Positioned(
                           top: 10,
                           right: 10,
                           child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-<<<<<<< HEAD
                               color: AppColors.orangePrimary,
-=======
-                              color: Color(0xffFF611A),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -254,7 +238,8 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
                         bottom: 10,
                         left: 10,
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: Colors.green,
                             borderRadius: BorderRadius.circular(20),
@@ -281,11 +266,7 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
                           style: GoogleFonts.poppins(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
-<<<<<<< HEAD
                             color: AppColors.textColor(context),
-=======
-                            color: Colors.black87,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -298,11 +279,7 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
                               style: GoogleFonts.poppins(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
-<<<<<<< HEAD
                                 color: AppColors.orangePrimary,
-=======
-                                color: Color(0xffFF611A),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                               ),
                             ),
                             SizedBox(width: 10),
@@ -310,11 +287,7 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
                               "LKR ${NumberFormat('#,###').format(listing['originalPrice'])}",
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
-<<<<<<< HEAD
                                 color: Theme.of(context).hintColor,
-=======
-                                color: Colors.grey,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                                 decoration: TextDecoration.lineThrough,
                               ),
                             ),
@@ -323,23 +296,15 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
                         SizedBox(height: 12),
                         Row(
                           children: [
-<<<<<<< HEAD
                             Icon(Icons.calendar_today,
-                                size: 18,
-                                color: Theme.of(context).hintColor),
-=======
-                            Icon(Icons.calendar_today, size: 18, color: Colors.grey[600]),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+                                size: 18, color: Theme.of(context).hintColor),
                             SizedBox(width: 8),
                             Text(
-                              DateFormat('EEE, MMM d • h:mm a').format(eventDate),
+                              DateFormat('EEE, MMM d • h:mm a')
+                                  .format(eventDate),
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
-<<<<<<< HEAD
                                 color: Theme.of(context).hintColor,
-=======
-                                color: Colors.grey[700],
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                               ),
                             ),
                           ],
@@ -347,23 +312,14 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
                         SizedBox(height: 8),
                         Row(
                           children: [
-<<<<<<< HEAD
                             Icon(Icons.confirmation_number,
-                                size: 18,
-                                color: Theme.of(context).hintColor),
-=======
-                            Icon(Icons.confirmation_number, size: 18, color: Colors.grey[600]),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+                                size: 18, color: Theme.of(context).hintColor),
                             SizedBox(width: 8),
                             Text(
                               "Ticket ID: ${listing['ticketId']}",
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
-<<<<<<< HEAD
                                 color: Theme.of(context).hintColor,
-=======
-                                color: Colors.grey[700],
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                               ),
                             ),
                           ],
@@ -380,28 +336,22 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
                                     userId: widget.userId,
                                     ticketId: listing['ticketId'].toString(),
                                     eventName: listing['eventName'],
-                                    currentPrice: listing['currentPrice'].toInt(),
+                                    currentPrice:
+                                        listing['currentPrice'].toInt(),
                                   ),
                                 ),
                               );
                             },
                             style: ElevatedButton.styleFrom(
-<<<<<<< HEAD
                               backgroundColor: AppColors.orangePrimary,
-=======
-                              backgroundColor: Color(0xffFF611A),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               padding: EdgeInsets.symmetric(vertical: 14),
                               elevation: 4,
-<<<<<<< HEAD
-                              shadowColor: AppColors.orangePrimary.withOpacity(0.3),
-=======
-                              shadowColor: Color(0xffFF611A).withOpacity(0.3),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+                              shadowColor:
+                                  AppColors.orangePrimary.withOpacity(0.3),
                             ),
                             child: Text(
                               "BUY NOW",
@@ -430,23 +380,16 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
     final filteredListings = _filterAndSortListings();
 
     return Scaffold(
-<<<<<<< HEAD
       backgroundColor: AppColors.scaffoldBackground(context),
       appBar: AppBar(
         systemOverlayStyle: Theme.of(context).brightness == Brightness.dark
             ? SystemUiOverlayStyle.light
             : SystemUiOverlayStyle.dark,
-=======
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        systemOverlayStyle: SystemUiOverlayStyle.light,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
         title: Text(
           'Ticket Marketplace',
           style: GoogleFonts.poppins(
             fontSize: 22,
             fontWeight: FontWeight.w600,
-<<<<<<< HEAD
             color: AppColors.textColor(context),
           ),
         ),
@@ -457,17 +400,6 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
           IconButton(
             icon: Icon(Icons.refresh, size: 28),
             color: AppColors.orangePrimary,
-=======
-            color: Colors.black87,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: IconThemeData(color: Color(0xffFF611A)),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh, size: 28),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
             onPressed: () {
               _animationController.reset();
               _fetchMarketListings().then((_) {
@@ -484,19 +416,11 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
             child: Material(
               elevation: 4,
               borderRadius: BorderRadius.circular(30),
-<<<<<<< HEAD
               shadowColor: AppColors.orangePrimary.withOpacity(0.2),
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
                   color: AppColors.cardColor(context),
-=======
-              shadowColor: Color(0xffFF611A).withOpacity(0.2),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  color: Colors.white,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                 ),
                 child: Row(
                   children: [
@@ -505,7 +429,6 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextField(
                           controller: _searchController,
-<<<<<<< HEAD
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             color: AppColors.textColor(context),
@@ -518,14 +441,6 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
                             border: InputBorder.none,
                             icon: Icon(Icons.search,
                                 color: AppColors.orangePrimary),
-=======
-                          style: GoogleFonts.poppins(fontSize: 16),
-                          decoration: InputDecoration(
-                            hintText: "Search events or ticket IDs...",
-                            hintStyle: GoogleFonts.poppins(color: Colors.grey),
-                            border: InputBorder.none,
-                            icon: Icon(Icons.search, color: Color(0xffFF611A)),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                           ),
                           onChanged: (value) {
                             setState(() {
@@ -542,11 +457,7 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-<<<<<<< HEAD
                             AppColors.orangePrimary,
-=======
-                            Color(0xffFF611A),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                             Color(0xffFF9349),
                           ],
                         ),
@@ -559,7 +470,8 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
                           borderRadius: BorderRadius.circular(30),
                           onTap: () {
                             setState(() {
-                              _searchQuery = _searchController.text.toLowerCase();
+                              _searchQuery =
+                                  _searchController.text.toLowerCase();
                             });
                           },
                           child: Center(
@@ -567,13 +479,13 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
                               duration: Duration(milliseconds: 300),
                               child: _searchQuery.isNotEmpty
                                   ? Text(
-                                'SEARCH',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              )
+                                      'SEARCH',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    )
                                   : Icon(Icons.search, color: Colors.white),
                             ),
                           ),
@@ -589,38 +501,24 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Row(
               children: [
-<<<<<<< HEAD
                 Icon(Icons.sort, color: AppColors.orangePrimary),
-=======
-                Icon(Icons.sort, color: Color(0xffFF611A)),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                 SizedBox(width: 8),
                 Text(
                   'Sort by:',
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-<<<<<<< HEAD
                     color: AppColors.textColor(context),
-=======
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                 ),
                 SizedBox(width: 8),
                 DropdownButton<String>(
                   value: _selectedSort,
-<<<<<<< HEAD
                   icon: Icon(Icons.arrow_drop_down,
                       color: AppColors.orangePrimary),
                   underline: Container(),
                   style: GoogleFonts.poppins(
                     color: AppColors.textColor(context),
-=======
-                  icon: Icon(Icons.arrow_drop_down, color: Color(0xffFF611A)),
-                  underline: Container(),
-                  style: GoogleFonts.poppins(
-                    color: Colors.black87,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     fontSize: 14,
                   ),
                   onChanged: (String? newValue) {
@@ -628,7 +526,8 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
                       _selectedSort = newValue!;
                     });
                   },
-                  items: _sortOptions.map<DropdownMenuItem<String>>((String value) {
+                  items: _sortOptions
+                      .map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(value),
@@ -668,87 +567,68 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
           Expanded(
             child: isLoading
                 ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 6,
-<<<<<<< HEAD
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.orangePrimary),
-=======
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xffFF611A)),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 60,
+                          height: 60,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 6,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                AppColors.orangePrimary),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        Text(
+                          'Loading Market Listings',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).hintColor,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    'Loading Market Listings',
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-<<<<<<< HEAD
-                      color: Theme.of(context).hintColor,
-=======
-                      color: Colors.black54,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
-                    ),
-                  ),
-                ],
-              ),
-            )
+                  )
                 : filteredListings.isEmpty
-                ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.markunread_mailbox_outlined,
-                    size: 80,
-<<<<<<< HEAD
-                    color: Theme.of(context).hintColor,
-=======
-                    color: Colors.grey[300],
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    'No listings available',
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-<<<<<<< HEAD
-                      color: Theme.of(context).hintColor,
-=======
-                      color: Colors.grey,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Check back later or list your own tickets',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-<<<<<<< HEAD
-                      color: Theme.of(context).hintColor,
-=======
-                      color: Colors.grey,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
-                    ),
-                  ),
-                ],
-              ),
-            )
-                : ListView.builder(
-              physics: BouncingScrollPhysics(),
-              itemCount: filteredListings.length,
-              itemBuilder: (context, index) {
-                return _buildMarketCard(filteredListings[index], index);
-              },
-            ),
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.markunread_mailbox_outlined,
+                              size: 80,
+                              color: Theme.of(context).hintColor,
+                            ),
+                            SizedBox(height: 20),
+                            Text(
+                              'No listings available',
+                              style: GoogleFonts.poppins(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).hintColor,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'Check back later or list your own tickets',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Theme.of(context).hintColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        physics: BouncingScrollPhysics(),
+                        itemCount: filteredListings.length,
+                        itemBuilder: (context, index) {
+                          return _buildMarketCard(
+                              filteredListings[index], index);
+                        },
+                      ),
           ),
         ],
       ),
@@ -762,7 +642,6 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
             ),
           ).then((_) => _fetchMarketListings());
         },
-<<<<<<< HEAD
         backgroundColor: AppColors.orangePrimary,
         elevation: 6,
         child: Icon(Icons.add, size: 32),
@@ -771,13 +650,6 @@ class _MarketState extends State<Market> with SingleTickerProviderStateMixin {
         currentIndex: 1,
         userId: widget.userId,
       ),
-=======
-        backgroundColor: Color(0xffFF611A),
-        elevation: 6,
-        child: Icon(Icons.add, size: 32),
-      ),
-      bottomNavigationBar: BottomNavigatorBar(),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
     );
   }
 }

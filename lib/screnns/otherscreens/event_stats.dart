@@ -225,8 +225,10 @@ class _EventStatsState extends State<EventStats> {
   }
 
   Widget _buildStatsHeader() {
-    double totalRevenue = _revenueMap.values.fold(0, (sum, value) => sum + value);
-    int totalTickets = _ticketsSoldMap.values.fold(0, (sum, value) => sum + value);
+    double totalRevenue =
+        _revenueMap.values.fold(0, (sum, value) => sum + value);
+    int totalTickets =
+        _ticketsSoldMap.values.fold(0, (sum, value) => sum + value);
 
     return Card(
       elevation: 4,

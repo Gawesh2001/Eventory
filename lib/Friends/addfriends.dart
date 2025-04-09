@@ -13,11 +13,8 @@ class AddFriendsPage extends StatefulWidget {
 
 class _AddFriendsPageState extends State<AddFriendsPage> {
   String? userName;
-<<<<<<< HEAD
-  String dpUrl = 'https://img.freepik.com/premium-vector/professional-male-avatar-profile-picture-employee-work_1322206-66590.jpg';
-=======
-  String? dpUrl;
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+  String dpUrl =
+      'https://img.freepik.com/premium-vector/professional-male-avatar-profile-picture-employee-work_1322206-66590.jpg';
   int followersCount = 0;
   int followingCount = 0;
   bool isFriend = false;
@@ -42,20 +39,13 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
 
       if (userDoc.exists) {
         setState(() {
-<<<<<<< HEAD
           userName = userDoc['userName'] ?? 'User';
-          dpUrl = userDoc['dpurl'] ?? dpUrl; // Use existing dpUrl if dpurl is null
+          dpUrl =
+              userDoc['dpurl'] ?? dpUrl; // Use existing dpUrl if dpurl is null
           isLoading = false;
         });
       } else {
         setState(() => isLoading = false);
-=======
-          userName = userDoc['userName'];
-          dpUrl = userDoc['dpurl'] ??
-              'https://img.freepik.com/premium-vector/professional-male-avatar-profile-picture-employee-work_1322206-66590.jpg';
-          isLoading = false;
-        });
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
       }
     } catch (e) {
       print("Error fetching user details: $e");
@@ -148,11 +138,7 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-<<<<<<< HEAD
         SnackBar(content: Text('Friend request sent to ${userName ?? 'user'}')),
-=======
-        SnackBar(content: Text('Friend request sent to $userName')),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
       );
     } catch (e) {
       print("Error adding friend: $e");
@@ -176,105 +162,6 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-<<<<<<< HEAD
-        child: Column(
-          children: [
-            // Profile Header
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    spreadRadius: 1,
-                    blurRadius: 3,
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundImage: NetworkImage(dpUrl),
-                    backgroundColor: Colors.grey[200],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    userName ?? 'User',
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildStatItem('Followers', followersCount),
-                      const SizedBox(width: 20),
-                      _buildStatItem('Following', followingCount),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  if (currentUserId != widget.userId)
-                    SizedBox(
-                      width: 200,
-                      child: ElevatedButton(
-                        onPressed: isFriend ? null : _handleAddFriend,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                          isFriend ? Colors.grey[300] : Colors.blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          padding:
-                          const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        child: Text(
-                          isFriend ? 'Request Sent' : 'Add Friend',
-                          style: TextStyle(
-                            color: isFriend ? Colors.black : Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Mutual Friends Section
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border(
-                  top: BorderSide(color: Colors.grey[200]!),
-                  bottom: BorderSide(color: Colors.grey[200]!),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'People You May Know',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildSuggestedFriends(),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-=======
               child: Column(
                 children: [
                   // Profile Header
@@ -295,7 +182,7 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
                       children: [
                         CircleAvatar(
                           radius: 50,
-                          backgroundImage: NetworkImage(dpUrl!),
+                          backgroundImage: NetworkImage(dpUrl),
                           backgroundColor: Colors.grey[200],
                         ),
                         const SizedBox(height: 16),
@@ -372,7 +259,6 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
                 ],
               ),
             ),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
     );
   }
 
@@ -434,8 +320,4 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
       }).toList(),
     );
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f

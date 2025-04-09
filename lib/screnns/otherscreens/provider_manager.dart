@@ -14,7 +14,8 @@ class ProviderManager extends StatefulWidget {
   State<ProviderManager> createState() => _ProviderManagerState();
 }
 
-class _ProviderManagerState extends State<ProviderManager> with SingleTickerProviderStateMixin {
+class _ProviderManagerState extends State<ProviderManager>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -153,7 +154,8 @@ class _ProviderManagerState extends State<ProviderManager> with SingleTickerProv
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (vehicle['vehicleImage'] != null && vehicle['vehicleImage'].isNotEmpty)
+          if (vehicle['vehicleImage'] != null &&
+              vehicle['vehicleImage'].isNotEmpty)
             ClipRRect(
               borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
               child: CachedNetworkImage(
@@ -237,7 +239,8 @@ class _ProviderManagerState extends State<ProviderManager> with SingleTickerProv
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () => _showDeleteTransportConfirmation(vehicle['vehicleId']),
+                    onPressed: () =>
+                        _showDeleteTransportConfirmation(vehicle['vehicleId']),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       minimumSize: Size(double.infinity, 48),
@@ -314,7 +317,8 @@ class _ProviderManagerState extends State<ProviderManager> with SingleTickerProv
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (accommodation['imageUrl'] != null && accommodation['imageUrl'].isNotEmpty)
+          if (accommodation['imageUrl'] != null &&
+              accommodation['imageUrl'].isNotEmpty)
             ClipRRect(
               borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
               child: CachedNetworkImage(
@@ -387,7 +391,8 @@ class _ProviderManagerState extends State<ProviderManager> with SingleTickerProv
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () => _showDeleteAccommodationConfirmation(accommodation['accommodationID']),
+                    onPressed: () => _showDeleteAccommodationConfirmation(
+                        accommodation['accommodationID']),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       minimumSize: Size(double.infinity, 48),
@@ -444,7 +449,8 @@ class _ProviderManagerState extends State<ProviderManager> with SingleTickerProv
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 16,
-                    color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
+                    color: Theme.of(context).textTheme.bodyLarge?.color ??
+                        Colors.black,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -495,7 +501,8 @@ class _ProviderManagerState extends State<ProviderManager> with SingleTickerProv
     );
   }
 
-  Future<void> _showDeleteAccommodationConfirmation(String accommodationId) async {
+  Future<void> _showDeleteAccommodationConfirmation(
+      String accommodationId) async {
     await showDialog(
       context: context,
       builder: (context) {
@@ -527,7 +534,8 @@ class _ProviderManagerState extends State<ProviderManager> with SingleTickerProv
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 16,
-                    color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
+                    color: Theme.of(context).textTheme.bodyLarge?.color ??
+                        Colors.black,
                   ),
                 ),
                 const SizedBox(height: 24),

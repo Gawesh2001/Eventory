@@ -4,10 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'expired.dart';
-<<<<<<< HEAD
 import 'package:eventory/helpers/theme_helper.dart'; // Added import
-=======
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
 
 class MyTickets extends StatefulWidget {
   final String userId;
@@ -18,7 +15,8 @@ class MyTickets extends StatefulWidget {
   _MyTicketsState createState() => _MyTicketsState();
 }
 
-class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMixin {
+class _MyTicketsState extends State<MyTickets>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _selectedFilter = 'All';
@@ -74,7 +72,8 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
 
         if (eventDoc.exists) {
           var eventData = eventDoc.data() as Map<String, dynamic>;
-          bool isMarketplace = await _checkIfMarketplaceTicket(ticketData['ticketId'].toString());
+          bool isMarketplace = await _checkIfMarketplaceTicket(
+              ticketData['ticketId'].toString());
           DateTime eventDateTime = eventData['selectedDateTime'].toDate();
           bool isExpired = eventDateTime.isBefore(DateTime.now());
 
@@ -86,7 +85,8 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
               'isMarketplace': isMarketplace,
             });
 
-            isMarketplaceTicket[ticketData['ticketId'].toString()] = isMarketplace;
+            isMarketplaceTicket[ticketData['ticketId'].toString()] =
+                isMarketplace;
           }
         }
       }
@@ -158,7 +158,8 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                 eventDateTime.month == tomorrow.month &&
                 eventDateTime.day == tomorrow.day;
           case 'This Week':
-            final endOfWeek = now.add(Duration(days: DateTime.daysPerWeek - now.weekday));
+            final endOfWeek =
+                now.add(Duration(days: DateTime.daysPerWeek - now.weekday));
             return eventDateTime.isAfter(now) &&
                 eventDateTime.isBefore(endOfWeek);
           case 'This Month':
@@ -181,10 +182,7 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
     var hoursRemaining = eventDateTime.difference(DateTime.now()).inHours;
     bool isMarketplace = ticket['isMarketplace'] ?? false;
     bool isUrgent = hoursRemaining < 24;
-<<<<<<< HEAD
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-=======
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
 
     return AnimatedBuilder(
       animation: CurvedAnimation(
@@ -210,38 +208,29 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
           clipBehavior: Clip.antiAlias,
           child: Container(
             decoration: BoxDecoration(
-<<<<<<< HEAD
               gradient: isDarkMode
                   ? null
                   : LinearGradient(
-=======
-              gradient: LinearGradient(
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white,
-                  isUrgent ? Color(0xFFFFF0E6) : Colors.white,
-                ],
-              ),
-<<<<<<< HEAD
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.white,
+                        isUrgent ? Color(0xFFFFF0E6) : Colors.white,
+                      ],
+                    ),
               color: isDarkMode
                   ? isUrgent
-                  ? AppColors.orangePrimary.withOpacity(0.1)
-                  : AppColors.cardColor(context)
+                      ? AppColors.orangePrimary.withOpacity(0.1)
+                      : AppColors.cardColor(context)
                   : null,
               border: Border.all(
                 color: isUrgent
                     ? isDarkMode
-                    ? AppColors.orangePrimary.withOpacity(0.2)
-                    : Color(0xffFF611A).withOpacity(0.2)
+                        ? AppColors.orangePrimary.withOpacity(0.2)
+                        : Color(0xffFF611A).withOpacity(0.2)
                     : isDarkMode
-                    ? Theme.of(context).dividerColor
-                    : Colors.grey.withOpacity(0.1),
-=======
-              border: Border.all(
-                color: isUrgent ? Color(0xffFF611A).withOpacity(0.2) : Colors.grey.withOpacity(0.1),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+                        ? Theme.of(context).dividerColor
+                        : Colors.grey.withOpacity(0.1),
                 width: 1,
               ),
             ),
@@ -263,11 +252,9 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                             style: GoogleFonts.poppins(
                               fontSize: 22,
                               fontWeight: FontWeight.w600,
-<<<<<<< HEAD
-                              color: isDarkMode ? AppColors.textColor(context) : Colors.black87,
-=======
-                              color: Colors.black87,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+                              color: isDarkMode
+                                  ? AppColors.textColor(context)
+                                  : Colors.black87,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -282,22 +269,19 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-<<<<<<< HEAD
-                                  isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A),
-=======
-                                  Color(0xffFF611A),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+                                  isDarkMode
+                                      ? AppColors.orangePrimary
+                                      : Color(0xffFF611A),
                                   Color(0xffFF9349),
                                 ],
                               ),
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-<<<<<<< HEAD
-                                  color: (isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A)).withOpacity(0.3),
-=======
-                                  color: Color(0xffFF611A).withOpacity(0.3),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+                                  color: (isDarkMode
+                                          ? AppColors.orangePrimary
+                                          : Color(0xffFF611A))
+                                      .withOpacity(0.3),
                                   blurRadius: 8,
                                   offset: Offset(0, 4),
                                 ),
@@ -316,37 +300,34 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                       ],
                     ),
                     SizedBox(height: 16),
-                    _buildInfoRow(Icons.confirmation_number, 'Ticket ID', ticketId.toString()),
+                    _buildInfoRow(Icons.confirmation_number, 'Ticket ID',
+                        ticketId.toString()),
                     _buildInfoRow(Icons.category, 'Ticket Type', ticketName),
-                    _buildInfoRow(Icons.calendar_today, 'Date', DateFormat('EEE, MMM d, y').format(eventDateTime)),
-                    _buildInfoRow(Icons.access_time, 'Time', DateFormat('h:mm a').format(eventDateTime)),
+                    _buildInfoRow(Icons.calendar_today, 'Date',
+                        DateFormat('EEE, MMM d, y').format(eventDateTime)),
+                    _buildInfoRow(Icons.access_time, 'Time',
+                        DateFormat('h:mm a').format(eventDateTime)),
                     SizedBox(height: 12),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       decoration: BoxDecoration(
-<<<<<<< HEAD
                         color: isUrgent
                             ? isDarkMode
-                            ? AppColors.orangePrimary.withOpacity(0.1)
-                            : Color(0xffFF611A).withOpacity(0.1)
+                                ? AppColors.orangePrimary.withOpacity(0.1)
+                                : Color(0xffFF611A).withOpacity(0.1)
                             : isDarkMode
-                            ? Theme.of(context).hoverColor
-                            : Colors.grey.withOpacity(0.05),
+                                ? Theme.of(context).hoverColor
+                                : Colors.grey.withOpacity(0.05),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isUrgent
                               ? isDarkMode
-                              ? AppColors.orangePrimary.withOpacity(0.3)
-                              : Color(0xffFF611A).withOpacity(0.3)
+                                  ? AppColors.orangePrimary.withOpacity(0.3)
+                                  : Color(0xffFF611A).withOpacity(0.3)
                               : isDarkMode
-                              ? Theme.of(context).dividerColor
-                              : Colors.grey.withOpacity(0.1),
-=======
-                        color: isUrgent ? Color(0xffFF611A).withOpacity(0.1) : Colors.grey.withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isUrgent ? Color(0xffFF611A).withOpacity(0.3) : Colors.grey.withOpacity(0.1),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+                                  ? Theme.of(context).dividerColor
+                                  : Colors.grey.withOpacity(0.1),
                         ),
                       ),
                       child: Row(
@@ -357,11 +338,9 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-<<<<<<< HEAD
-                              color: isDarkMode ? Theme.of(context).hintColor : Colors.black54,
-=======
-                              color: Colors.black54,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+                              color: isDarkMode
+                                  ? Theme.of(context).hintColor
+                                  : Colors.black54,
                             ),
                           ),
                           Text(
@@ -369,17 +348,13 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                             style: GoogleFonts.poppins(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-<<<<<<< HEAD
                               color: isUrgent
                                   ? isDarkMode
-                                  ? AppColors.orangePrimary
-                                  : Color(0xffFF611A)
+                                      ? AppColors.orangePrimary
+                                      : Color(0xffFF611A)
                                   : isDarkMode
-                                  ? AppColors.textColor(context)
-                                  : Colors.black87,
-=======
-                              color: isUrgent ? Color(0xffFF611A) : Colors.black87,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+                                      ? AppColors.textColor(context)
+                                      : Colors.black87,
                             ),
                           ),
                         ],
@@ -396,21 +371,16 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
   }
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
-<<<<<<< HEAD
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-=======
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-<<<<<<< HEAD
-          Icon(icon, size: 20, color: isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A)),
-=======
-          Icon(icon, size: 20, color: Color(0xffFF611A)),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+          Icon(icon,
+              size: 20,
+              color: isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A)),
           SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -421,11 +391,9 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-<<<<<<< HEAD
-                    color: isDarkMode ? Theme.of(context).hintColor : Colors.black54,
-=======
-                    color: Colors.black54,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+                    color: isDarkMode
+                        ? Theme.of(context).hintColor
+                        : Colors.black54,
                   ),
                 ),
                 Text(
@@ -433,11 +401,9 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-<<<<<<< HEAD
-                    color: isDarkMode ? AppColors.textColor(context) : Colors.black87,
-=======
-                    color: Colors.black87,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+                    color: isDarkMode
+                        ? AppColors.textColor(context)
+                        : Colors.black87,
                   ),
                 ),
               ],
@@ -451,55 +417,40 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final filteredTickets = _filterTickets();
-<<<<<<< HEAD
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDarkMode ? AppColors.scaffoldBackground(context) : Colors.grey[50],
+      backgroundColor:
+          isDarkMode ? AppColors.scaffoldBackground(context) : Colors.grey[50],
       appBar: AppBar(
-        systemOverlayStyle: isDarkMode
-            ? SystemUiOverlayStyle.light
-            : SystemUiOverlayStyle.dark,
-=======
-
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        systemOverlayStyle: SystemUiOverlayStyle.light,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+        systemOverlayStyle:
+            isDarkMode ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         title: Text(
           'My Tickets',
           style: GoogleFonts.poppins(
             fontSize: 24,
             fontWeight: FontWeight.w600,
-<<<<<<< HEAD
             color: isDarkMode ? AppColors.textColor(context) : Colors.black87,
           ),
         ),
-        backgroundColor: isDarkMode ? AppColors.cardColor(context) : Colors.white,
+        backgroundColor:
+            isDarkMode ? AppColors.cardColor(context) : Colors.white,
         elevation: 0,
-        iconTheme: IconThemeData(color: isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A)),
+        iconTheme: IconThemeData(
+            color: isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A)),
         actions: [
           IconButton(
             icon: Icon(Icons.history, size: 28),
-            color: isDarkMode ? AppColors.textColor(context) : Color(0xffFF611A),
-=======
-            color: Colors.black87,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: IconThemeData(color: Color(0xffFF611A)),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.history, size: 28),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+            color:
+                isDarkMode ? AppColors.textColor(context) : Color(0xffFF611A),
             onPressed: () {
               Navigator.push(
                 context,
                 PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) => Expired(userId: widget.userId),
-                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      Expired(userId: widget.userId),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
                     return SlideTransition(
                       position: Tween<Offset>(
                         begin: const Offset(1, 0),
@@ -514,10 +465,8 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
           ),
           IconButton(
             icon: Icon(Icons.refresh, size: 28),
-<<<<<<< HEAD
-            color: isDarkMode ? AppColors.textColor(context) : Color(0xffFF611A),
-=======
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+            color:
+                isDarkMode ? AppColors.textColor(context) : Color(0xffFF611A),
             onPressed: () {
               _animationController.reset();
               _fetchTickets().then((_) {
@@ -534,19 +483,14 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
             child: Material(
               elevation: 4,
               borderRadius: BorderRadius.circular(30),
-<<<<<<< HEAD
-              shadowColor: (isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A)).withOpacity(0.2),
+              shadowColor:
+                  (isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A))
+                      .withOpacity(0.2),
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
-                  color: isDarkMode ? AppColors.cardColor(context) : Colors.white,
-=======
-              shadowColor: Color(0xffFF611A).withOpacity(0.2),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  color: Colors.white,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+                  color:
+                      isDarkMode ? AppColors.cardColor(context) : Colors.white,
                 ),
                 child: Row(
                   children: [
@@ -555,22 +499,19 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextField(
                           controller: _searchController,
-<<<<<<< HEAD
                           style: GoogleFonts.poppins(
                             fontSize: 16,
-                            color: isDarkMode ? AppColors.textColor(context) : Colors.black87,
+                            color: isDarkMode
+                                ? AppColors.textColor(context)
+                                : Colors.black87,
                           ),
                           decoration: InputDecoration(
                             hintText: "Search tickets...",
                             hintStyle: GoogleFonts.poppins(
-                              color: isDarkMode ? Theme.of(context).hintColor : Colors.grey,
+                              color: isDarkMode
+                                  ? Theme.of(context).hintColor
+                                  : Colors.grey,
                             ),
-=======
-                          style: GoogleFonts.poppins(fontSize: 16),
-                          decoration: InputDecoration(
-                            hintText: "Search tickets...",
-                            hintStyle: GoogleFonts.poppins(color: Colors.grey),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                             border: InputBorder.none,
                           ),
                           onChanged: (value) {
@@ -588,11 +529,9 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-<<<<<<< HEAD
-                            isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A),
-=======
-                            Color(0xffFF611A),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+                            isDarkMode
+                                ? AppColors.orangePrimary
+                                : Color(0xffFF611A),
                             Color(0xffFF9349),
                           ],
                         ),
@@ -605,7 +544,8 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                           borderRadius: BorderRadius.circular(30),
                           onTap: () {
                             setState(() {
-                              _searchQuery = _searchController.text.toLowerCase();
+                              _searchQuery =
+                                  _searchController.text.toLowerCase();
                             });
                           },
                           child: Center(
@@ -613,13 +553,13 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                               duration: Duration(milliseconds: 300),
                               child: _searchQuery.isNotEmpty
                                   ? Text(
-                                'SEARCH',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              )
+                                      'SEARCH',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    )
                                   : Icon(Icons.search, color: Colors.white),
                             ),
                           ),
@@ -637,44 +577,43 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
               height: 50,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                children: ['All', 'Today', 'Tomorrow', 'This Week', 'This Month']
-                    .map((filter) => Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: ChoiceChip(
-                    label: Text(
-                      filter,
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w500,
-<<<<<<< HEAD
-                        color: _selectedFilter == filter
-                            ? Colors.white
-                            : (isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A)),
-                      ),
-                    ),
-                    selected: _selectedFilter == filter,
-                    selectedColor: isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A),
-                    backgroundColor: isDarkMode ? AppColors.cardColor(context) : Colors.white,
-                    shape: StadiumBorder(
-                      side: BorderSide(color: isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A)),
-=======
-                        color: _selectedFilter == filter ? Colors.white : Color(0xffFF611A),
-                      ),
-                    ),
-                    selected: _selectedFilter == filter,
-                    selectedColor: Color(0xffFF611A),
-                    backgroundColor: Colors.white,
-                    shape: StadiumBorder(
-                      side: BorderSide(color: Color(0xffFF611A)),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
-                    ),
-                    onSelected: (selected) {
-                      setState(() {
-                        _selectedFilter = selected ? filter : 'All';
-                      });
-                    },
-                  ),
-                ))
-                    .toList(),
+                children:
+                    ['All', 'Today', 'Tomorrow', 'This Week', 'This Month']
+                        .map((filter) => Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: ChoiceChip(
+                                label: Text(
+                                  filter,
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w500,
+                                    color: _selectedFilter == filter
+                                        ? Colors.white
+                                        : (isDarkMode
+                                            ? AppColors.orangePrimary
+                                            : Color(0xffFF611A)),
+                                  ),
+                                ),
+                                selected: _selectedFilter == filter,
+                                selectedColor: isDarkMode
+                                    ? AppColors.orangePrimary
+                                    : Color(0xffFF611A),
+                                backgroundColor: isDarkMode
+                                    ? AppColors.cardColor(context)
+                                    : Colors.white,
+                                shape: StadiumBorder(
+                                  side: BorderSide(
+                                      color: isDarkMode
+                                          ? AppColors.orangePrimary
+                                          : Color(0xffFF611A)),
+                                ),
+                                onSelected: (selected) {
+                                  setState(() {
+                                    _selectedFilter = selected ? filter : 'All';
+                                  });
+                                },
+                              ),
+                            ))
+                        .toList(),
               ),
             ),
           ),
@@ -708,87 +647,77 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
           Expanded(
             child: isLoading
                 ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 6,
-<<<<<<< HEAD
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                          isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A)),
-=======
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xffFF611A)),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 60,
+                          height: 60,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 6,
+                            valueColor: AlwaysStoppedAnimation<Color>(isDarkMode
+                                ? AppColors.orangePrimary
+                                : Color(0xffFF611A)),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        Text(
+                          'Loading Tickets',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            color: isDarkMode
+                                ? Theme.of(context).hintColor
+                                : Colors.black54,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    'Loading Tickets',
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-<<<<<<< HEAD
-                      color: isDarkMode ? Theme.of(context).hintColor : Colors.black54,
-=======
-                      color: Colors.black54,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
-                    ),
-                  ),
-                ],
-              ),
-            )
+                  )
                 : filteredTickets.isEmpty
-                ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.confirmation_number_outlined,
-                    size: 80,
-<<<<<<< HEAD
-                    color: isDarkMode ? Theme.of(context).hintColor : Colors.grey[300],
-=======
-                    color: Colors.grey[300],
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    'No tickets found',
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-<<<<<<< HEAD
-                      color: isDarkMode ? Theme.of(context).hintColor : Colors.grey,
-=======
-                      color: Colors.grey,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Try adjusting your search or filter',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-<<<<<<< HEAD
-                      color: isDarkMode ? Theme.of(context).hintColor : Colors.grey,
-=======
-                      color: Colors.grey,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
-                    ),
-                  ),
-                ],
-              ),
-            )
-                : ListView.builder(
-              physics: BouncingScrollPhysics(),
-              itemCount: filteredTickets.length,
-              itemBuilder: (context, index) {
-                return _buildTicketCard(filteredTickets[index], index);
-              },
-            ),
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.confirmation_number_outlined,
+                              size: 80,
+                              color: isDarkMode
+                                  ? Theme.of(context).hintColor
+                                  : Colors.grey[300],
+                            ),
+                            SizedBox(height: 20),
+                            Text(
+                              'No tickets found',
+                              style: GoogleFonts.poppins(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: isDarkMode
+                                    ? Theme.of(context).hintColor
+                                    : Colors.grey,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'Try adjusting your search or filter',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: isDarkMode
+                                    ? Theme.of(context).hintColor
+                                    : Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        physics: BouncingScrollPhysics(),
+                        itemCount: filteredTickets.length,
+                        itemBuilder: (context, index) {
+                          return _buildTicketCard(
+                              filteredTickets[index], index);
+                        },
+                      ),
           ),
         ],
       ),

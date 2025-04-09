@@ -89,11 +89,7 @@ class AuthServices {
             break;
           case 'email-already-in-use':
             errorMessage =
-<<<<<<< HEAD
-            'The email is already in use. Please use another email.';
-=======
                 'The email is already in use. Please use another email.';
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
             break;
           case 'invalid-email':
             errorMessage = 'The email address is invalid.';
@@ -114,11 +110,7 @@ class AuthServices {
       if (googleUser == null) return null; // User cancelled the sign-in
 
       final GoogleSignInAuthentication googleAuth =
-<<<<<<< HEAD
-      await googleUser.authentication;
-=======
           await googleUser.authentication;
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,

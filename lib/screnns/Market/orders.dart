@@ -5,10 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:eventory/navigators/bottomnavigatorbar.dart';
 import 'package:shimmer/shimmer.dart';
-<<<<<<< HEAD
 import 'package:eventory/helpers/theme_helper.dart'; // Added import
-=======
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
 
 class Orders extends StatefulWidget {
   final String userId;
@@ -83,32 +80,19 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-<<<<<<< HEAD
             color: AppColors.cardColor(context),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Shimmer.fromColors(
             baseColor: Theme.of(context).hoverColor!,
             highlightColor: Theme.of(context).highlightColor!,
-=======
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   width: double.infinity,
                   height: 24,
-<<<<<<< HEAD
                   color: AppColors.cardColor(context),
-=======
-                  color: Colors.white,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                 ),
                 const SizedBox(height: 16),
                 _buildShimmerRow(),
@@ -120,11 +104,7 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
                   width: double.infinity,
                   height: 40,
                   decoration: BoxDecoration(
-<<<<<<< HEAD
                     color: AppColors.cardColor(context),
-=======
-                    color: Colors.white,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
@@ -145,11 +125,7 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
           Container(
             width: 20,
             height: 20,
-<<<<<<< HEAD
             color: AppColors.cardColor(context),
-=======
-            color: Colors.white,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -159,21 +135,13 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
                 Container(
                   width: 100,
                   height: 14,
-<<<<<<< HEAD
                   color: AppColors.cardColor(context),
-=======
-                  color: Colors.white,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                 ),
                 const SizedBox(height: 4),
                 Container(
                   width: double.infinity,
                   height: 16,
-<<<<<<< HEAD
                   color: AppColors.cardColor(context),
-=======
-                  color: Colors.white,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                 ),
               ],
             ),
@@ -183,7 +151,8 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget _buildOrderCard(Map<String, dynamic> order, Map<String, dynamic> eventDetails, int index) {
+  Widget _buildOrderCard(Map<String, dynamic> order,
+      Map<String, dynamic> eventDetails, int index) {
     bool isSold = order['isSold'] ?? false;
     DateTime eventDate = eventDetails['eventDate'];
     bool isExpired = eventDate.isBefore(DateTime.now());
@@ -212,36 +181,21 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
           clipBehavior: Clip.antiAlias,
           child: Container(
             decoration: BoxDecoration(
-<<<<<<< HEAD
               color: AppColors.cardColor(context),
               gradient: isExpired
                   ? LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.cardColor(context),
-                  Colors.grey.withOpacity(0.1),
-                ],
-              )
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppColors.cardColor(context),
+                        Colors.grey.withOpacity(0.1),
+                      ],
+                    )
                   : null,
               border: Border.all(
                 color: isExpired
                     ? Theme.of(context).dividerColor
                     : Theme.of(context).dividerColor.withOpacity(0.5),
-=======
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white,
-                  isExpired ? Colors.grey[100]! : Colors.white,
-                ],
-              ),
-              border: Border.all(
-                color: isExpired
-                    ? Colors.grey.withOpacity(0.2)
-                    : Colors.grey.withOpacity(0.1),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                 width: 1,
               ),
             ),
@@ -263,13 +217,9 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
                             style: GoogleFonts.poppins(
                               fontSize: 22,
                               fontWeight: FontWeight.w600,
-<<<<<<< HEAD
                               color: isExpired
                                   ? Theme.of(context).hintColor
                                   : AppColors.textColor(context),
-=======
-                              color: isExpired ? Colors.grey : Colors.black87,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -282,11 +232,7 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-<<<<<<< HEAD
                               color: Colors.grey[700],
-=======
-                              color: Colors.grey[300],
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -302,15 +248,21 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    _buildInfoRow(Icons.confirmation_number, 'Ticket ID', order['ticketId'].toString()),
-                    _buildInfoRow(Icons.calendar_today, 'Event Date', DateFormat('EEE, MMM d, y').format(eventDate)),
-                    _buildInfoRow(Icons.access_time, 'Event Time', DateFormat('h:mm a').format(eventDate)),
-                    _buildInfoRow(Icons.attach_money, 'Original Price', 'LKR ${NumberFormat('#,###').format(order['originalPrice'])}'),
-                    _buildInfoRow(Icons.sell, 'Listed Price', 'LKR ${NumberFormat('#,###').format(order['currentPrice'])}'),
+                    _buildInfoRow(Icons.confirmation_number, 'Ticket ID',
+                        order['ticketId'].toString()),
+                    _buildInfoRow(Icons.calendar_today, 'Event Date',
+                        DateFormat('EEE, MMM d, y').format(eventDate)),
+                    _buildInfoRow(Icons.access_time, 'Event Time',
+                        DateFormat('h:mm a').format(eventDate)),
+                    _buildInfoRow(Icons.attach_money, 'Original Price',
+                        'LKR ${NumberFormat('#,###').format(order['originalPrice'])}'),
+                    _buildInfoRow(Icons.sell, 'Listed Price',
+                        'LKR ${NumberFormat('#,###').format(order['currentPrice'])}'),
                     const SizedBox(height: 12),
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: isSold
@@ -346,11 +298,7 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-<<<<<<< HEAD
           Icon(icon, size: 20, color: AppColors.orangePrimary),
-=======
-          Icon(icon, size: 20, color: const Color(0xffFF611A)),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -361,11 +309,7 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-<<<<<<< HEAD
                     color: Theme.of(context).hintColor,
-=======
-                    color: Colors.black54,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                 ),
                 Text(
@@ -373,11 +317,7 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-<<<<<<< HEAD
                     color: AppColors.textColor(context),
-=======
-                    color: Colors.black87,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                 ),
               ],
@@ -391,23 +331,16 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-<<<<<<< HEAD
       backgroundColor: AppColors.scaffoldBackground(context),
       appBar: AppBar(
         systemOverlayStyle: Theme.of(context).brightness == Brightness.dark
             ? SystemUiOverlayStyle.light
             : SystemUiOverlayStyle.dark,
-=======
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        systemOverlayStyle: SystemUiOverlayStyle.light,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
         title: Text(
           'My Listings',
           style: GoogleFonts.poppins(
             fontSize: 24,
             fontWeight: FontWeight.w600,
-<<<<<<< HEAD
             color: AppColors.textColor(context),
           ),
         ),
@@ -416,26 +349,12 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
         iconTheme: IconThemeData(color: AppColors.orangePrimary),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-=======
-            color: Colors.black87,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xffFF611A)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
-<<<<<<< HEAD
             icon: Icon(Icons.refresh, size: 28),
             color: AppColors.textColor(context),
-=======
-            icon: const Icon(Icons.refresh, size: 28),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
             onPressed: () {
               _animationController.reset();
               _animationController.forward();
@@ -470,11 +389,7 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
                 ),
                 child: Row(
                   children: [
-<<<<<<< HEAD
                     Icon(Icons.error_outline, color: Colors.red),
-=======
-                    const Icon(Icons.error_outline, color: Colors.red),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -499,11 +414,7 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
                   Icon(
                     Icons.receipt_long_outlined,
                     size: 80,
-<<<<<<< HEAD
                     color: Theme.of(context).hintColor,
-=======
-                    color: Colors.grey[300],
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                   const SizedBox(height: 20),
                   Text(
@@ -511,11 +422,7 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
                     style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
-<<<<<<< HEAD
                       color: Theme.of(context).hintColor,
-=======
-                      color: Colors.grey,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -523,11 +430,7 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
                     'You haven\'t listed any tickets yet',
                     style: GoogleFonts.poppins(
                       fontSize: 14,
-<<<<<<< HEAD
                       color: Theme.of(context).hintColor,
-=======
-                      color: Colors.grey,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     ),
                   ),
                 ],
@@ -545,13 +448,15 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
               return FutureBuilder<Map<String, dynamic>>(
                 future: _fetchEventDetails(order['eventId']),
                 builder: (context, eventSnapshot) {
-                  if (eventSnapshot.connectionState == ConnectionState.waiting) {
+                  if (eventSnapshot.connectionState ==
+                      ConnectionState.waiting) {
                     return _buildShimmerCard();
                   }
                   if (eventSnapshot.hasError) {
                     return Container(
                       padding: const EdgeInsets.all(16),
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
                         color: Colors.red[50],
                         borderRadius: BorderRadius.circular(12),
@@ -572,14 +477,10 @@ class _OrdersState extends State<Orders> with SingleTickerProviderStateMixin {
           );
         },
       ),
-<<<<<<< HEAD
       bottomNavigationBar: BottomNavigatorBar(
         currentIndex: 1,
         userId: widget.userId,
       ),
-=======
-      bottomNavigationBar: BottomNavigatorBar(),
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
     );
   }
 }

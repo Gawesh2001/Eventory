@@ -17,11 +17,7 @@ class _RegisterState extends State<Register> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
-<<<<<<< HEAD
-  TextEditingController();
-=======
       TextEditingController();
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
 
   bool _agreeToTerms = false;
   String errorMessage = "";
@@ -215,11 +211,7 @@ class _RegisterState extends State<Register> {
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-<<<<<<< HEAD
                         backgroundColor: Color(0xffFF611A),
-=======
-                        backgroundColor: Colors.orange,
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                         padding: EdgeInsets.symmetric(vertical: 16),
                       ),
                       onPressed: _register,
@@ -278,19 +270,11 @@ class _RegisterState extends State<Register> {
         ),
         suffixIcon: icon != null
             ? IconButton(
-<<<<<<< HEAD
-          icon:
-          Icon(obscureText ? Icons.visibility : Icons.visibility_off),
-          onPressed: icon,
-          color: Colors.grey,
-        )
-=======
                 icon:
                     Icon(obscureText ? Icons.visibility : Icons.visibility_off),
                 onPressed: icon,
                 color: Colors.grey,
               )
->>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
             : null,
       ),
     );
