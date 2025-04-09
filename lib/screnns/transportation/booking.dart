@@ -19,8 +19,13 @@ class CarBookingPage extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                     builder: (context) => UserProfile(
+<<<<<<< HEAD
                       userId: '',
                     )),
+=======
+                          userId: '',
+                        )),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
               );
             },
           ),
@@ -56,7 +61,11 @@ class CarBookingPage extends StatelessWidget {
               child: ListTile(
                 leading: CircleAvatar(
                   backgroundImage:
+<<<<<<< HEAD
                   NetworkImage('https://i.imgur.com/8Km9tLL.png'),
+=======
+                      NetworkImage('https://i.imgur.com/8Km9tLL.png'),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                 ),
                 title: Text('S H Perera'),
                 subtitle: Text('Driver'),

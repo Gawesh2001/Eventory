@@ -2,9 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+<<<<<<< HEAD
 import 'package:url_launcher/url_launcher.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:eventory/helpers/theme_helper.dart';
+=======
+import 'package:url_launcher/url_launcher.dart'; // Import url_launcher
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
 
 class AccommodationDetailsPage extends StatefulWidget {
   final String accommodationId;
@@ -22,6 +26,7 @@ class AccommodationDetailsPage extends StatefulWidget {
 
   const AccommodationDetailsPage(
       {super.key,
+<<<<<<< HEAD
         required this.accommodationId,
         required this.imageUrl,
         required this.title,
@@ -34,6 +39,20 @@ class AccommodationDetailsPage extends StatefulWidget {
         required this.description,
         required this.website,
         required this.socialMedia});
+=======
+      required this.accommodationId,
+      required this.imageUrl,
+      required this.title,
+      required this.location,
+      required this.mapLink,
+      required this.rating,
+      required this.price,
+      required this.contact,
+      required this.email,
+      required this.description,
+      required this.website,
+      required this.socialMedia});
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
 
   @override
   _AccommodationDetailsPageState createState() =>
@@ -87,6 +106,7 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
       });
 
       _reviewController.clear();
+<<<<<<< HEAD
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -98,11 +118,16 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
           backgroundColor: AppColors.orangePrimary,
         ),
       );
+=======
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Review added successfully!")));
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
     }
   }
 
   void _copyToClipboard(BuildContext context, String text) {
     Clipboard.setData(ClipboardData(text: text));
+<<<<<<< HEAD
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -114,6 +139,10 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
         backgroundColor: AppColors.orangePrimary,
       ),
     );
+=======
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text("Copied to clipboard: $text")));
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
   }
 
   Future<void> _makePhoneCall(String phoneNumber) async {
@@ -122,6 +151,7 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
       await launch(phoneUri.toString());
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
+<<<<<<< HEAD
         SnackBar(
           content: Text(
             "Could not launch the phone app.",
@@ -132,6 +162,9 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
           backgroundColor: AppColors.orangePrimary,
         ),
       );
+=======
+          SnackBar(content: Text("Could not launch the phone app.")));
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
     }
   }
 
@@ -139,6 +172,7 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+<<<<<<< HEAD
         title: Text(
           "Call $phoneNumber?",
           style: GoogleFonts.poppins(
@@ -161,18 +195,30 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
                 color: AppColors.orangePrimary,
               ),
             ),
+=======
+        title: Text("Call $phoneNumber?"),
+        content: Text("Are you sure you want to call this number?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("Cancel"),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _makePhoneCall(phoneNumber);
             },
+<<<<<<< HEAD
             child: Text(
               "Call",
               style: GoogleFonts.poppins(
                 color: AppColors.orangePrimary,
               ),
             ),
+=======
+            child: Text("Call"),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
           ),
         ],
       ),
@@ -180,9 +226,19 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
   }
 
   List<String> _parseFacilities(String description) {
+<<<<<<< HEAD
     String cleanedDescription = description.trim();
     cleanedDescription = cleanedDescription.replaceAll(RegExp(r'^\[|\]$'), '');
 
+=======
+    // Strip any leading or trailing spaces and commas from the description string
+    String cleanedDescription = description.trim();
+
+    // Remove any leading or trailing commas and brackets
+    cleanedDescription = cleanedDescription.replaceAll(RegExp(r'^\[|\]$'), '');
+
+    // Remove any leading or trailing commas
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
     if (cleanedDescription.startsWith(',')) {
       cleanedDescription = cleanedDescription.substring(1).trim();
     }
@@ -191,10 +247,18 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
           cleanedDescription.substring(0, cleanedDescription.length - 1).trim();
     }
 
+<<<<<<< HEAD
     return cleanedDescription
         .split(',')
         .map((e) => e.trim())
         .where((facility) => facility.isNotEmpty)
+=======
+    // Now split by commas and return the facilities list
+    return cleanedDescription
+        .split(',')
+        .map((e) => e.trim())
+        .where((facility) => facility.isNotEmpty) // Ensure no empty entries
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
         .toList();
   }
 
@@ -205,6 +269,7 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
       spacing: 8,
       children: facilities.map((facility) {
         return Chip(
+<<<<<<< HEAD
           label: Text(
             facility,
             style: GoogleFonts.poppins(
@@ -216,6 +281,10 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
             color: Theme.of(context).dividerColor,
             width: 1,
           ),
+=======
+          label: Text(facility, style: TextStyle(color: Colors.orange[700])),
+          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
         );
       }).toList(),
     );
@@ -234,10 +303,13 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
         decoration: BoxDecoration(
           color: color,
           shape: BoxShape.circle,
+<<<<<<< HEAD
           border: Border.all(
             color: Theme.of(context).dividerColor,
             width: 1,
           ),
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
         ),
         child: Icon(
           icon,
@@ -249,7 +321,11 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
   }
 
   Widget _buildRoundedPopupMenu({
+<<<<<<< HEAD
     required Offset offset,
+=======
+    required Offset offset, // Add this parameter
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
     required IconData icon,
     required Color color,
     required List<PopupMenuEntry<String>> menuItems,
@@ -262,6 +338,7 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
         decoration: BoxDecoration(
           color: color,
           shape: BoxShape.circle,
+<<<<<<< HEAD
           border: Border.all(
             color: Theme.of(context).dividerColor,
             width: 1,
@@ -269,6 +346,11 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
         ),
         child: PopupMenuButton<String>(
           offset: offset,
+=======
+        ),
+        child: PopupMenuButton<String>(
+          offset: offset, // Use the passed offset
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
           constraints: BoxConstraints(minWidth: 10),
           padding: EdgeInsets.zero,
           icon: Icon(icon, color: Colors.white, size: 24),
@@ -282,7 +364,11 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+<<<<<<< HEAD
       backgroundColor: AppColors.scaffoldBackground(context),
+=======
+      backgroundColor: Colors.white,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,6 +379,7 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
                   borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(0),
                       bottomRight: Radius.circular(0)),
+<<<<<<< HEAD
                   child: Image.network(
                     widget.imageUrl,
                     width: double.infinity,
@@ -307,12 +394,20 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
                       ),
                     ),
                   ),
+=======
+                  child: Image.network(widget.imageUrl,
+                      width: double.infinity, height: 250, fit: BoxFit.cover),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                 ),
                 Positioned(
                   top: 40,
                   left: 10,
                   child: IconButton(
+<<<<<<< HEAD
                     icon: Icon(Icons.arrow_back, color: Color(0xffFF611A)),
+=======
+                    icon: Icon(Icons.arrow_back, color: Colors.white),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     onPressed: () => Navigator.pop(context),
                   ),
                 ),
@@ -323,6 +418,7 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+<<<<<<< HEAD
                   Text(
                     widget.title,
                     style: GoogleFonts.poppins(
@@ -331,11 +427,17 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
                       color: AppColors.textColor(context),
                     ),
                   ),
+=======
+                  Text(widget.title,
+                      style:
+                          TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   SizedBox(height: 5),
                   Row(
                     children: [
                       Row(
                         children: [
+<<<<<<< HEAD
                           Icon(Icons.location_on, color: AppColors.orangePrimary),
                           SizedBox(width: 5),
                           Text(
@@ -344,11 +446,18 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
                               color: Theme.of(context).hintColor,
                             ),
                           ),
+=======
+                          Icon(Icons.location_on, color: Colors.orange[700]),
+                          SizedBox(width: 5),
+                          Text(widget.location,
+                              style: TextStyle(color: Colors.grey[700])),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                         ],
                       ),
                       SizedBox(width: 15),
                       Row(
                         children: [
+<<<<<<< HEAD
                           Icon(Icons.star, color: AppColors.orangePrimary),
                           SizedBox(width: 5),
                           Text(
@@ -359,11 +468,19 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
                               color: AppColors.textColor(context),
                             ),
                           ),
+=======
+                          Icon(Icons.star, color: Colors.orange[700]),
+                          SizedBox(width: 5),
+                          Text(widget.rating.toString(),
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                         ],
                       ),
                     ],
                   ),
                   SizedBox(height: 20),
+<<<<<<< HEAD
                   Text(
                     "Facilities",
                     style: GoogleFonts.poppins(
@@ -390,10 +507,29 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
                   Divider(
                     color: Theme.of(context).dividerColor,
                   ),
+=======
+                  Text("Facilities",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 10),
+                  _buildFacilitiesList(),
+                  Divider(),
+                  SizedBox(height: 10),
+                  Text("LKR ${widget.price} / night",
+                      style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange[700])),
+                  SizedBox(height: 20),
+                  Divider(),
+                  // Contact Info Section
+
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
+<<<<<<< HEAD
                       _buildRoundedButton(
                         icon: Icons.phone,
                         color: AppColors.orangePrimary,
@@ -409,6 +545,26 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
                       _buildRoundedButton(
                         icon: Icons.location_pin,
                         color: AppColors.orangePrimary,
+=======
+                      // Phone Button
+                      _buildRoundedButton(
+                        icon: Icons.phone,
+                        color: Colors.orange[700]!,
+                        onPressed: () =>
+                            _showCallConfirmationDialog(widget.contact),
+                      ),
+                      // Email Button
+                      _buildRoundedButton(
+                        icon: Icons.email,
+                        color: Colors.orange[700]!,
+                        onPressed: () =>
+                            _copyToClipboard(context, widget.email),
+                      ),
+                      // Map Button
+                      _buildRoundedButton(
+                        icon: Icons.location_pin,
+                        color: Colors.orange[700]!,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                         onPressed: () async {
                           final Uri mapUri = Uri.parse(widget.mapLink);
                           if (await canLaunch(mapUri.toString())) {
@@ -416,6 +572,7 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
+<<<<<<< HEAD
                                 content: Text(
                                   "Could not launch the map link.",
                                   style: GoogleFonts.poppins(
@@ -424,10 +581,15 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
                                 ),
                                 backgroundColor: AppColors.orangePrimary,
                               ),
+=======
+                                  content:
+                                      Text("Could not launch the map link.")),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                             );
                           }
                         },
                       ),
+<<<<<<< HEAD
                       _buildRoundedPopupMenu(
                         offset: Offset(38, 55),
                         icon: Icons.language,
@@ -450,6 +612,22 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
                                 color: AppColors.textColor(context),
                               ),
                             ),
+=======
+                      // Website Button
+                      _buildRoundedPopupMenu(
+                        offset: Offset(
+                            38, 55), // Adjust this value to move the menu down
+                        icon: Icons.language,
+                        color: Colors.orange[700]!,
+                        menuItems: [
+                          PopupMenuItem<String>(
+                            value: "website",
+                            child: Text("Website"),
+                          ),
+                          PopupMenuItem<String>(
+                            value: "socialMedia",
+                            child: Text("Social Media"),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                           ),
                         ],
                         onSelected: (value) async {
@@ -465,6 +643,7 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
+<<<<<<< HEAD
                                 content: Text(
                                   "Could not launch the link.",
                                   style: GoogleFonts.poppins(
@@ -473,6 +652,9 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
                                 ),
                                 backgroundColor: AppColors.orangePrimary,
                               ),
+=======
+                                  content: Text("Could not launch the link.")),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                             );
                           }
                         },
@@ -480,6 +662,7 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
                     ],
                   ),
                   SizedBox(height: 20),
+<<<<<<< HEAD
                   Divider(
                     color: Theme.of(context).dividerColor,
                   ),
@@ -516,10 +699,29 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
                           icon: Icon(Icons.send, color: AppColors.orangePrimary),
                           onPressed: _addReview,
                         ),
+=======
+                  Divider(),
+
+                  Text("Reviews",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 10),
+                  TextField(
+                    controller: _reviewController,
+                    decoration: InputDecoration(
+                      hintText: "Write a review...",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.send, color: Colors.orange[700]),
+                        onPressed: _addReview,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                       ),
                     ),
                   ),
                   SizedBox(height: 20),
+<<<<<<< HEAD
                   _reviews.isEmpty
                       ? Center(
                     child: Text(
@@ -586,17 +788,92 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
                                       style: GoogleFonts.poppins(
                                         fontSize: 12,
                                         color: Theme.of(context).hintColor,
+=======
+                  // Display Reviews from Firestore
+                  _reviews.isEmpty
+                      ? Center(
+                          child: Text("No reviews yet.",
+                              style: TextStyle(color: Colors.grey)),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: _reviews.length,
+                          itemBuilder: (context, index) {
+                            final review = _reviews[index];
+                            return Card(
+                              margin: EdgeInsets.symmetric(vertical: 8),
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Reviewer Avatar
+                                    CircleAvatar(
+                                      backgroundColor: Colors.orange[700],
+                                      child: Icon(
+                                        Icons.person,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    SizedBox(width: 12),
+                                    // Review Details
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          // Reviewer Name
+                                          Text(
+                                            review["reviewer"],
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.orange[700],
+                                            ),
+                                          ),
+                                          SizedBox(height: 4),
+                                          // Review Text
+                                          Text(
+                                            review["text"],
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                          SizedBox(height: 8),
+                                          // Timestamp
+                                          Text(
+                                            _formatTimestamp(
+                                                review["timestamp"]),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ],
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
+<<<<<<< HEAD
                             ],
                           ),
                         ),
                       );
                     },
                   ),
+=======
+                            );
+                          },
+                        ),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                 ],
               ),
             ),
@@ -606,6 +883,10 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
     );
   }
 
+<<<<<<< HEAD
+=======
+  // Helper function to format the timestamp
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
   String _formatTimestamp(dynamic timestamp) {
     if (timestamp is Timestamp) {
       return DateFormat('MMM dd, yyyy - hh:mm a').format(timestamp.toDate());
@@ -614,4 +895,8 @@ class _AccommodationDetailsPageState extends State<AccommodationDetailsPage> {
     }
     return "Unknown date";
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f

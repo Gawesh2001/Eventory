@@ -36,11 +36,14 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   google_fonts: ^6.2.1
   shimmer: ^2.0.0
+<<<<<<< HEAD
   flutter_staggered_animations: ^1.1.1
   flutter_animate: ^4.5.2
   font_awesome_flutter: ^10.8.0
   lottie: ^3.3.1
   flutter_svg: ^2.0.17
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
   cupertino_icons: ^1.0.8
   firebase_core: ^3.6.0
   firebase_auth: ^5.3.1

@@ -75,7 +75,11 @@ class _AccomedationsSearchState extends State<AccomedationsSearch> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
+<<<<<<< HEAD
                           builder: (context) => AddAccommodationPage(userId: '',)),
+=======
+                          builder: (context) => AddAccommodationPage()),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     );
                   },
                 ),

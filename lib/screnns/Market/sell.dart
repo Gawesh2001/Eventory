@@ -6,7 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'orders.dart';
+<<<<<<< HEAD
 import 'package:eventory/helpers/theme_helper.dart'; // Added import
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
 
 class Sell extends StatefulWidget {
   final String userId;
@@ -28,7 +31,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
   bool _priceError = false;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+<<<<<<< HEAD
   bool _showWelcomeInfo = false;
+=======
+  bool _showWelcomeInfo = false; // Changed to false initially
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
 
   @override
   void initState() {
@@ -73,13 +80,20 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
+<<<<<<< HEAD
           backgroundColor: AppColors.cardColor(context),
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
           title: Text(
             'Welcome to Ticket Marketplace',
             style: GoogleFonts.poppins(
               fontSize: 20,
               fontWeight: FontWeight.w600,
+<<<<<<< HEAD
               color: AppColors.orangePrimary,
+=======
+              color: const Color(0xffFF611A),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
             ),
           ),
           content: SingleChildScrollView(
@@ -92,7 +106,10 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
+<<<<<<< HEAD
                     color: AppColors.textColor(context),
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -104,7 +121,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                   'By using this service, you agree to our Terms and Conditions.',
                   style: GoogleFonts.poppins(
                     fontSize: 12,
+<<<<<<< HEAD
                     color: Theme.of(context).hintColor,
+=======
+                    color: Colors.grey,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     fontStyle: FontStyle.italic,
                   ),
                 ),
@@ -117,7 +138,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
               child: Text(
                 'I UNDERSTAND',
                 style: GoogleFonts.poppins(
+<<<<<<< HEAD
                   color: AppColors.orangePrimary,
+=======
+                  color: const Color(0xffFF611A),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -134,14 +159,21 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+<<<<<<< HEAD
           Icon(icon, size: 20, color: AppColors.orangePrimary),
+=======
+          Icon(icon, size: 20, color: const Color(0xffFF611A)),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               text,
               style: GoogleFonts.poppins(
                 fontSize: 14,
+<<<<<<< HEAD
                 color: AppColors.textColor(context),
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
               ),
             ),
           ),
@@ -254,7 +286,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
   void _showSellPopup(Map<String, dynamic> ticket) async {
     if (ticket['isExpired']) {
       ScaffoldMessenger.of(context).showSnackBar(
+<<<<<<< HEAD
         SnackBar(
+=======
+        const SnackBar(
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
           content: Text("Cannot sell expired tickets"),
           backgroundColor: Colors.red,
         ),
@@ -279,7 +315,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
+<<<<<<< HEAD
                   color: AppColors.cardColor(context),
+=======
+                  color: Colors.white,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Column(
@@ -291,7 +331,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                       style: GoogleFonts.poppins(
                         fontSize: 22,
                         fontWeight: FontWeight.w600,
+<<<<<<< HEAD
                         color: AppColors.orangePrimary,
+=======
+                        color: const Color(0xffFF611A),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -300,14 +344,21 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                     _buildInfoRow(Icons.calendar_today, 'Date', DateFormat('EEE, MMM d, y').format(ticket['eventDateTime'])),
                     _buildInfoRow(Icons.access_time, 'Time', DateFormat('h:mm a').format(ticket['eventDateTime'])),
                     const SizedBox(height: 16),
+<<<<<<< HEAD
                     Divider(color: Theme.of(context).dividerColor),
+=======
+                    const Divider(),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     const SizedBox(height: 16),
                     Text(
                       "Original Price: LKR ${NumberFormat('#,###').format(ticket['ticketPrice'])}",
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
+<<<<<<< HEAD
                         color: AppColors.textColor(context),
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -315,23 +366,34 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                       controller: _sellPriceController,
                       decoration: InputDecoration(
                         labelText: "Your Selling Price",
+<<<<<<< HEAD
                         labelStyle: GoogleFonts.poppins(
                           color: Theme.of(context).hintColor,
                         ),
+=======
+                        labelStyle: GoogleFonts.poppins(),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         errorText: _priceError ? "Price cannot exceed original" : null,
                         prefixText: "LKR ",
                         prefixStyle: GoogleFonts.poppins(
+<<<<<<< HEAD
                           color: AppColors.textColor(context),
+=======
+                          color: Colors.black,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
+<<<<<<< HEAD
                         color: AppColors.textColor(context),
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                       ),
                       keyboardType: TextInputType.number,
                       onChanged: (value) {
@@ -348,7 +410,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                       "Note: Payment will be processed within 5 business days after sale",
                       style: GoogleFonts.poppins(
                         fontSize: 12,
+<<<<<<< HEAD
                         color: Theme.of(context).hintColor,
+=======
+                        color: Colors.grey,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -361,7 +427,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                           child: Text(
                             "CANCEL",
                             style: GoogleFonts.poppins(
+<<<<<<< HEAD
                               color: Theme.of(context).hintColor,
+=======
+                              color: Colors.grey[700],
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -377,7 +447,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
 
                             if (sellPrice <= 0) {
                               ScaffoldMessenger.of(context).showSnackBar(
+<<<<<<< HEAD
                                 SnackBar(
+=======
+                                const SnackBar(
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                                   content: Text("Please enter a valid price"),
                                   backgroundColor: Colors.red,
                                 ),
@@ -398,7 +472,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                             });
 
                             ScaffoldMessenger.of(context).showSnackBar(
+<<<<<<< HEAD
                               SnackBar(
+=======
+                              const SnackBar(
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                                 content: Text("Ticket listed for sale!"),
                                 backgroundColor: Colors.green,
                               ),
@@ -408,7 +486,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                             _searchTickets();
                           },
                           style: ElevatedButton.styleFrom(
+<<<<<<< HEAD
                             backgroundColor: AppColors.orangePrimary,
+=======
+                            backgroundColor: const Color(0xffFF611A),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -440,7 +522,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+<<<<<<< HEAD
           Icon(icon, size: 20, color: AppColors.orangePrimary),
+=======
+          Icon(icon, size: 20, color: const Color(0xffFF611A)),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -451,7 +537,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
+<<<<<<< HEAD
                     color: Theme.of(context).hintColor,
+=======
+                    color: Colors.black54,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                 ),
                 Text(
@@ -459,7 +549,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
+<<<<<<< HEAD
                     color: AppColors.textColor(context),
+=======
+                    color: Colors.black87,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                 ),
               ],
@@ -478,13 +572,20 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
+<<<<<<< HEAD
           backgroundColor: AppColors.cardColor(context),
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+<<<<<<< HEAD
                 Icon(
+=======
+                const Icon(
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   Icons.warning_amber_rounded,
                   size: 60,
                   color: Colors.orange,
@@ -495,7 +596,10 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                   style: GoogleFonts.poppins(
                     fontSize: 22,
                     fontWeight: FontWeight.w600,
+<<<<<<< HEAD
                     color: AppColors.textColor(context),
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -504,7 +608,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 16,
+<<<<<<< HEAD
                     color: Theme.of(context).hintColor,
+=======
+                    color: Colors.black54,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -518,7 +626,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
+<<<<<<< HEAD
                           color: Theme.of(context).hintColor,
+=======
+                          color: Colors.grey[700],
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                         ),
                       ),
                     ),
@@ -537,7 +649,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                               .delete();
 
                           ScaffoldMessenger.of(context).showSnackBar(
+<<<<<<< HEAD
                             SnackBar(
+=======
+                            const SnackBar(
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                               content: Text("Listing canceled"),
                               backgroundColor: Colors.green,
                             ),
@@ -548,7 +664,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                         _searchTickets();
                       },
                       style: ElevatedButton.styleFrom(
+<<<<<<< HEAD
                         backgroundColor: AppColors.orangePrimary,
+=======
+                        backgroundColor: const Color(0xffFF611A),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -604,6 +724,7 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
           clipBehavior: Clip.antiAlias,
           child: Container(
             decoration: BoxDecoration(
+<<<<<<< HEAD
               color: AppColors.cardColor(context),
               gradient: isUrgent
                   ? LinearGradient(
@@ -621,6 +742,23 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                     : isExpired
                     ? Colors.grey.withOpacity(0.2)
                     : Theme.of(context).dividerColor,
+=======
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white,
+                  isUrgent ? const Color(0xFFFFF0E6) : Colors.white,
+                  isExpired ? Colors.grey[100]! : Colors.white,
+                ],
+              ),
+              border: Border.all(
+                color: isUrgent
+                    ? const Color(0xffFF611A).withOpacity(0.2)
+                    : isExpired
+                    ? Colors.grey.withOpacity(0.2)
+                    : Colors.grey.withOpacity(0.1),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                 width: 1,
               ),
             ),
@@ -642,9 +780,13 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                             style: GoogleFonts.poppins(
                               fontSize: 22,
                               fontWeight: FontWeight.w600,
+<<<<<<< HEAD
                               color: isExpired
                                   ? Theme.of(context).hintColor
                                   : AppColors.textColor(context),
+=======
+                              color: isExpired ? Colors.grey : Colors.black87,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -657,7 +799,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
+<<<<<<< HEAD
                               color: Colors.grey[700],
+=======
+                              color: Colors.grey[300],
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -684,7 +830,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
+<<<<<<< HEAD
                           color: Theme.of(context).hoverColor,
+=======
+                          color: Colors.grey[200],
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
@@ -693,7 +843,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                             style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
+<<<<<<< HEAD
                               color: Theme.of(context).hintColor,
+=======
+                              color: Colors.grey[700],
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                             ),
                           ),
                         ),
@@ -774,7 +928,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                           child: ElevatedButton(
                             onPressed: () => _showSellPopup(ticket),
                             style: ElevatedButton.styleFrom(
+<<<<<<< HEAD
                               backgroundColor: AppColors.orangePrimary,
+=======
+                              backgroundColor: const Color(0xffFF611A),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -807,8 +965,13 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Shimmer.fromColors(
+<<<<<<< HEAD
             baseColor: Theme.of(context).hoverColor!,
             highlightColor: Theme.of(context).highlightColor!,
+=======
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
             child: Card(
               elevation: 8,
               shape: RoundedRectangleBorder(
@@ -818,7 +981,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                 height: 200,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
+<<<<<<< HEAD
                   color: AppColors.cardColor(context),
+=======
+                  color: Colors.white,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                 ),
               ),
             ),
@@ -835,16 +1002,23 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
         : tickets.where((ticket) => ticket['ticketName'] == selectedTicketType).toList();
 
     return Scaffold(
+<<<<<<< HEAD
       backgroundColor: AppColors.scaffoldBackground(context),
       appBar: AppBar(
         systemOverlayStyle: Theme.of(context).brightness == Brightness.dark
             ? SystemUiOverlayStyle.light
             : SystemUiOverlayStyle.dark,
+=======
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
         title: Text(
           'Sell Tickets',
           style: GoogleFonts.poppins(
             fontSize: 24,
             fontWeight: FontWeight.w600,
+<<<<<<< HEAD
             color: AppColors.textColor(context),
           ),
         ),
@@ -855,6 +1029,17 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
           IconButton(
             icon: Icon(Icons.refresh, size: 28),
             color: AppColors.orangePrimary,
+=======
+            color: Colors.black87,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xffFF611A)),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh, size: 28),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
             onPressed: () {
               _animationController.reset();
               _searchTickets().then((_) {
@@ -863,8 +1048,12 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
             },
           ),
           IconButton(
+<<<<<<< HEAD
             icon: Icon(Icons.receipt_long, size: 28),
             color: AppColors.orangePrimary,
+=======
+            icon: const Icon(Icons.receipt_long, size: 28),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
             onPressed: () {
               Navigator.push(
                 context,
@@ -881,11 +1070,19 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
             child: Material(
               elevation: 4,
               borderRadius: BorderRadius.circular(30),
+<<<<<<< HEAD
               shadowColor: AppColors.orangePrimary.withOpacity(0.2),
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
                   color: AppColors.cardColor(context),
+=======
+              shadowColor: const Color(0xffFF611A).withOpacity(0.2),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Colors.white,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                 ),
                 child: Row(
                   children: [
@@ -894,6 +1091,7 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextField(
                           controller: _searchController,
+<<<<<<< HEAD
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             color: AppColors.textColor(context),
@@ -903,6 +1101,12 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                             hintStyle: GoogleFonts.poppins(
                               color: Theme.of(context).hintColor,
                             ),
+=======
+                          style: GoogleFonts.poppins(fontSize: 16),
+                          decoration: InputDecoration(
+                            hintText: "Enter Ticket ID or Booking Id",
+                            hintStyle: GoogleFonts.poppins(color: Colors.grey),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                             border: InputBorder.none,
                           ),
                         ),
@@ -913,9 +1117,15 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                       width: 60,
                       height: 60,
                       decoration: BoxDecoration(
+<<<<<<< HEAD
                         gradient: LinearGradient(
                           colors: [
                             AppColors.orangePrimary,
+=======
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xffFF611A),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                             Color(0xffFF9349),
                           ],
                         ),
@@ -927,7 +1137,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                         child: InkWell(
                           borderRadius: BorderRadius.circular(30),
                           onTap: _searchTickets,
+<<<<<<< HEAD
                           child: Center(
+=======
+                          child: const Center(
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                             child: Icon(Icons.search, color: Colors.white),
                           ),
                         ),
@@ -954,6 +1168,7 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                         fontWeight: FontWeight.w500,
                         color: selectedTicketType == filter
                             ? Colors.white
+<<<<<<< HEAD
                             : AppColors.orangePrimary,
                       ),
                     ),
@@ -962,6 +1177,16 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                     backgroundColor: AppColors.cardColor(context),
                     shape: StadiumBorder(
                       side: BorderSide(color: AppColors.orangePrimary),
+=======
+                            : const Color(0xffFF611A),
+                      ),
+                    ),
+                    selected: selectedTicketType == filter,
+                    selectedColor: const Color(0xffFF611A),
+                    backgroundColor: Colors.white,
+                    shape: StadiumBorder(
+                      side: BorderSide(color: const Color(0xffFF611A)),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     ),
                     onSelected: (selected) {
                       setState(() {
@@ -986,7 +1211,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                 ),
                 child: Row(
                   children: [
+<<<<<<< HEAD
                     Icon(Icons.error_outline, color: Colors.red),
+=======
+                    const Icon(Icons.error_outline, color: Colors.red),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -1012,7 +1241,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                   Icon(
                     Icons.confirmation_number_outlined,
                     size: 80,
+<<<<<<< HEAD
                     color: Theme.of(context).hintColor,
+=======
+                    color: Colors.grey[300],
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                   const SizedBox(height: 20),
                   Text(
@@ -1020,7 +1253,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                     style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
+<<<<<<< HEAD
                       color: Theme.of(context).hintColor,
+=======
+                      color: Colors.grey,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -1028,7 +1265,11 @@ class _SellState extends State<Sell> with SingleTickerProviderStateMixin {
                     'Try searching with a different ID',
                     style: GoogleFonts.poppins(
                       fontSize: 14,
+<<<<<<< HEAD
                       color: Theme.of(context).hintColor,
+=======
+                      color: Colors.grey,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     ),
                   ),
                 ],

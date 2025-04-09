@@ -4,7 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'expired.dart';
+<<<<<<< HEAD
 import 'package:eventory/helpers/theme_helper.dart'; // Added import
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
 
 class MyTickets extends StatefulWidget {
   final String userId;
@@ -178,7 +181,10 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
     var hoursRemaining = eventDateTime.difference(DateTime.now()).inHours;
     bool isMarketplace = ticket['isMarketplace'] ?? false;
     bool isUrgent = hoursRemaining < 24;
+<<<<<<< HEAD
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
 
     return AnimatedBuilder(
       animation: CurvedAnimation(
@@ -204,9 +210,13 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
           clipBehavior: Clip.antiAlias,
           child: Container(
             decoration: BoxDecoration(
+<<<<<<< HEAD
               gradient: isDarkMode
                   ? null
                   : LinearGradient(
+=======
+              gradient: LinearGradient(
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
@@ -214,6 +224,7 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                   isUrgent ? Color(0xFFFFF0E6) : Colors.white,
                 ],
               ),
+<<<<<<< HEAD
               color: isDarkMode
                   ? isUrgent
                   ? AppColors.orangePrimary.withOpacity(0.1)
@@ -227,6 +238,10 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                     : isDarkMode
                     ? Theme.of(context).dividerColor
                     : Colors.grey.withOpacity(0.1),
+=======
+              border: Border.all(
+                color: isUrgent ? Color(0xffFF611A).withOpacity(0.2) : Colors.grey.withOpacity(0.1),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                 width: 1,
               ),
             ),
@@ -248,7 +263,11 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                             style: GoogleFonts.poppins(
                               fontSize: 22,
                               fontWeight: FontWeight.w600,
+<<<<<<< HEAD
                               color: isDarkMode ? AppColors.textColor(context) : Colors.black87,
+=======
+                              color: Colors.black87,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -263,14 +282,22 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
+<<<<<<< HEAD
                                   isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A),
+=======
+                                  Color(0xffFF611A),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                                   Color(0xffFF9349),
                                 ],
                               ),
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
+<<<<<<< HEAD
                                   color: (isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A)).withOpacity(0.3),
+=======
+                                  color: Color(0xffFF611A).withOpacity(0.3),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                                   blurRadius: 8,
                                   offset: Offset(0, 4),
                                 ),
@@ -297,6 +324,7 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       decoration: BoxDecoration(
+<<<<<<< HEAD
                         color: isUrgent
                             ? isDarkMode
                             ? AppColors.orangePrimary.withOpacity(0.1)
@@ -313,6 +341,12 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                               : isDarkMode
                               ? Theme.of(context).dividerColor
                               : Colors.grey.withOpacity(0.1),
+=======
+                        color: isUrgent ? Color(0xffFF611A).withOpacity(0.1) : Colors.grey.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isUrgent ? Color(0xffFF611A).withOpacity(0.3) : Colors.grey.withOpacity(0.1),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                         ),
                       ),
                       child: Row(
@@ -323,7 +357,11 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
+<<<<<<< HEAD
                               color: isDarkMode ? Theme.of(context).hintColor : Colors.black54,
+=======
+                              color: Colors.black54,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                             ),
                           ),
                           Text(
@@ -331,6 +369,7 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                             style: GoogleFonts.poppins(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
+<<<<<<< HEAD
                               color: isUrgent
                                   ? isDarkMode
                                   ? AppColors.orangePrimary
@@ -338,6 +377,9 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                                   : isDarkMode
                                   ? AppColors.textColor(context)
                                   : Colors.black87,
+=======
+                              color: isUrgent ? Color(0xffFF611A) : Colors.black87,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                             ),
                           ),
                         ],
@@ -354,14 +396,21 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
   }
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
+<<<<<<< HEAD
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+<<<<<<< HEAD
           Icon(icon, size: 20, color: isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A)),
+=======
+          Icon(icon, size: 20, color: Color(0xffFF611A)),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
           SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -372,7 +421,11 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
+<<<<<<< HEAD
                     color: isDarkMode ? Theme.of(context).hintColor : Colors.black54,
+=======
+                    color: Colors.black54,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                 ),
                 Text(
@@ -380,7 +433,11 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
+<<<<<<< HEAD
                     color: isDarkMode ? AppColors.textColor(context) : Colors.black87,
+=======
+                    color: Colors.black87,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                 ),
               ],
@@ -394,6 +451,7 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final filteredTickets = _filterTickets();
+<<<<<<< HEAD
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -402,11 +460,19 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
         systemOverlayStyle: isDarkMode
             ? SystemUiOverlayStyle.light
             : SystemUiOverlayStyle.dark,
+=======
+
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
         title: Text(
           'My Tickets',
           style: GoogleFonts.poppins(
             fontSize: 24,
             fontWeight: FontWeight.w600,
+<<<<<<< HEAD
             color: isDarkMode ? AppColors.textColor(context) : Colors.black87,
           ),
         ),
@@ -417,6 +483,17 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
           IconButton(
             icon: Icon(Icons.history, size: 28),
             color: isDarkMode ? AppColors.textColor(context) : Color(0xffFF611A),
+=======
+            color: Colors.black87,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Color(0xffFF611A)),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.history, size: 28),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
             onPressed: () {
               Navigator.push(
                 context,
@@ -437,7 +514,10 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
           ),
           IconButton(
             icon: Icon(Icons.refresh, size: 28),
+<<<<<<< HEAD
             color: isDarkMode ? AppColors.textColor(context) : Color(0xffFF611A),
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
             onPressed: () {
               _animationController.reset();
               _fetchTickets().then((_) {
@@ -454,11 +534,19 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
             child: Material(
               elevation: 4,
               borderRadius: BorderRadius.circular(30),
+<<<<<<< HEAD
               shadowColor: (isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A)).withOpacity(0.2),
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
                   color: isDarkMode ? AppColors.cardColor(context) : Colors.white,
+=======
+              shadowColor: Color(0xffFF611A).withOpacity(0.2),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Colors.white,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                 ),
                 child: Row(
                   children: [
@@ -467,6 +555,7 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextField(
                           controller: _searchController,
+<<<<<<< HEAD
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             color: isDarkMode ? AppColors.textColor(context) : Colors.black87,
@@ -476,6 +565,12 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                             hintStyle: GoogleFonts.poppins(
                               color: isDarkMode ? Theme.of(context).hintColor : Colors.grey,
                             ),
+=======
+                          style: GoogleFonts.poppins(fontSize: 16),
+                          decoration: InputDecoration(
+                            hintText: "Search tickets...",
+                            hintStyle: GoogleFonts.poppins(color: Colors.grey),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                             border: InputBorder.none,
                           ),
                           onChanged: (value) {
@@ -493,7 +588,11 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
+<<<<<<< HEAD
                             isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A),
+=======
+                            Color(0xffFF611A),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                             Color(0xffFF9349),
                           ],
                         ),
@@ -546,6 +645,7 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                       filter,
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w500,
+<<<<<<< HEAD
                         color: _selectedFilter == filter
                             ? Colors.white
                             : (isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A)),
@@ -556,6 +656,16 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                     backgroundColor: isDarkMode ? AppColors.cardColor(context) : Colors.white,
                     shape: StadiumBorder(
                       side: BorderSide(color: isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A)),
+=======
+                        color: _selectedFilter == filter ? Colors.white : Color(0xffFF611A),
+                      ),
+                    ),
+                    selected: _selectedFilter == filter,
+                    selectedColor: Color(0xffFF611A),
+                    backgroundColor: Colors.white,
+                    shape: StadiumBorder(
+                      side: BorderSide(color: Color(0xffFF611A)),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     ),
                     onSelected: (selected) {
                       setState(() {
@@ -606,8 +716,12 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                     height: 60,
                     child: CircularProgressIndicator(
                       strokeWidth: 6,
+<<<<<<< HEAD
                       valueColor: AlwaysStoppedAnimation<Color>(
                           isDarkMode ? AppColors.orangePrimary : Color(0xffFF611A)),
+=======
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xffFF611A)),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     ),
                   ),
                   SizedBox(height: 20),
@@ -616,7 +730,11 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
+<<<<<<< HEAD
                       color: isDarkMode ? Theme.of(context).hintColor : Colors.black54,
+=======
+                      color: Colors.black54,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     ),
                   ),
                 ],
@@ -630,7 +748,11 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                   Icon(
                     Icons.confirmation_number_outlined,
                     size: 80,
+<<<<<<< HEAD
                     color: isDarkMode ? Theme.of(context).hintColor : Colors.grey[300],
+=======
+                    color: Colors.grey[300],
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                   SizedBox(height: 20),
                   Text(
@@ -638,7 +760,11 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                     style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
+<<<<<<< HEAD
                       color: isDarkMode ? Theme.of(context).hintColor : Colors.grey,
+=======
+                      color: Colors.grey,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     ),
                   ),
                   SizedBox(height: 10),
@@ -646,7 +772,11 @@ class _MyTicketsState extends State<MyTickets> with SingleTickerProviderStateMix
                     'Try adjusting your search or filter',
                     style: GoogleFonts.poppins(
                       fontSize: 14,
+<<<<<<< HEAD
                       color: isDarkMode ? Theme.of(context).hintColor : Colors.grey,
+=======
+                      color: Colors.grey,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     ),
                   ),
                 ],

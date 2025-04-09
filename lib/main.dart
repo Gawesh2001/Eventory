@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 // lib/main.dart
 import 'package:eventory/modles/user_model.dart';
 import 'package:eventory/screnns/wrapper.dart';
 import 'package:eventory/services/auth.dart';
 import 'package:eventory/providers/theme_provider.dart'; // Add this import
+=======
+// ignore_for_file: prefer_const_constructors
+
+import 'package:eventory/modles/user_model.dart';
+import 'package:eventory/screnns/wrapper.dart';
+import 'package:eventory/services/auth.dart';
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -18,6 +26,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< HEAD
     return MultiProvider(
       providers: [
         StreamProvider<UserModel?>.value(
@@ -65,3 +74,15 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+=======
+    return StreamProvider<UserModel?>.value(
+      initialData: UserModel(uid: ""),
+      value: AuthServices().user,
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Wrapper(),
+      ),
+    );
+  }
+}
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f

@@ -3,7 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+<<<<<<< HEAD
 import 'package:eventory/helpers/theme_helper.dart'; // Added import
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
 
 class MarketPayment extends StatefulWidget {
   final String userId;
@@ -56,6 +59,7 @@ class MarketPaymentState extends State<MarketPayment> {
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               ),
               SizedBox(width: 16),
+<<<<<<< HEAD
               Text(
                 'Processing payment...',
                 style: GoogleFonts.poppins(color: Colors.white),
@@ -64,6 +68,12 @@ class MarketPaymentState extends State<MarketPayment> {
           ),
           duration: Duration(seconds: 5),
           backgroundColor: AppColors.orangePrimary,
+=======
+              Text('Processing payment...'),
+            ],
+          ),
+          duration: Duration(seconds: 5),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
         ),
       );
 
@@ -77,10 +87,14 @@ class MarketPaymentState extends State<MarketPayment> {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+<<<<<<< HEAD
           content: Text(
             'Payment successful!',
             style: GoogleFonts.poppins(color: Colors.white),
           ),
+=======
+          content: Text('Payment successful!'),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
           backgroundColor: Colors.green,
           duration: Duration(seconds: 2),
         ),
@@ -94,10 +108,14 @@ class MarketPaymentState extends State<MarketPayment> {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+<<<<<<< HEAD
           content: Text(
             'Error: ${e.toString()}',
             style: GoogleFonts.poppins(color: Colors.white),
           ),
+=======
+          content: Text('Error: ${e.toString()}'),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
           backgroundColor: Colors.red,
         ),
       );
@@ -141,9 +159,12 @@ class MarketPaymentState extends State<MarketPayment> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+<<<<<<< HEAD
         systemOverlayStyle: Theme.of(context).brightness == Brightness.dark
             ? SystemUiOverlayStyle.light
             : SystemUiOverlayStyle.dark,
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
         title: Text(
           'Complete Payment',
           style: GoogleFonts.poppins(
@@ -152,13 +173,21 @@ class MarketPaymentState extends State<MarketPayment> {
             color: Colors.white,
           ),
         ),
+<<<<<<< HEAD
         backgroundColor: AppColors.orangePrimary,
+=======
+        backgroundColor: Color(0xffFF611A),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
         iconTheme: IconThemeData(color: Colors.white),
         elevation: 0,
         centerTitle: true,
       ),
       body: Container(
+<<<<<<< HEAD
         color: AppColors.scaffoldBackground(context),
+=======
+        color: Colors.grey[50],
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
         padding: EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,7 +198,10 @@ class MarketPaymentState extends State<MarketPayment> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
+<<<<<<< HEAD
               color: AppColors.cardColor(context),
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
               child: Padding(
                 padding: EdgeInsets.all(16),
                 child: Column(
@@ -180,13 +212,21 @@ class MarketPaymentState extends State<MarketPayment> {
                       style: GoogleFonts.poppins(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
+<<<<<<< HEAD
                         color: AppColors.textColor(context),
+=======
+                        color: Colors.black87,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                       ),
                     ),
                     SizedBox(height: 16),
                     _buildSummaryRow('Ticket ID', widget.ticketId),
                     _buildSummaryRow('Event Name', widget.eventName),
+<<<<<<< HEAD
                     Divider(height: 24, color: Theme.of(context).dividerColor),
+=======
+                    Divider(height: 24),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     _buildSummaryRow(
                       'Total Amount',
                       'LKR ${NumberFormat('#,###').format(widget.currentPrice)}',
@@ -202,7 +242,11 @@ class MarketPaymentState extends State<MarketPayment> {
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
+<<<<<<< HEAD
                 color: AppColors.textColor(context),
+=======
+                color: Colors.black87,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
               ),
             ),
             SizedBox(height: 16),
@@ -216,6 +260,7 @@ class MarketPaymentState extends State<MarketPayment> {
                 CardNumberInputFormatter(),
               ],
               decoration: _buildInputDecoration(
+<<<<<<< HEAD
                 context,
                 label: 'Card Number',
                 icon: Icons.credit_card,
@@ -223,6 +268,12 @@ class MarketPaymentState extends State<MarketPayment> {
               style: GoogleFonts.poppins(
                 color: AppColors.textColor(context),
               ),
+=======
+                label: 'Card Number',
+                icon: Icons.credit_card,
+              ),
+              style: GoogleFonts.poppins(),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
             ),
             SizedBox(height: 16),
             // Expiry Date and CVV
@@ -237,10 +288,15 @@ class MarketPaymentState extends State<MarketPayment> {
                       FilteringTextInputFormatter.digitsOnly,
                       LengthLimitingTextInputFormatter(2),
                     ],
+<<<<<<< HEAD
                     decoration: _buildInputDecoration(context, label: 'MM'),
                     style: GoogleFonts.poppins(
                       color: AppColors.textColor(context),
                     ),
+=======
+                    decoration: _buildInputDecoration(label: 'MM'),
+                    style: GoogleFonts.poppins(),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                 ),
                 SizedBox(width: 8),
@@ -253,10 +309,15 @@ class MarketPaymentState extends State<MarketPayment> {
                       FilteringTextInputFormatter.digitsOnly,
                       LengthLimitingTextInputFormatter(2),
                     ],
+<<<<<<< HEAD
                     decoration: _buildInputDecoration(context, label: 'YY'),
                     style: GoogleFonts.poppins(
                       color: AppColors.textColor(context),
                     ),
+=======
+                    decoration: _buildInputDecoration(label: 'YY'),
+                    style: GoogleFonts.poppins(),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                 ),
                 SizedBox(width: 16),
@@ -270,6 +331,7 @@ class MarketPaymentState extends State<MarketPayment> {
                       LengthLimitingTextInputFormatter(3),
                     ],
                     decoration: _buildInputDecoration(
+<<<<<<< HEAD
                       context,
                       label: 'CVV',
                       icon: Icons.lock_outline,
@@ -277,6 +339,12 @@ class MarketPaymentState extends State<MarketPayment> {
                     style: GoogleFonts.poppins(
                       color: AppColors.textColor(context),
                     ),
+=======
+                      label: 'CVV',
+                      icon: Icons.lock_outline,
+                    ),
+                    style: GoogleFonts.poppins(),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                 ),
               ],
@@ -289,13 +357,21 @@ class MarketPaymentState extends State<MarketPayment> {
               child: ElevatedButton(
                 onPressed: _isProcessing ? null : () => _payWithCard(context),
                 style: ElevatedButton.styleFrom(
+<<<<<<< HEAD
                   backgroundColor: AppColors.orangePrimary,
+=======
+                  backgroundColor: Color(0xffFF611A),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 4,
+<<<<<<< HEAD
                   shadowColor: AppColors.orangePrimary.withOpacity(0.3),
+=======
+                  shadowColor: Color(0xffFF611A).withOpacity(0.3),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                 ),
                 child: _isProcessing
                     ? CircularProgressIndicator(
@@ -327,7 +403,11 @@ class MarketPaymentState extends State<MarketPayment> {
             label,
             style: GoogleFonts.poppins(
               fontSize: 14,
+<<<<<<< HEAD
               color: Theme.of(context).hintColor,
+=======
+              color: Colors.grey[600],
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
             ),
           ),
           Text(
@@ -335,7 +415,11 @@ class MarketPaymentState extends State<MarketPayment> {
             style: GoogleFonts.poppins(
               fontSize: 14,
               fontWeight: isBold ? FontWeight.w600 : FontWeight.normal,
+<<<<<<< HEAD
               color: isBold ? AppColors.orangePrimary : AppColors.textColor(context),
+=======
+              color: isBold ? Color(0xffFF611A) : Colors.black87,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
             ),
           ),
         ],
@@ -343,6 +427,7 @@ class MarketPaymentState extends State<MarketPayment> {
     );
   }
 
+<<<<<<< HEAD
   InputDecoration _buildInputDecoration(BuildContext context, {required String label, IconData? icon}) {
     return InputDecoration(
       labelText: label,
@@ -366,6 +451,26 @@ class MarketPaymentState extends State<MarketPayment> {
           color: AppColors.orangePrimary,
           width: 1.5,
         ),
+=======
+  InputDecoration _buildInputDecoration({required String label, IconData? icon}) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: GoogleFonts.poppins(color: Colors.grey[600]),
+      filled: true,
+      fillColor: Colors.white,
+      prefixIcon: icon != null ? Icon(icon, color: Colors.grey[600]) : null,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey[300]!),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey[300]!),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Color(0xffFF611A), width: 1.5),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
       ),
     );
   }

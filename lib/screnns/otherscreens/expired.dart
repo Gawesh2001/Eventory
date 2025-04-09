@@ -3,7 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+<<<<<<< HEAD
 import 'package:eventory/helpers/theme_helper.dart';
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
 
 class Expired extends StatefulWidget {
   final String userId;
@@ -123,7 +126,10 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
     var eventDateTime = ticket['selectedDateTime'];
     bool isMarketplace = ticket['isMarketplace'] ?? false;
     var daysPassed = DateTime.now().difference(eventDateTime).inDays;
+<<<<<<< HEAD
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
 
     return AnimatedBuilder(
       animation: CurvedAnimation(
@@ -149,9 +155,13 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
           clipBehavior: Clip.antiAlias,
           child: Container(
             decoration: BoxDecoration(
+<<<<<<< HEAD
               gradient: isDarkMode
                   ? null
                   : LinearGradient(
+=======
+              gradient: LinearGradient(
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
@@ -159,11 +169,16 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
                   Colors.grey[200]!,
                 ],
               ),
+<<<<<<< HEAD
               color: isDarkMode ? AppColors.cardColor(context) : null,
               border: Border.all(
                 color: isDarkMode
                     ? Theme.of(context).dividerColor
                     : Colors.grey[300]!,
+=======
+              border: Border.all(
+                color: Colors.grey[300]!,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                 width: 1,
               ),
             ),
@@ -185,9 +200,13 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
                             style: GoogleFonts.poppins(
                               fontSize: 22,
                               fontWeight: FontWeight.w600,
+<<<<<<< HEAD
                               color: isDarkMode
                                   ? AppColors.textColor(context).withOpacity(0.7)
                                   : Colors.black87,
+=======
+                              color: Colors.black87,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                               decoration: TextDecoration.lineThrough,
                             ),
                             maxLines: 2,
@@ -203,18 +222,26 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
+<<<<<<< HEAD
                                   isDarkMode
                                       ? AppColors.orangePrimary
                                       : Color(0xffFF611A),
+=======
+                                  Color(0xffFF611A),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                                   Color(0xffFF9349),
                                 ],
                               ),
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
+<<<<<<< HEAD
                                   color: (isDarkMode
                                       ? AppColors.orangePrimary
                                       : Color(0xffFF611A)).withOpacity(0.3),
+=======
+                                  color: Color(0xffFF611A).withOpacity(0.3),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                                   blurRadius: 8,
                                   offset: Offset(0, 4),
                                 ),
@@ -241,6 +268,7 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       decoration: BoxDecoration(
+<<<<<<< HEAD
                         color: isDarkMode
                             ? Colors.grey[800]!.withOpacity(0.3)
                             : Colors.grey[300]!.withOpacity(0.3),
@@ -249,6 +277,12 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
                           color: isDarkMode
                               ? Colors.grey[700]!.withOpacity(0.2)
                               : Colors.grey[400]!.withOpacity(0.2),
+=======
+                        color: Colors.grey[300]!.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.grey[400]!.withOpacity(0.2),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                         ),
                       ),
                       child: Row(
@@ -259,9 +293,13 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
+<<<<<<< HEAD
                               color: isDarkMode
                                   ? Theme.of(context).hintColor
                                   : Colors.black54,
+=======
+                              color: Colors.black54,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                             ),
                           ),
                           Container(
@@ -304,18 +342,25 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
   }
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
+<<<<<<< HEAD
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
+=======
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+<<<<<<< HEAD
           Icon(icon,
               size: 20,
               color: isDarkMode
                   ? AppColors.orangePrimary
                   : Colors.grey[600]),
+=======
+          Icon(icon, size: 20, color: Colors.grey[600]),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
           SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -326,9 +371,13 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
+<<<<<<< HEAD
                     color: isDarkMode
                         ? Theme.of(context).hintColor
                         : Colors.black54,
+=======
+                    color: Colors.black54,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                 ),
                 Text(
@@ -336,9 +385,13 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
+<<<<<<< HEAD
                     color: isDarkMode
                         ? AppColors.textColor(context).withOpacity(0.8)
                         : Colors.black87,
+=======
+                    color: Colors.black87,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                 ),
               ],
@@ -351,6 +404,7 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< HEAD
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -361,11 +415,18 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
         systemOverlayStyle: isDarkMode
             ? SystemUiOverlayStyle.light
             : SystemUiOverlayStyle.dark,
+=======
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
         title: Text(
           'Expired Tickets',
           style: GoogleFonts.poppins(
             fontSize: 24,
             fontWeight: FontWeight.w600,
+<<<<<<< HEAD
             color: isDarkMode
                 ? AppColors.textColor(context)
                 : Colors.black87,
@@ -385,6 +446,17 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
             color: isDarkMode
                 ? AppColors.textColor(context)
                 : Color(0xffFF611A),
+=======
+            color: Colors.black87,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Color(0xffFF611A)),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh, size: 28),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
             onPressed: () {
               _animationController.reset();
               _fetchExpiredTickets().then((_) {
@@ -434,10 +506,14 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
                     height: 60,
                     child: CircularProgressIndicator(
                       strokeWidth: 6,
+<<<<<<< HEAD
                       valueColor: AlwaysStoppedAnimation<Color>(
                           isDarkMode
                               ? AppColors.orangePrimary
                               : Color(0xffFF611A)),
+=======
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xffFF611A)),
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     ),
                   ),
                   SizedBox(height: 20),
@@ -446,9 +522,13 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
+<<<<<<< HEAD
                       color: isDarkMode
                           ? Theme.of(context).hintColor
                           : Colors.black54,
+=======
+                      color: Colors.black54,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     ),
                   ),
                 ],
@@ -462,9 +542,13 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
                   Icon(
                     Icons.history_outlined,
                     size: 80,
+<<<<<<< HEAD
                     color: isDarkMode
                         ? Theme.of(context).hintColor
                         : Colors.grey[300],
+=======
+                    color: Colors.grey[300],
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                   ),
                   SizedBox(height: 20),
                   Text(
@@ -472,9 +556,13 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
                     style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
+<<<<<<< HEAD
                       color: isDarkMode
                           ? Theme.of(context).hintColor
                           : Colors.grey,
+=======
+                      color: Colors.grey,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     ),
                   ),
                   SizedBox(height: 10),
@@ -482,9 +570,13 @@ class _ExpiredState extends State<Expired> with SingleTickerProviderStateMixin {
                     'All your tickets are still valid',
                     style: GoogleFonts.poppins(
                       fontSize: 14,
+<<<<<<< HEAD
                       color: isDarkMode
                           ? Theme.of(context).hintColor
                           : Colors.grey,
+=======
+                      color: Colors.grey,
+>>>>>>> c4ac9415fafdb8509c994fdc3b6d2c090231199f
                     ),
                   ),
                 ],
