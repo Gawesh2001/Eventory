@@ -1,0 +1,2 @@
+D:/Campus Stuff/Computing/Eventory/android/app/.cxx/Debug/3d5l523i/x86/CMakeFiles/edit_cache.dir
+D:/Campus Stuff/Computing/Eventory/android/app/.cxx/Debug/3d5l523i/x86/CMakeFiles/rebuild_cache.dir

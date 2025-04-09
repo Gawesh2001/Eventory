@@ -1,0 +1,2 @@
+C:/Users/nusra/IdeaProjects/Eventory/android/app/.cxx/Debug/5o5tw132/x86/CMakeFiles/edit_cache.dir
+C:/Users/nusra/IdeaProjects/Eventory/android/app/.cxx/Debug/5o5tw132/x86/CMakeFiles/rebuild_cache.dir

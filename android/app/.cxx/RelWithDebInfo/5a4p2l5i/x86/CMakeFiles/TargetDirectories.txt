@@ -1,0 +1,2 @@
+C:/Users/nusra/Downloads/Eventory/Eventory-final (1)/Eventory-final new design/android/app/.cxx/RelWithDebInfo/5a4p2l5i/x86/CMakeFiles/edit_cache.dir
+C:/Users/nusra/Downloads/Eventory/Eventory-final (1)/Eventory-final new design/android/app/.cxx/RelWithDebInfo/5a4p2l5i/x86/CMakeFiles/rebuild_cache.dir
