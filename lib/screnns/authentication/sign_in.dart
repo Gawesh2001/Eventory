@@ -133,7 +133,7 @@ class _Sign_InState extends State<Sign_In> {
   Future<void> _signInWithGoogle() async {
     dynamic result = await _auth.signInWithGoogle();
     if (result == null) {
-      _showDialog('Google sign-in failed.');
+      _showDialog('Google sign-in failed, Please Try Again Later');
     } else {
       // Navigate to the Home page after successful Google sign-in
       Navigator.pushReplacement(
@@ -148,7 +148,7 @@ class _Sign_InState extends State<Sign_In> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Error'),
+          title: Text('Massage'),
           content: Text(message),
           actions: <Widget>[
             TextButton(
@@ -197,7 +197,7 @@ class _Sign_InState extends State<Sign_In> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              "Welcome ",
+                              "Welcome To ",
                               style: TextStyle(
                                 fontSize: 35,
                                 fontWeight: FontWeight.bold,
@@ -205,7 +205,7 @@ class _Sign_InState extends State<Sign_In> {
                               ),
                             ),
                             Text(
-                              "Back",
+                              "Eventory",
                               style: TextStyle(
                                 fontSize: 35,
                                 fontWeight: FontWeight.bold,
@@ -320,7 +320,7 @@ class _Sign_InState extends State<Sign_In> {
                   Center(
                     child: RichText(
                       text: TextSpan(
-                        text: 'Sign Up with Google',
+                        text: 'Sign Up/Sign In with Google',
                         style: TextStyle(
                           color: Color(0xffFF611A),
                           decoration: TextDecoration.underline,
