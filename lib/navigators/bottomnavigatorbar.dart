@@ -36,6 +36,7 @@ class _BottomNavigatorBarState extends State<BottomNavigatorBar> {
           .collection('userDetails')
           .doc(user.uid)
           .get();
+      if (!mounted) return;
       setState(() {
         userId = userDoc['userId'];
       });

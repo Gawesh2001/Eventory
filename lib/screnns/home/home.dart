@@ -57,6 +57,7 @@ class _HomeState extends State<Home> {
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
