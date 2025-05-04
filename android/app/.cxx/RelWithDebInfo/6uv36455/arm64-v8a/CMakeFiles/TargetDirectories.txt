@@ -1,0 +1,2 @@
+D:/Uploadable Eventory/Eventory/android/app/.cxx/RelWithDebInfo/6uv36455/arm64-v8a/CMakeFiles/edit_cache.dir
+D:/Uploadable Eventory/Eventory/android/app/.cxx/RelWithDebInfo/6uv36455/arm64-v8a/CMakeFiles/rebuild_cache.dir

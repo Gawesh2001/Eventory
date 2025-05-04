@@ -11,7 +11,7 @@ class MainLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Expanded(child: body), // The main content goes here
+        Expanded(child: body),
         Padding(
           padding: EdgeInsets.only(bottom: 8.0), // Add padding to the bottom
           // Bottom Navigation Bar stays fixed at the bottom

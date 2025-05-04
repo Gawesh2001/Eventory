@@ -2,7 +2,7 @@
 import 'package:eventory/modles/user_model.dart';
 import 'package:eventory/screnns/wrapper.dart';
 import 'package:eventory/services/auth.dart';
-import 'package:eventory/providers/theme_provider.dart'; // Add this import
+import 'package:eventory/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';

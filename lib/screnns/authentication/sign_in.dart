@@ -4,7 +4,7 @@ import 'package:eventory/screnns/home/home.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../../services/auth.dart';
-import 'register.dart'; // Import the Register page
+import 'register.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Sign_In extends StatefulWidget {
@@ -80,6 +80,7 @@ class _Sign_InState extends State<Sign_In> {
       } else {
         clearSavedCredentials();
       }
+      if (!mounted) return;
       // Navigate to the Home page after successful login
       Navigator.pushReplacement(
         context,
@@ -148,7 +149,7 @@ class _Sign_InState extends State<Sign_In> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Massage'),
+          title: Text('Message'),
           content: Text(message),
           actions: <Widget>[
             TextButton(
@@ -199,7 +200,7 @@ class _Sign_InState extends State<Sign_In> {
                             Text(
                               "Welcome To ",
                               style: TextStyle(
-                                fontSize: 35,
+                                fontSize: 30,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,
                               ),
@@ -207,7 +208,7 @@ class _Sign_InState extends State<Sign_In> {
                             Text(
                               "Eventory",
                               style: TextStyle(
-                                fontSize: 35,
+                                fontSize: 30,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xffFF611A),
                               ),

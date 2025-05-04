@@ -16,7 +16,7 @@ import 'package:eventory/screnns/otherscreens/event_stats.dart';
 import 'package:eventory/screnns/Market/market.dart';
 import 'package:eventory/screnns/otherscreens/mytickets.dart';
 import 'package:eventory/navigators/bottomnavigatorbar.dart';
-import 'package:eventory/helpers/theme_helper.dart'; // Added import
+import 'package:eventory/helpers/theme_helper.dart';
 
 class UserProfile extends StatefulWidget {
   final String userId;

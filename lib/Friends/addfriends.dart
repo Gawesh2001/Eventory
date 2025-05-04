@@ -284,8 +284,6 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
   }
 
   Widget _buildSuggestedFriends() {
-    // This would ideally come from your database
-    // For demo purposes, we'll use a static list
     final suggestedFriends = [
       {'name': 'Alex Johnson', 'mutual': 5, 'image': ''},
       {'name': 'Sarah Miller', 'mutual': 12, 'image': ''},

@@ -7,7 +7,7 @@ import 'package:eventory/screnns/Market/sell.dart';
 import 'package:eventory/navigators/bottomnavigatorbar.dart';
 import 'marketpayment.dart';
 import 'package:intl/intl.dart';
-import 'package:eventory/helpers/theme_helper.dart'; // Added import
+import 'package:eventory/helpers/theme_helper.dart';
 
 class Market extends StatefulWidget {
   final String userId;

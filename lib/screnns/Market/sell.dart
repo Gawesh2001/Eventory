@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'orders.dart';
-import 'package:eventory/helpers/theme_helper.dart'; // Added import
+import 'package:eventory/helpers/theme_helper.dart';
 
 class Sell extends StatefulWidget {
   final String userId;

@@ -3,7 +3,7 @@
 import 'package:eventory/modles/user_model.dart';
 import 'package:eventory/services/auth.dart';
 import 'package:flutter/material.dart';
-import 'sign_in.dart'; // Ensure this import is correct for your project
+import 'sign_in.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});

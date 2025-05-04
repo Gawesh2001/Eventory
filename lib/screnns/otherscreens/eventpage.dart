@@ -9,7 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:eventory/helpers/theme_helper.dart'; // Added import
+import 'package:eventory/helpers/theme_helper.dart';
 
 class EventPage extends StatefulWidget {
   final String eventId;
