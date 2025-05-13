@@ -131,33 +131,33 @@ class _TransportationPageState extends State<TransportationPage>
     );
   }
 
-  Widget _buildLocationField() {
-    return TextField(
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: Theme.of(context).cardColor,
-        labelText: "Location",
-        labelStyle: GoogleFonts.poppins(
-          color: Theme.of(context).hintColor,
-        ),
-        hintText: eventLocation,
-        hintStyle: GoogleFonts.poppins(
-          color: Theme.of(context).textTheme.bodyLarge?.color,
-        ),
-        enabled: false,
-        prefixIcon: Icon(
-          Icons.location_pin,
-          color: Theme.of(context).hintColor,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      ),
-    );
-  }
+  // Widget _buildLocationField() {
+  //   return TextField(
+  //     decoration: InputDecoration(
+  //       filled: true,
+  //       fillColor: Theme.of(context).cardColor,
+  //       labelText: "Location",
+  //       labelStyle: GoogleFonts.poppins(
+  //         color: Theme.of(context).hintColor,
+  //       ),
+  //       hintText: eventLocation,
+  //       hintStyle: GoogleFonts.poppins(
+  //         color: Theme.of(context).textTheme.bodyLarge?.color,
+  //       ),
+  //       enabled: false,
+  //       prefixIcon: Icon(
+  //         Icons.location_pin,
+  //         color: Theme.of(context).hintColor,
+  //       ),
+  //       border: OutlineInputBorder(
+  //         borderRadius: BorderRadius.circular(12),
+  //         borderSide: BorderSide.none,
+  //       ),
+  //       contentPadding:
+  //           const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+  //     ),
+  //   );
+  // }
 
   Widget _buildShimmerCard() {
     return Padding(
@@ -498,51 +498,51 @@ class _TransportationPageState extends State<TransportationPage>
                       Text(
                         "Find your stay here!",
                         style: GoogleFonts.poppins(
-                          fontSize: 18,
+                          fontSize: 25,
                           fontWeight: FontWeight.w600,
                           color: Color(0xffFF611A),
                         ),
                       ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder: (_, __, ___) =>
-                                  AddAccommodationPage(userId: widget.userId),
-                              transitionsBuilder: (_, animation, __, child) {
-                                return FadeTransition(
-                                  opacity: animation,
-                                  child: child,
-                                );
-                              },
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xffFF611A),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.add,
-                                size: 20, color: Colors.white),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Add',
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      // ElevatedButton(
+                      //   onPressed: () {
+                      //     Navigator.push(
+                      //       context,
+                      //       PageRouteBuilder(
+                      //         pageBuilder: (_, __, ___) =>
+                      //             AddAccommodationPage(userId: widget.userId),
+                      //         transitionsBuilder: (_, animation, __, child) {
+                      //           return FadeTransition(
+                      //             opacity: animation,
+                      //             child: child,
+                      //           );
+                      //         },
+                      //       ),
+                      //     );
+                      //   },
+                      //   style: ElevatedButton.styleFrom(
+                      //     backgroundColor: Color(0xffFF611A),
+                      //     shape: RoundedRectangleBorder(
+                      //       borderRadius: BorderRadius.circular(12),
+                      //     ),
+                      //     padding: const EdgeInsets.symmetric(
+                      //         horizontal: 16, vertical: 12),
+                      //   ),
+                      //   child: Row(
+                      //     mainAxisSize: MainAxisSize.min,
+                      //     children: [
+                      //       const Icon(Icons.add,
+                      //           size: 20, color: Colors.white),
+                      //       const SizedBox(width: 4),
+                      //       Text(
+                      //         'Add',
+                      //         style: GoogleFonts.poppins(
+                      //           color: Colors.white,
+                      //           fontWeight: FontWeight.w600,
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -551,12 +551,12 @@ class _TransportationPageState extends State<TransportationPage>
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: _buildEventDropdown(),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: _buildLocationField(),
+                  // child: _buildLocationField(),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: _buildAccommodationGrid(),

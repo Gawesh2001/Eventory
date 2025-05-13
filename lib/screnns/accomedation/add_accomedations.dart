@@ -623,7 +623,7 @@ class _AddAccommodationPageState extends State<AddAccommodationPage> {
                     _buildTextField(mapLinkController, 'Map Link', Icons.map,
                         isRequired: false),
                     _buildRatingSection(),
-                    _buildTextField(priceController, 'Price (Per Night)',
+                    _buildTextField(priceController, 'Price (LKR Per Night)',
                         Icons.attach_money),
                     _buildTimePicker('Check-in Time', checkInTime, true),
                     _buildTimePicker('Check-out Time', checkOutTime, false),

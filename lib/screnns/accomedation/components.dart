@@ -135,12 +135,14 @@ class InputField extends StatelessWidget {
   final String placeholder;
   final bool isEditable;
   final EdgeInsetsGeometry margin;
+  final TextEditingController? controller;
 
   const InputField({
     super.key,
     required this.label,
     required this.icon,
     required this.placeholder,
+    this.controller,
     this.isEditable = true,
     this.margin = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
   });
@@ -844,7 +846,7 @@ class AccommodationCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(15),
               border: Border.all(
                 color: Theme.of(context).dividerColor,
-                width: 1,
+                width: 0,
               ),
               boxShadow: [
                 BoxShadow(
@@ -930,7 +932,7 @@ class AccommodationCard extends StatelessWidget {
                         title,
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
-                          fontSize: 22,
+                          fontSize: 20,
                           color: AppColors.orangePrimary,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -976,7 +978,7 @@ class AccommodationCard extends StatelessWidget {
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     color: AppColors.orangePrimary,
-                    fontSize: 20,
+                    fontSize: 22,
                   ),
                 ),
               ],

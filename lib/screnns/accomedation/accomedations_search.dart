@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:eventory/screnns/accomedation/add_accomedations.dart';
+// import 'package:eventory/screnns/accomedation/add_accomedations.dart';
 import 'package:eventory/screnns/accomedation/components.dart';
 import 'package:flutter/material.dart';
 
@@ -12,8 +12,10 @@ class AccomedationsSearch extends StatefulWidget {
 
 class _AccomedationsSearchState extends State<AccomedationsSearch> {
   String? selectedEvent;
-  String eventLocation = "";
+  String eventVenue = "";
   List<String> eventList = [];
+
+  TextEditingController locationController = TextEditingController();
 
   @override
   void initState() {
@@ -38,7 +40,8 @@ class _AccomedationsSearchState extends State<AccomedationsSearch> {
 
     if (eventSnapshot.docs.isNotEmpty) {
       setState(() {
-        eventLocation = eventSnapshot.docs.first['location'];
+        eventVenue = eventSnapshot.docs.first['eventVenue'];
+        locationController.text = eventVenue;
       });
     }
   }
@@ -69,18 +72,18 @@ class _AccomedationsSearchState extends State<AccomedationsSearch> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const TitleText(text: "Find your stay here!"),
-                IconButton(
-                  icon: Icon(Icons.add, size: 28, color: Colors.blue),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => AddAccommodationPage(
-                                userId: '',
-                              )),
-                    );
-                  },
-                ),
+                // IconButton(
+                //   icon: Icon(Icons.add, size: 28, color: Colors.blue),
+                //   onPressed: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(
+                //           builder: (context) => AddAccommodationPage(
+                //                 userId: '',
+                //               )),
+                //     );
+                //   },
+                // ),
               ],
             ),
             const SizedBox(height: 20),
@@ -102,12 +105,13 @@ class _AccomedationsSearchState extends State<AccomedationsSearch> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: InputField(
-                label: "Location",
-                icon: Icons.location_pin,
-                placeholder: eventLocation,
-                isEditable: false,
-              ),
+              // child: InputField(
+              //   controller: locationController,
+              //   icon: Icons.location_pin,
+              //   label: "Location",
+              //   isEditable: false,
+              //   placeholder: "",
+              // ),
             ),
             const SizedBox(height: 10),
             StreamBuilder(
@@ -116,6 +120,7 @@ class _AccomedationsSearchState extends State<AccomedationsSearch> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
+                //if no accommodations are found
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return const Center(
                       child: Text("No accommodations available"));
