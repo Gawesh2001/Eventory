@@ -1,0 +1,2 @@
+D:/EVENTORY GO GO GO GO/Eventory/android/app/.cxx/RelWithDebInfo/3r4up361/x86_64/CMakeFiles/edit_cache.dir
+D:/EVENTORY GO GO GO GO/Eventory/android/app/.cxx/RelWithDebInfo/3r4up361/x86_64/CMakeFiles/rebuild_cache.dir

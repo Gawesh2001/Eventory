@@ -422,7 +422,7 @@ class _ProviderPortalState extends State<provider>
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 0.85,
+                  childAspectRatio: 0.65,
                   crossAxisSpacing: 15,
                   mainAxisSpacing: 15,
                 ),

@@ -809,9 +809,9 @@ class _HomeState extends State<Home> {
             itemCount: filteredEvents.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              crossAxisSpacing: 2,
-              mainAxisSpacing: 8,
-              childAspectRatio: 0.75,
+              crossAxisSpacing: 0,
+              mainAxisSpacing: 20,
+              childAspectRatio: 0.65,
             ),
             itemBuilder: (context, index) {
               final eventData =

@@ -54,6 +54,10 @@ class _AddEventState extends State<addevent>
   double? vipTicketPrice;
   double? specialTicketPrice;
   double? otherTicketPrice;
+  int? normalTicketCount;
+  int? vipTicketCount;
+  int? specialTicketCount;
+  int? otherTicketCount;
   DateTime? selectedDateTime;
   XFile? policeCertificate;
   XFile? eventPhoto;
@@ -68,6 +72,12 @@ class _AddEventState extends State<addevent>
   final eventManagerController = TextEditingController();
   final eventIDController = TextEditingController();
   Map<String, TextEditingController> ticketPriceControllers = {
+    'Normal': TextEditingController(),
+    'VIP': TextEditingController(),
+    'Special': TextEditingController(),
+    'Other': TextEditingController(),
+  };
+  Map<String, TextEditingController> ticketCountControllers = {
     'Normal': TextEditingController(),
     'VIP': TextEditingController(),
     'Special': TextEditingController(),
@@ -104,6 +114,7 @@ class _AddEventState extends State<addevent>
     eventManagerController.dispose();
     eventIDController.dispose();
     ticketPriceControllers.forEach((_, controller) => controller.dispose());
+    ticketCountControllers.forEach((_, controller) => controller.dispose());
     super.dispose();
   }
 
@@ -281,6 +292,13 @@ class _AddEventState extends State<addevent>
               double.tryParse(ticketPriceControllers['Special']!.text);
           otherTicketPrice =
               double.tryParse(ticketPriceControllers['Other']!.text);
+          normalTicketCount =
+              int.tryParse(ticketCountControllers['Normal']!.text);
+          vipTicketCount = int.tryParse(ticketCountControllers['VIP']!.text);
+          specialTicketCount =
+              int.tryParse(ticketCountControllers['Special']!.text);
+          otherTicketCount =
+              int.tryParse(ticketCountControllers['Other']!.text);
         });
 
         if (selectedCategory == null) {
@@ -325,10 +343,14 @@ class _AddEventState extends State<addevent>
           'vipTicketPrice': vipTicketPrice,
           'specialTicketPrice': specialTicketPrice,
           'otherTicketPrice': otherTicketPrice,
+          'normalTicketCount': normalTicketCount,
+          'vipTicketCount': vipTicketCount,
+          'specialTicketCount': specialTicketCount,
+          'otherTicketCount': otherTicketCount,
           'selectedCategory': selectedCategory,
           'selectedDateTime': selectedDateTime,
           'eventID': eventID,
-          'userId': widget.uid, // Access the userId directly from widget
+          'userId': widget.uid,
           'policeCertificate': policeCertificateData != null
               ? {
                   'url': policeCertificateData['url'],
@@ -362,6 +384,12 @@ class _AddEventState extends State<addevent>
               : null,
           'createdAt': Timestamp.now(),
           'condi': 'no',
+          'availableTickets': {
+            'Normal': normalTicketCount ?? 0,
+            'VIP': vipTicketCount ?? 0,
+            'Special': specialTicketCount ?? 0,
+            'Other': otherTicketCount ?? 0,
+          },
         };
 
         await FirebaseFirestore.instance
@@ -398,6 +426,7 @@ class _AddEventState extends State<addevent>
       eventVenueController.clear();
       eventManagerController.clear();
       ticketPriceControllers.forEach((_, controller) => controller.clear());
+      ticketCountControllers.forEach((_, controller) => controller.clear());
       selectedCategory = null;
       selectedDateTime = null;
       policeCertificate = null;
@@ -447,13 +476,15 @@ class _AddEventState extends State<addevent>
 
   Widget _buildTextField(
       TextEditingController controller, String label, IconData icon,
-      {bool isRequired = true}) {
+      {bool isRequired = true,
+      TextInputType keyboardType = TextInputType.text}) {
     return TextFormField(
       controller: controller,
       style: GoogleFonts.poppins(
         color: AppColors.textColor(context),
         fontSize: 16,
       ),
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: GoogleFonts.poppins(
@@ -630,6 +661,34 @@ class _AddEventState extends State<addevent>
     );
   }
 
+  Widget _buildTicketPriceAndCountRow(String type) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 2,
+          child: _buildTextField(
+            ticketPriceControllers[type]!,
+            '$type Price',
+            Icons.attach_money,
+            isRequired: false,
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+          ),
+        ),
+        SizedBox(width: 10),
+        Expanded(
+          flex: 2,
+          child: _buildTextField(
+            ticketCountControllers[type]!,
+            '$type Count',
+            Icons.confirmation_number,
+            isRequired: false,
+            keyboardType: TextInputType.number,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildSaveButton() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20.0),
@@ -775,18 +834,13 @@ class _AddEventState extends State<addevent>
                     eventManagerController, 'Manager Name', Icons.person),
                 SizedBox(height: 16),
 
-                // Ticket Prices
-                _buildSectionTitle('Ticket Prices'),
+                // Ticket Prices and Counts
+                _buildSectionTitle('Ticket Information'),
                 Column(
                   children: ticketTypes.map((type) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: _buildTextField(
-                        ticketPriceControllers[type]!,
-                        '$type Ticket Price',
-                        Icons.confirmation_number,
-                        isRequired: false,
-                      ),
+                      child: _buildTicketPriceAndCountRow(type),
                     );
                   }).toList(),
                 ),

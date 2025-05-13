@@ -24,6 +24,7 @@ class PaymentsPage extends StatefulWidget {
   final int totalTickets;
   final List<Map<String, dynamic>> tickets;
   final int bookingId;
+  final Map<String, int> ticketCounts; // Added ticket counts map
 
   const PaymentsPage({
     super.key,
@@ -32,6 +33,7 @@ class PaymentsPage extends StatefulWidget {
     required this.totalTickets,
     required this.tickets,
     required this.bookingId,
+    required this.ticketCounts, // Added to constructor
   });
 
   @override
@@ -140,6 +142,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
       'totalPriceLKR': widget.totalPrice,
       'userId': _user!.uid,
       'timestamp': FieldValue.serverTimestamp(),
+      'ticketCounts': widget.ticketCounts, // Store ticket counts
     });
   }
 
@@ -158,6 +161,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
         'eventId': widget.eventId,
         'userId': _user!.uid,
         'timestamp': FieldValue.serverTimestamp(),
+        'ticketCount': ticket['ticketCount'], // Store ticket count
       });
     }
   }
@@ -205,6 +209,34 @@ class _PaymentsPageState extends State<PaymentsPage> {
                 size: 200,
                 backgroundColor: Colors.white,
               ),
+              SizedBox(height: 20),
+              // Display ticket counts summary
+              ...widget.ticketCounts.entries.map((entry) {
+                if (entry.value > 0) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${entry.key} Tickets:',
+                          style: GoogleFonts.poppins(
+                            color: AppColors.textColor(context),
+                          ),
+                        ),
+                        Text(
+                          '${entry.value}',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.orangePrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return SizedBox.shrink();
+              }).toList(),
               SizedBox(height: 20),
               Text(
                 "Your booking is confirmed",
@@ -287,6 +319,14 @@ class _PaymentsPageState extends State<PaymentsPage> {
         password: emailPassword,
       );
 
+      // Build ticket counts HTML
+      String ticketCountsHtml = '';
+      widget.ticketCounts.forEach((type, count) {
+        if (count > 0) {
+          ticketCountsHtml += '<p><strong>$type Tickets:</strong> $count</p>';
+        }
+      });
+
       final message = Message()
         ..from = Address(emailAddress, 'Event Booking System')
         ..recipients.add(email)
@@ -297,6 +337,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
           <p><img src="$imageUrl" alt="Event Image" width="200"></p>
           <p><strong>Event Name:</strong> $eventName</p>
           <p><strong>Event Venue:</strong> $eventVenue</p>
+          $ticketCountsHtml
           <p><strong>Total Tickets:</strong> ${widget.totalTickets}</p>
           <p><strong>Total Price:</strong> LKR ${widget.totalPrice}.00</p>
           <p><strong>Booking ID:</strong> ${widget.bookingId}</p>
@@ -334,11 +375,34 @@ class _PaymentsPageState extends State<PaymentsPage> {
   Future<void> _downloadQRCodeAsPDF(Uint8List qrCodeBytes) async {
     try {
       final pdf = pw.Document();
+
+      // Add ticket counts to the PDF
+      final ticketCountsText = widget.ticketCounts.entries
+          .where((entry) => entry.value > 0)
+          .map((entry) => '${entry.key}: ${entry.value}')
+          .join('\n');
+
       pdf.addPage(
         pw.Page(
           build: (pw.Context context) {
-            return pw.Center(
-              child: pw.Image(pw.MemoryImage(qrCodeBytes)),
+            return pw.Column(
+              children: [
+                pw.Center(
+                  child: pw.Image(pw.MemoryImage(qrCodeBytes)),
+                ),
+                pw.SizedBox(height: 20),
+                pw.Text(
+                  'Booking ID: ${widget.bookingId}',
+                  style: pw.TextStyle(fontSize: 16),
+                ),
+                pw.SizedBox(height: 10),
+                pw.Text(
+                  'Ticket Counts:',
+                  style: pw.TextStyle(
+                      fontSize: 16, fontWeight: pw.FontWeight.bold),
+                ),
+                pw.Text(ticketCountsText),
+              ],
             );
           },
         ),
@@ -427,6 +491,16 @@ class _PaymentsPageState extends State<PaymentsPage> {
                     ),
                     SizedBox(height: 16),
                     _buildSummaryRow('Booking ID', widget.bookingId.toString()),
+                    // Display ticket counts in summary
+                    ...widget.ticketCounts.entries.map((entry) {
+                      if (entry.value > 0) {
+                        return _buildSummaryRow(
+                          '${entry.key} Tickets',
+                          entry.value.toString(),
+                        );
+                      }
+                      return SizedBox.shrink();
+                    }).toList(),
                     _buildSummaryRow(
                         'Total Tickets', widget.totalTickets.toString()),
                     Divider(height: 24, color: Theme.of(context).dividerColor),
@@ -471,7 +545,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
                         ),
                       ),
                       subtitle: Text(
-                        'ID: ${ticket['ticketId']}',
+                        'ID: ${ticket['ticketId']} (Qty: ${ticket['ticketCount']})',
                         style: GoogleFonts.poppins(
                           color: Theme.of(context).hintColor,
                         ),

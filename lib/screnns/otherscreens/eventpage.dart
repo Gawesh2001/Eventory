@@ -24,6 +24,7 @@ class _EventPageState extends State<EventPage>
     with SingleTickerProviderStateMixin {
   Map<String, dynamic>? eventData;
   Map<String, int> ticketCounts = {};
+  Map<String, int> availableTickets = {};
   String? userEmail;
   String? userId;
   bool isLoading = true;
@@ -63,13 +64,25 @@ class _EventPageState extends State<EventPage>
       if (eventDoc.exists) {
         setState(() {
           eventData = eventDoc.data() as Map<String, dynamic>;
+          // Initialize available tickets from the event data
+          if (eventData!.containsKey('availableTickets')) {
+            availableTickets =
+                Map<String, int>.from(eventData!['availableTickets']);
+          } else {
+            // Fallback to individual ticket count fields if availableTickets doesn't exist
+            availableTickets = {
+              'Normal': eventData!['normalTicketCount'] ?? 0,
+              'VIP': eventData!['vipTicketCount'] ?? 0,
+              'Special': eventData!['specialTicketCount'] ?? 0,
+              'Other': eventData!['otherTicketCount'] ?? 0,
+            };
+          }
         });
       }
     } catch (e) {
       print("Error fetching event data: $e");
     } finally {
-      await Future.delayed(
-          const Duration(milliseconds: 500)); // Simulate loading
+      await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {
         setState(() => isLoading = false);
         _animationController.forward();
@@ -89,10 +102,13 @@ class _EventPageState extends State<EventPage>
 
   double calculateTotalPrice() {
     double total = 0;
-    eventData?.forEach((key, value) {
-      if (key.contains("TicketPrice") && value != null) {
-        total += (value is int ? value.toDouble() : value) *
-            (ticketCounts[key] ?? 0);
+    ticketCounts.forEach((key, value) {
+      String priceKey = '${key.toLowerCase()}TicketPrice';
+      if (eventData!.containsKey(priceKey)) {
+        total += (eventData![priceKey] is int
+                ? eventData![priceKey].toDouble()
+                : eventData![priceKey]) *
+            value;
       }
     });
     return total;
@@ -104,8 +120,13 @@ class _EventPageState extends State<EventPage>
 
   void updateTicketCount(String ticketType, int change) {
     setState(() {
-      ticketCounts[ticketType] = (ticketCounts[ticketType] ?? 0) + change;
-      if (ticketCounts[ticketType]! < 0) {
+      final currentCount = ticketCounts[ticketType] ?? 0;
+      final newCount = currentCount + change;
+      final availableCount = availableTickets[ticketType] ?? 0;
+
+      if (newCount >= 0 && newCount <= availableCount) {
+        ticketCounts[ticketType] = newCount;
+      } else if (newCount < 0) {
         ticketCounts[ticketType] = 0;
       }
     });
@@ -127,6 +148,38 @@ class _EventPageState extends State<EventPage>
       }
     }
     return 1000;
+  }
+
+  Future<void> updateAvailableTickets() async {
+    try {
+      // Create a map of the tickets being purchased
+      Map<String, int> purchasedTickets = {};
+      ticketCounts.forEach((type, count) {
+        if (count > 0) {
+          purchasedTickets[type] = count;
+        }
+      });
+
+      // Update the available tickets in Firestore
+      await FirebaseFirestore.instance
+          .collection('events')
+          .doc(widget.eventId)
+          .update({
+        'availableTickets': {
+          'Normal': (availableTickets['Normal'] ?? 0) -
+              (purchasedTickets['Normal'] ?? 0),
+          'VIP':
+              (availableTickets['VIP'] ?? 0) - (purchasedTickets['VIP'] ?? 0),
+          'Special': (availableTickets['Special'] ?? 0) -
+              (purchasedTickets['Special'] ?? 0),
+          'Other': (availableTickets['Other'] ?? 0) -
+              (purchasedTickets['Other'] ?? 0),
+        }
+      });
+    } catch (e) {
+      print("Error updating available tickets: $e");
+      throw e;
+    }
   }
 
   void proceedToPayment() async {
@@ -154,17 +207,19 @@ class _EventPageState extends State<EventPage>
     int lastTicketId = await getLastTicketId();
     List<Map<String, dynamic>> tickets = [];
 
+    // Create ticket entries for each ticket type and count
     for (var entry in ticketCounts.entries) {
       if (entry.value > 0) {
         for (int i = 0; i < entry.value; i++) {
           lastTicketId++;
           tickets.add({
             'ticketId': lastTicketId,
-            'ticketName': entry.key.replaceAll("TicketPrice", ""),
-            'ticketPrice': eventData![entry.key],
+            'ticketName': entry.key,
+            'ticketPrice': eventData!['${entry.key.toLowerCase()}TicketPrice'],
             'bookingId': newBookingId,
             'eventId': widget.eventId,
             'userId': userId,
+            'ticketCount': entry.value, // Add ticket count to each ticket
           });
         }
       }
@@ -173,6 +228,9 @@ class _EventPageState extends State<EventPage>
     if (userEmail != null) {
       await _sendConfirmationEmail(userEmail!, newBookingId, totalPrice);
     }
+
+    // Update available tickets before navigating to payment page
+    await updateAvailableTickets();
 
     Navigator.push(
       context,
@@ -183,6 +241,7 @@ class _EventPageState extends State<EventPage>
           totalTickets: calculateTotalTickets(),
           tickets: tickets,
           bookingId: newBookingId,
+          ticketCounts: Map.from(ticketCounts), // Pass the ticket counts map
         ),
         transitionsBuilder: (_, animation, __, child) {
           return FadeTransition(
@@ -287,7 +346,12 @@ class _EventPageState extends State<EventPage>
     );
   }
 
-  Widget _buildTicketSelector(String label, String key, int index) {
+  Widget _buildTicketSelector(String label, String ticketType, int index) {
+    final priceKey = '${ticketType.toLowerCase()}TicketPrice';
+    final availableCount = availableTickets[ticketType] ?? 0;
+    final selectedCount = ticketCounts[ticketType] ?? 0;
+    final isOutOfStock = availableCount <= 0;
+
     return AnimationConfiguration.staggeredList(
       position: index,
       duration: const Duration(milliseconds: 500),
@@ -298,7 +362,9 @@ class _EventPageState extends State<EventPage>
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.cardColor(context),
+              color: isOutOfStock
+                  ? Theme.of(context).hoverColor!.withOpacity(0.5)
+                  : AppColors.cardColor(context),
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
@@ -308,66 +374,87 @@ class _EventPageState extends State<EventPage>
                 ),
               ],
               border: Border.all(
-                color: AppColors.orangePrimary.withOpacity(0.1),
+                color: isOutOfStock
+                    ? Colors.grey.withOpacity(0.3)
+                    : AppColors.orangePrimary.withOpacity(0.1),
                 width: 1,
               ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      label,
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textColor(context),
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          label,
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: isOutOfStock
+                                ? Theme.of(context).hintColor
+                                : AppColors.textColor(context),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'LKR ${NumberFormat('#,###').format(eventData![priceKey])}',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: isOutOfStock
+                                ? Colors.grey
+                                : AppColors.orangePrimary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'LKR ${NumberFormat('#,###').format(eventData![key])}',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: AppColors.orangePrimary,
-                        fontWeight: FontWeight.w700,
+                    if (!isOutOfStock)
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.remove_circle_outline,
+                                color: AppColors.orangePrimary, size: 28),
+                            onPressed: () {
+                              HapticFeedback.lightImpact();
+                              updateTicketCount(ticketType, -1);
+                            },
+                          ),
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 200),
+                            child: Text(
+                              '$selectedCount',
+                              key: ValueKey<int>(selectedCount),
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textColor(context),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.add_circle_outline,
+                                color: AppColors.orangePrimary, size: 28),
+                            onPressed: () {
+                              HapticFeedback.lightImpact();
+                              updateTicketCount(ticketType, 1);
+                            },
+                          ),
+                        ],
                       ),
-                    ),
                   ],
                 ),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.remove_circle_outline,
-                          color: AppColors.orangePrimary, size: 28),
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        updateTicketCount(key, -1);
-                      },
-                    ),
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
-                      child: Text(
-                        '${ticketCounts[key] ?? 0}',
-                        key: ValueKey<int>(ticketCounts[key] ?? 0),
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textColor(context),
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add_circle_outline,
-                          color: AppColors.orangePrimary, size: 28),
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        updateTicketCount(key, 1);
-                      },
-                    ),
-                  ],
+                const SizedBox(height: 8),
+                Text(
+                  isOutOfStock ? 'Sold Out' : 'Available: $availableCount',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color:
+                        isOutOfStock ? Colors.red : Theme.of(context).hintColor,
+                  ),
                 ),
               ],
             ),
@@ -507,15 +594,13 @@ class _EventPageState extends State<EventPage>
               Column(
                 children: [
                   if (eventData!['normalTicketPrice'] != null)
-                    _buildTicketSelector(
-                        "Standard Ticket", "normalTicketPrice", 0),
+                    _buildTicketSelector("Standard Ticket", "Normal", 0),
                   if (eventData!['vipTicketPrice'] != null)
-                    _buildTicketSelector("VIP Ticket", "vipTicketPrice", 1),
+                    _buildTicketSelector("VIP Ticket", "VIP", 1),
                   if (eventData!['specialTicketPrice'] != null)
-                    _buildTicketSelector(
-                        "Special Ticket", "specialTicketPrice", 2),
+                    _buildTicketSelector("Special Ticket", "Special", 2),
                   if (eventData!['otherTicketPrice'] != null)
-                    _buildTicketSelector("Other Ticket", "otherTicketPrice", 3),
+                    _buildTicketSelector("Other Ticket", "Other", 3),
                 ],
               ),
               const SizedBox(height: 24),
