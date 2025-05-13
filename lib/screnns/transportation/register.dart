@@ -725,7 +725,7 @@ class VehicleCard extends StatelessWidget {
 
     int newId = 500000;
     if (querySnapshot.docs.isNotEmpty) {
-      final lastOffer = querySnapshot.docs.first['offerVehicleId'];
+      final lastOffer = int.parse(querySnapshot.docs.first['offerVehicleId']);
       newId = lastOffer + 1;
     }
 
